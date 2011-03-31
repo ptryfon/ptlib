@@ -46,7 +46,7 @@ BOOST_AUTO_TEST_CASE(lazy_fun_test)
 	proto::display_expr(parallel::val(c));
 	evaluate(parallel::lazify(foo2, 5));
 	auto val2 = parallel::evaluate(parallel::val(4) + parallel::val(5));
-	std::cout << "Wartosc " << val2() << std::endl;
+	std::cout << "Wartosc " << val2 << std::endl;
 }
 
 /* parallel::ref works properly, but deferred_expression::type member should be change to support returning references

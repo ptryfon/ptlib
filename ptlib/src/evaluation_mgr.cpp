@@ -7,7 +7,7 @@
 
 #include "evaluation_mgr.h"
 
-namespace ptlib {
+namespace ptlib { namespace parallel {
 
 #ifndef PARALLEL_DEFAULT_THREADS_NUM
 #define PARALLEL_DEFAULT_THREADS_NUM 10
@@ -54,4 +54,4 @@ void evaluation_loop()
 	// TODO Method stub
 }
 
-}
+} }
