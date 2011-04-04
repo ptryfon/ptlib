@@ -35,8 +35,9 @@ evaluation_mgr::add_for_evaluation(deferred_expression_base const * const p_def_
 evaluation_mgr::evaluation_mgr(unsigned threads_num_) :
 		m_working_threads(0)
 {
-	//TO DO
-//	m_threads.reserve(threads_num);
+	m_threads.reserve(threads_num_);
+	for (unsigned i = 0; i < threads_num_; i++)
+		m_threads[i] = boost::thread(&evaluation_mgr::evaluation_loop);
 }
 
 evaluation_mgr::~evaluation_mgr()
@@ -46,6 +47,7 @@ void
 evaluation_mgr::evaluation_loop()
 {
 	// TODO Method stub
+	std::cout << "Eval loop" << std::endl;
 }
 
 } }

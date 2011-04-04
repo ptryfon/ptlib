@@ -22,31 +22,19 @@ inline void evaluate (Expr const & expr)
 {
 	proto::default_context ctx;
 	std::cout << "To w srodku eval" << std::endl;
-	std::cout << "Result: " << proto::eval(expr, ctx);
-}
-
-struct complicated
-{
-	int a;
-	int b;
-	friend std::ostream& operator<< (std::ostream&, const struct complicated);
-};
-
-std::ostream& operator<<(std::ostream& outs, const struct complicated com)
-{
-	outs << "Complicated {a: " << com.a << ",b: " << com.b << "}";
-	return outs;
+	std::cout << "Result: " << proto::eval(expr, ctx) << std::endl;
 }
 
 int foo() {std::cout<< "foo" << std::endl; return 41;}
 int foo2(int i) {std::cout<< "foo" << std::endl; return 2*i+3;}
 BOOST_AUTO_TEST_CASE(lazy_fun_test)
 {
-	complicated c = {1, 2};
-	proto::display_expr(parallel::val(c));
+	parallel::evaluation_mgr::init(3);
 	evaluate(parallel::lazify(foo2, 5));
-	auto val2 = parallel::evaluate(parallel::val(4) + parallel::val(5));
-	std::cout << "Wartosc " << val2 << std::endl;
+//	auto val2 = parallel::evaluate(parallel::val(4) + parallel::val(5));
+	//std::cout << "Wartosc " << val2 << std::endl;
+	sleep(3);
+	std::cout << "Koniec testu" << std::endl;
 }
 
 /* parallel::ref works properly, but deferred_expression::type member should be change to support returning references

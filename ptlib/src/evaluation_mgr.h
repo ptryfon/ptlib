@@ -31,7 +31,7 @@ public:
 private:
 	evaluation_mgr(unsigned threads_num_);
 	virtual ~evaluation_mgr();
-	void evaluation_loop();
+	static void evaluation_loop();
 
 private:
 
@@ -48,7 +48,7 @@ private:
  * m_threads.size() is a current number of threads
  * Threads are created only when they are needed for evaluation.
  */
-std::vector<std::unique_ptr<boost::thread> > m_threads;
+std::vector<boost::thread> m_threads;
 unsigned				   m_working_threads;
 
 /**
