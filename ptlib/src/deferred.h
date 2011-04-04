@@ -26,7 +26,7 @@ public:
 
 template <typename Exp>
 class deferred_expression :
-	public deferred_expression_base
+	public deferred_expression_base  //TO DO
 {
 
 public:
@@ -43,34 +43,56 @@ private:
 	virtual void detach_value();
 
 	const Exp  m_expression;
-	deferred_value<type>* m_p_value;
+	typename deferred_value<type>::deferred_value_impl* m_p_value;
 
-	template <typename T> friend class deferred_value;
+	template <typename T> friend class deferred_value<T>::deferred_value_impl;
 
 };
 
 template <typename T>
 class deferred_value
 {
+
 public:
 
-	deferred_value(deferred_expression_base* exp) : m_ready(false), m_p_expression(exp) {}
-	virtual ~deferred_value();
+	class deferred_value_impl //TO DO add appropriate inheritance like noncopyable
+	{
 
-	const T & 	get_value() const;
-	T & 		get_value();
+	public:
+
+		deferred_value_impl(deferred_expression_base* exp) : m_ready(false), m_p_expression(exp) {}
+		virtual ~deferred_value_impl();
+
+		const T &	get_value() const;
+		bool		is_ready() { return m_ready; }
+
+	private:
+
+		void		set_value();
+		void detach_expression();
+
+		T 	 m_value;
+		bool m_ready;
+		deferred_expression_base* m_p_expression;
+
+		template <typename Exp> friend class deferred_expression;
+
+	};
+
+	deferred_value(deferred_expression_base* exp) : m_p_implementation(new deferred_value_impl(exp)) {}
+	deferred_value(deferred_value const & other) = delete;
+	deferred_value & operator=(deferred_value const & other) = delete;
+	deferred_value & operator=(deferred_value && other) { m_p_implementation = std::move(other.m_p_implementation); return *this; }
+	deferred_value(deferred_value && other) { *this = std::move(other); }
+
+	const T & 	get_value() const { return m_p_implementation->get_value(); }
 				operator T() const { return get_value(); }
-	bool		is_ready() { return m_ready; }
+	bool		is_ready() {return m_p_implementation->is_ready(); }
 
 private:
 
-	void detach_expression();
+	std::unique_ptr<deferred_value_impl> m_p_implementation;
 
-	T 	 m_value;
-	bool m_ready;
-	deferred_expression_base* m_p_expression;
-
-	template <typename Exp> friend class deferred_expression;
 };
 
 /* ************************************ */
@@ -99,23 +121,19 @@ deferred_expression<Exp>::detach_value()
 	m_p_value = NULL;
 }
 
+/* ******************************* */
+/* DEFERRED VALUE FUNCTIONS BODIES */
+/* ******************************* */
+
 template <typename T>
-deferred_value<T>::~deferred_value()
+deferred_value<T>::deferred_value_impl::~deferred_value_impl()
 {
 	m_p_expression->detach_value();
 }
 
 template <typename T> inline
 const T &
-deferred_value<T>::get_value() const
-{
-	throw "TO DO";
-	return m_value;
-}
-
-template <typename T> inline
-T &
-deferred_value<T>::get_value()
+deferred_value<T>::deferred_value_impl::get_value() const
 {
 	throw "TO DO";
 	return m_value;
@@ -123,7 +141,7 @@ deferred_value<T>::get_value()
 
 template <typename T>
 void
-deferred_value<T>::detach_expression()
+deferred_value<T>::deferred_value_impl::detach_expression()
 {
 	m_p_expression = NULL;
 }

@@ -15,16 +15,15 @@ namespace ptlib { namespace parallel
 
 namespace proto = boost::proto;
 
-/** lit - function
- * @param arg - expression that should be turned into literal
- */
-/*template <typename T>
-inline typename proto::literal<T> value(T arg)
+template <typename T>
+inline typename proto::result_of::make_expr<
+	proto::tag::terminal,
+	T >::type const
+val(T arg)
 {
-	return proto::lit(arg);
-}*/
+	return proto::make_expr<proto::tag::terminal>(arg);
+}
 
-/* Maybe I have to use terminal notation and make expression do achieve here what I want */
 template <typename T>
 inline typename proto::result_of::make_expr<
 	proto::tag::terminal,
@@ -37,10 +36,10 @@ ref(T & arg)
 template <typename T>
 inline typename proto::result_of::make_expr<
 	proto::tag::terminal,
-	T >::type const
-val(T arg)
+	const T &>::type const
+cref(const T & arg)
 {
-	return proto::make_expr<proto::tag::terminal>(arg);
+	return proto::make_expr<proto::tag::terminal>(boost::cref(arg));
 }
 
 template <typename T>
@@ -89,25 +88,23 @@ inline typename proto::result_of::make_expr<
 	Arg2>::type const
 	lazify(T fun, Arg1 arg1, Arg2 arg2) { return proto::make_expr<proto::tag::function>(fun, arg1, arg2); }
 
-
+/*template <typename T, typename Arg, typename...RArgs>
+inline typename proto::result_of::make_expr<
+	proto::tag::function,
+	T,
+	Arg,
+	RArgs...>::type const
+	lazifyx(T fun, Arg a, Rargs ... args) {return proto::make_expr<proto::tag::function>(fun, a, args...); }
+	}
+	*/
 /* Should work according to standard, but it doesn't
 template <typename T, class...A>
 inline typename proto::result_of::make_expr<
 	proto::tag::function,
 	T,
-	A>::type const
-	lazifyx(T fun,A...args) { return proto::make_expr<proto::tag::function>(fun, args); }
-*/
-
-/*
-template <typename T>
-inline typename proto::result_of::make_expr<
-	proto::tag::terminal,
-	T>::type const
-literal(T arg)
-{
-	return proto::make_expr<proto::tag::terminal>(arg);
-}*/
+	A ...>::type const
+	lazifyx(T fun,Arg a, A...args) { return proto::make_expr<proto::tag::function>(fun, args...); }
+	*/
 
 } }
 

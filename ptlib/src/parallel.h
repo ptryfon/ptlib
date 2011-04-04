@@ -21,11 +21,11 @@ namespace proto = boost::proto;
 template <typename Exp>
 deferred_value<typename deferred_expression<Exp>::type> evaluate(const Exp && exp)
 {
-	//std::unique_ptr<deferred_expression_base> ret_val;
 	//evaluation_mgr::add_for_evaluation()
-	auto def_exp = deferred_expression<Exp>(exp);
-	auto def_val = deferred_value<typename deferred_expression<Exp>::type>(&def_exp);
-	return def_val;
+	auto const p_def_exp = new deferred_expression<Exp>(exp);
+	auto def_val = deferred_value<typename deferred_expression<Exp>::type>(p_def_exp);
+	evaluation_mgr::add_for_evaluation(p_def_exp);
+	return std::move(def_val);
 }
 
 } } // namespace ptlib::parallel

@@ -17,31 +17,30 @@
 
 namespace ptlib { namespace parallel {
 
+#ifndef PARALLEL_DEFAULT_THREADS_NUM
+#define PARALLEL_DEFAULT_THREADS_NUM 10
+#endif
+
 class evaluation_mgr {
 
 public:
-	static void init();
+	static void init(unsigned threads_num = PARALLEL_DEFAULT_THREADS_NUM);
 	static void close();
-	static void set_threads_num(unsigned num);
-	template <typename T>
-	static void add_for_evaluation(const parallel::deferred_expression_base& exp);
+	static void add_for_evaluation(deferred_expression_base const * const);
 
 private:
-	evaluation_mgr();
+	evaluation_mgr(unsigned threads_num_);
 	virtual ~evaluation_mgr();
-	void assign_tasks();
 	void evaluation_loop();
 
 private:
-/** Threads number */
 
-	static evaluation_mgr* m_instance;
-	static unsigned threads_num;
+	static evaluation_mgr* m_p_instance;
 /**
  * Synchronization mutex
  */
-	boost::mutex m_task_queue_mutex;
-	boost::condition_variable m_cond;
+	boost::mutex m_tasks_mutex;
+	boost::condition_variable m_threads_cond;
 
 /**
  * Threads collection
@@ -55,9 +54,11 @@ unsigned				   m_working_threads;
 /**
  * Tasks queue
  */
-std::queue<std::unique_ptr<const parallel::deferred_expression_base> > m_tasks;
+std::queue<std::unique_ptr<parallel::deferred_expression_base const> > m_tasks;
+std::queue<int> m_foo;
 
 };
 
 } }
+
 #endif /* EVALUATION_MGR_H_ */
