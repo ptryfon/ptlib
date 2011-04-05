@@ -26,12 +26,14 @@ class evaluation_mgr {
 public:
 	static void init(unsigned threads_num = PARALLEL_DEFAULT_THREADS_NUM);
 	static void close();
-	static void add_for_evaluation(deferred_expression_base const * const);
+	static void add_for_evaluation(deferred_expression_base * const);
 
 private:
 	evaluation_mgr(unsigned threads_num_);
 	virtual ~evaluation_mgr();
-	static void evaluation_loop();
+	static void evaluation_loop_wrapper() { m_p_instance->evaluation_loop(); }
+	void evaluation_loop();
+	bool if_stop_waiting() { return !(m_tasks.empty() && m_continue); }
 
 private:
 
@@ -50,12 +52,15 @@ private:
  */
 std::vector<boost::thread> m_threads;
 unsigned				   m_working_threads;
+bool					   m_continue;
 
 /**
  * Tasks queue
  */
-std::queue<std::unique_ptr<parallel::deferred_expression_base const> > m_tasks;
-std::queue<int> m_foo;
+typedef std::unique_ptr<parallel::deferred_expression_base> task_ptr_type;
+typedef std::queue<task_ptr_type> tasks_queue_type;
+tasks_queue_type m_tasks;
+std::queue<int>  m_foo;
 
 };
 

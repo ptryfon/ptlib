@@ -68,9 +68,6 @@ public:
 
 	private:
 
-		void		set_value();
-		void detach_expression();
-
 		T 	 m_value;
 		bool m_ready;
 		deferred_expression_base* m_p_expression;
@@ -102,16 +99,23 @@ private:
 template <typename Exp>
 deferred_expression<Exp>::~deferred_expression()
 {
-	m_p_value->detach_expression();
 }
 
 template <typename Exp>
 void
 deferred_expression<Exp>::evaluate()
 {
+	// TO DO
 	proto::default_context ctx;
-	m_p_value->m_value = proto::eval(m_expression, ctx);
-	throw "TO DO";
+	std::cout << "Evaluate function" << std::endl;
+	if (m_p_value != NULL)
+	{
+		m_p_value->m_value = proto::eval(m_expression, ctx);
+		std::cout << "Eval assigned value " << m_p_value->m_value << std::endl;
+		m_p_value->m_ready = true;
+	}
+	else
+		proto::eval(m_expression, ctx);
 }
 
 template <typename Exp>
@@ -135,15 +139,10 @@ template <typename T> inline
 const T &
 deferred_value<T>::deferred_value_impl::get_value() const
 {
-	throw "TO DO";
+	std::cout << "In impl get_value" << std::endl;
+	if (!m_ready)
+		m_p_expression->evaluate();
 	return m_value;
-}
-
-template <typename T>
-void
-deferred_value<T>::deferred_value_impl::detach_expression()
-{
-	m_p_expression = NULL;
 }
 
 } }

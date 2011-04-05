@@ -21,7 +21,10 @@ namespace proto = boost::proto;
 template <typename Exp>
 deferred_value<typename deferred_expression<Exp>::type> evaluate(const Exp && exp)
 {
-	//evaluation_mgr::add_for_evaluation()
+	//TO DO Zmienić kolejność przypisywania wskaźników, bo teraz jest gorzej
+	/* Można zrobić tak, że wskaźnik się przypisze gdy wyrażenie nie jest void-owe,
+	 * Może to się da przy pomocy MPL zrobić
+	 */
 	auto const p_def_exp = new deferred_expression<Exp>(exp);
 	auto def_val = deferred_value<typename deferred_expression<Exp>::type>(p_def_exp);
 	evaluation_mgr::add_for_evaluation(p_def_exp);
