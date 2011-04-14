@@ -50,7 +50,8 @@ private:
  * m_threads.size() is a current number of threads
  * Threads are created only when they are needed for evaluation.
  */
-std::vector<boost::thread> m_threads;
+boost::thread_group m_threads;
+//std::vector<boost::thread> m_threads;
 unsigned				   m_working_threads;
 bool					   m_continue;
 
