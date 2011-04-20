@@ -5,7 +5,7 @@
   Biblioteka Parallel pozwala na zwiêkszenie produktywno¶ci programisty pisz±cego programy równoleg³e.
   Jest to mo¿liwe dziêki zaprojektowaniu takiego modelu biblioteki, który pozwala na pisanie czytelnego i intuicyjnego kodu.
   Równie istotnym priorytetem podczas tworzenia biblioteki by³o uzyskanie wysokiej efektywno¶ci programów pisanych przy pomocy Parallel.
-  Liczba operacji wykonywanych przez bibliotekê zosta³a ograniczona do niezbêdnego minimum.
+  Liczba operacji wykonywanych przez bibliotekê zosta³a ograniczona do niezbêdnego minimum, a ponadto czê¶æ przetwarzania odbywa siê w czasie kompilacji.
   Bardzo wa¿nym czynnikiem wp³ywaj±cym na osi±gniêcie wysokiej efektywno¶ci by³o zapewnienie programi¶cie wgl±du w sposób dzia³ania biblioteki.
   Jest to istotne ze wzglêdu na to, ¿e programista zlecaj±c równoleg³e obliczenie wyra¿enia wie, jak zostanie ono wykonane przez bibliotekê Parallel,
   dziêki czemu mo¿e dostosowaæ podzia³ zadañ w taki sposób, aby zmaksymalizowaæ wydajno¶æ programu.
@@ -32,15 +32,15 @@
   Do implementacji biblioteki u¿yto wielu zaawansowanych technik programowania w jêzyku C++. By³y to miêdzy innymi obliczenia na wzorcach typów, specjalizacja szablonów klas, 
   pozyskiwanie zasobu przez inicjalizacjê (z ang. Resource Acquisition Is Initialization), inteligentne wska¼niki, referencje do r-warto¶ci i konstruktor przenosz±cy (z ang. move constructor).
   Implementacja Parallel korzysta z bibliotek z kolekcji Boost, docenianych ze wzglêdu na ich wysok± jako¶æ oraz bêd±cych wzorcem nowoczesnego programowania w C++.
-  S± to biblioteki Boost Proto, Boost Thread, Boost Bind, Boost TypeTraits, Boost SmartPointers, Boost MPL, Boost Ref, Boost Exception, a do testowania biblioteki Parallel zosta³a wykorzystana biblioteka Boost.UnitTestFramework.
+  S± to biblioteki Boost Proto, Boost Thread, Boost Bind, Boost TypeTraits, Boost SmartPointers, Boost MPL, Boost Ref, Boost Exception, a do testowania biblioteki Parallel zosta³a wykorzystana biblioteka Boost Unit Test Framework.
   
   Biblioteka Parallel jest kompletnym funkcjonalnie i gotowym do u¿ycia produktem. 
-  wszystkie funkcjonalno¶ci opisane w niniejszej pracy dzia³aj± zgodnie z oczekiwaniami, co zosta³o potwierdzone testami.
+  Posiada w³asno¶ci, które wyznaczono na pocz±tku jej tworzenia, oraz dzia³a zgodnie z oczekiwaniami, co zosta³o potwierdzone testami.
   W przysz³o¶ci biblioteka mo¿e zostaæ rozszerzona o mechanizm automatycznego dobierania optymalnej liczby w±tków wykonuj±cych obliczenia oraz wzorce równoleg³ych algorytmów,
   które oferowa³yby zoptymalizowane funkcje do popularnych zastosowañ.
   
   Podsumowuj±c, stworzenie biblioteki Parallel zosta³o poprzedzone szerok± analiz± teoretyczn±, jak równie¿ przy jej tworzeniu uwzglêdniono praktyczne aspekty stosowania biblioteki.
-  Parallel jest dobrym kandydatem, aby staæ siê bibliotek± szeroko u¿ywan± przez programistów jêzyka C++ pisz±cych programy równoleg³e.  
+  Dlatego Parallel jest dobrym kandydatem, aby staæ siê bibliotek± szeroko u¿ywan± przez programistów jêzyka C++ pisz±cych programy równoleg³e.  
 
 % \section{Mo¿liwo¶ci dalszego rozwoju}
 % 

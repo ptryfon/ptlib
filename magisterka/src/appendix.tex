@@ -6,16 +6,18 @@
   \begin{itemize}
    \item \textbf{praca\_magisterska/mgr\_pawel\_tryfon.pdf} -- elektroniczna wersja tego dokumentu
    \item \textbf{praca\_magisterska/src/} -- katalog zawieraj±cy pliki ¼ród³owe tego dokumentu
-   \item \textbf{ptlib/} -- folder zawieraj±cy implementacjê biblioteki Parallel
-   \item \textbf{ptlib/src/} -- folder zawieraj±cy pliki ¼ród³owe biblioteki Parallel
-   \item \textbf{ptlib/Release/} -- folder zawieraj±cy pliki do budowania biblioteki w formie plików makefile oraz skompilowany plik biblioteki
-   \item \textbf{ptlib-test/} -- folder zawieraj±cy implementacjê testów dla biblioteki Parallel
-   \item \textbf{ptlib-test/src} -- folder zawieraj±cy pliki ¼ród³owe testów biblioteki Parallel
-   \item \textbf{ptlib-test/Release/} -- folder zawieraj±cy pliki do budowania testów biblioteki oraz skompilowany program testuj±cy bibliotekê Parallel
+   \item \textbf{parallel/} -- folder zawieraj±cy implementacjê biblioteki Parallel
+   \item \textbf{parallel/src/} -- folder zawieraj±cy pliki ¼ród³owe biblioteki Parallel
+   \item \textbf{parallel/include/} -- folder zawieraj±cy pliki nag³ówkowe biblioteki Parallel
+   \item \textbf{parallel/test/} -- folder zawieraj±cy implementacjê testów dla biblioteki Parallel
+   \item \textbf{parallel/makefile} -- plik s³u¿±cy do kompilacji biblioteki i testów przy pomocy narzêdzia \texttt{make}
+   \item \textbf{parallel/build} -- folder zawieraj±cy pliki obiektowe biblioteki
+   \item \textbf{parallel/lib} -- folder, w którym znajduje siê plik biblioteki Parallel
+   \item \textbf{parallel/bin} -- folder ze skompilowanymi programami testowymi
+   \item \textbf{README} -- plik zawieraj±cy informacje dotycz±ce zawarto¶ci p³ytki, podaje instrukcje u¿ycia programów testowych
   \end{itemize}
 
-
-\chapter{Konfiguracja komputera wykorzystanego do testów wydajno¶ciowych}
+\chapter{Konfiguracja komputera wykorzystanego do testów wydajno¶ciowych}\label{c:konfiguracja}
 
   Do testów u¿yto komputera z systemem operacyjnym Ubuntu w wersji 10.10.
   Dok³adn± konfiguracjê komputera, zaprezentowan± poni¿ej, uzyskano poleceniem \verb|lshw|.
@@ -45,7 +47,9 @@
           version: 6FET66WW (2.16 ) (04/22/2009)
           size: 128KiB
           capacity: 8128KiB
-          capabilities: pci pcmcia pnp upgrade shadowing escd cdboot bootselect socketedrom edd acpi usb biosbootspecification
+          capabilities: pci pcmcia pnp upgrade shadowing escd 
+            cdboot bootselect socketedrom 
+	    edd acpi usb biosbootspecification
     *-cpu:0
           description: CPU
           product: Intel(R) Core(TM)2 Duo CPU     P8600  @ 2.40GHz
@@ -59,7 +63,12 @@
           capacity: 2400MHz
           width: 64 bits
           clock: 266MHz
-          capabilities: boot fpu fpu_exception wp vme de pse tsc msr pae mce cx8 apic mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe nx x86-64 constant_tsc arch_perfmon pebs bts aperfmperf pni dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm sse4_1 xsave lahf_lm ida tpr_shadow vnmi flexpriority cpufreq
+          capabilities: boot fpu fpu_exception wp vme de pse tsc msr pae 
+            mce cx8 apic mtrr pge mca cmov pat pse36 clflush dts acpi mmx                            
+            fxsr sse sse2 ss ht tm pbe nx x86-64constant_tsc arch_perfmon  
+            pebs bts aperfmperf pni dtes64 monitor ds_cpl vmx smx esttm2 
+            ssse3 cx16 xtpr pdcm sse4_1 xsave lahf_lm ida tpr_shadow vnmi 
+            flexpriority cpufreq
           configuration: id=0
         *-cache:0
              description: L1 cache
@@ -133,3 +142,6 @@
   
   Programy testowe by³y kompilowane przy pomocy kompilatora GCC w wersji 4.4.5.
   Do testów zosta³y wykorzystane biblioteki z kolekcji Boost w wersji 1.42.0.
+  
+  Programy testowe uruchamianie na maszynie students kompilowano GCC w wersji 4.5.2.
+  Maszyna students posiada³a biblioteki z kolekcji Boost w wersji 1.44.0.

@@ -1,13 +1,13 @@
 \chapter{Ewaluacja biblioteki}\label{r:ewaluacja}
 
-  Ewaluacja biblioteki mia³a na celu weryfikacjê czy wykonana biblioteka dzia³a poprawnie i jaka jest jej wydajno¶æ.
+  Ewaluacja biblioteki mia³a na celu weryfikacjê poprawno¶ci dzia³ania biblioteki oraz przetestowanie wzrostu wydajno¶ci programów jej u¿ywaj±cych.
   Poszczególne etapy weryfikacji zosta³y opisane w odpowiednich sekcjach tego rozdzia³u.
 
 \section{Testy poprawno¶ci}
 
   Testy dotycz±ce poprawno¶ci biblioteki Parallel zosta³y przeprowadzone przy wykorzystaniu narzêdzia do przeprowadzania testów Boost Unit Test Framework.
-  Testy te koncentrowa³y siê na sprawdzeniu czy wyniki wyra¿eñ obliczanych przez bibliotekê Parallel s± identyczne do oczekiwanych oraz czy podczas ich obliczania nie wystêpuj± niespodziewane b³êdy.
-  Wyodrêbnione zosta³y nastêpuj±ce przypadki u¿ycia biblioteki Parallel, definowane przez ró¿ne typy wyra¿eñ przekazanych do obliczenia, dla których zosta³y zaimplementowane odpowiednie testy jednostkowe (z ang. unit test):
+  Testy te koncentrowa³y siê na sprawdzeniu czy wyniki wyra¿eñ obliczanych przez bibliotekê Parallel s± identyczne z oczekiwanymi oraz czy podczas ich obliczania nie wystêpuj± niespodziewane b³êdy.
+  Wyodrêbnione zosta³y nastêpuj±ce przypadki u¿ycia biblioteki Parallel, definowane przez ró¿ne typy wyra¿eñ przekazywanych do obliczenia, dla których zosta³y zaimplementowane odpowiednie testy jednostkowe (z ang. unit test):
   \begin{itemize}
    \item wyra¿enie z ró¿nymi rodzajami typów:
     \begin{itemize}
@@ -41,63 +41,76 @@
   Wymienione przypadki testowe mo¿na kombinowaæ ze sob± i tworzyæ w nieskoñczono¶æ coraz bardziej z³o¿one wyra¿enia.
   Zaimplementowany zestaw testów pokrywa wszystkie z wymienionych przypadków.
   
-  Dla wszystkich przypadków biblioteka uzyska³a wynik pozytywny.
+  Dla wszystkich przypadków testowych biblioteka uzyska³a wynik pozytywny.
   Pokazuje to, ¿e biblioteka dzia³a poprawnie dla reprezentatywnego zbioru przyk³adów wyra¿eñ w jêzyku C++.
   Pozwala to s±dziæ, ¿e biblioteka potrafi obs³u¿yæ poprawnie dowolne wyra¿enie jêzyka C++.
   
 \section{Test wydajno¶ciowy}
 
-  Test wydajno¶ciowy biblioteki zosta³ przeprowadzony poprzez porównanie wyników wykonania algorytmu szybkiego sortowania (z ang. quicksort) zaimplementowanego sekwencyjnie, przy wykorzystaniu biblioteki Parallel
-  lub przy u¿yciu standardowego mechanizmu w±tków Boost.Threads.
+  Test wydajno¶ciowy biblioteki zosta³ przeprowadzony przez porównanie czasów wykonania algorytmu szybkiego sortowania (z ang. quicksort) zaimplementowanego sekwencyjnie, przy wykorzystaniu biblioteki Parallel
+  lub przy u¿yciu standardowego mechanizmu w±tków Boost Thread.
   Celem testów by³o sprawdzenie prawdziwo¶ci hipotez:
   \begin{itemize}
    \item Programy u¿ywajace biblioteki Parallel dzia³aj± nie wolniej ni¿ programy sekwencyjne.
-   \item Odpowiednio napisany program u¿ywajacy biblioteki Parallel potrafi uzyskaæ przyspieszenie proporcjonalne do liczby wykorzystywanych procesorów.
-   \item Czas dzia³ania programów napisanych u¿ywajaæ bibliotek Parallel i Boost.Threads jest zbli¿ony, z przewag± biblioteki Parallel wynikaj±cej z zastosowania puli w±tków.
+   \item Odpowiednio napisany program u¿ywajacy biblioteki Parallel w porównaniu z wersj± sekwencyjn± uzyskuje przyspieszenie, które ro¶nie wraz ilo¶ci± procesorów wykorzystanych do obliczeñ.
+   \item Czas dzia³ania programów napisanych z wykorzystaniem bibliotek Parallel i Boost Thread jest zbli¿ony, z przewag± biblioteki Parallel wynikaj±cej z zastosowania puli w±tków.
   \end{itemize}
   
-  Dla pisania testu przyjêto zastosowanie uproszczonych metod programowania równoleg³ego, gdy¿ aby ró¿ne implementacje mo¿na by³o ze sob± porównywaæ powinny one dzia³aæ podobnie.
-  Dlatego najpierw pisany by³ program sekwencyjny.
-  Nastêpnie, w celu stworzenia implementacji korzystaj±cych z Parallel i Boost.Threads, zrównoleglane by³y fragmenty kodu, które zosta³y zidentyfikowane jako odpowiednie do zastosowania obliczeñ równoleg³ych.
-  Dla tak przygotowanych programów mierzono czasy wykonania przy u¿yciu biblioteki Boost Posix Time.
+  Dla celów testów przyjêto za³o¿enie, ¿e programy bêd± mia³y podobn± strukturê, gdy¿ w przeciwnym przypadku porównywanie ich wydajno¶ci nie mia³oby sensu.
   
 \subsection{Parametry testu}
 
   Do testów wykorzystano tablicê liczb ca³kowitych generowanych przy pomocy liczb pseudolosowych z ustalon± warto¶ci± pocz±tkow±\footnote{Ustalenie warto¶ci pocz±tkowej ci±gu liczb pseudolosowych ma s³u¿yæ powtarzalno¶ci testu.}.
-  Tablica mie¶ci³a 200 000 000 liczb ca³kowitych, osi±gaj±c rozmiar oko³o 800 000 000 MB.
+  Tablica mie¶ci³a 200 000 000 liczb ca³kowitych, osi±gaj±c rozmiar oko³o 800 MB.
   
   W ka¿dej z równoleg³ych implementacji zastosowano zasadê ``Dziel i zwyciê¿aj'', to znaczy problem sortowania by³ dzielony na mniejsze, które nastêpnie by³y rozwi±zywane równolegle.
   Fragmenty tablicy poni¿ej 1 000 000 elementów by³y sortowane sekwencyjnie.
-  Implementacja testów jest do wgl±du w za³±czonych do pracy plikach ¼ród³owych w folderze ptlib-test.
-  Dane na temat systemu komputerowego u¿ytego do testów znajduj± siê w dodatku B niniejszej pracy.
-  Najwa¿niejsz± informacj± jest fakt, i¿ komputer posiada³ procesor wyposa¿ony w dwa rdzenie.
+  Implementacja testów jest do wgl±du w za³±czonych do pracy plikach ¼ród³owych w folderze parallel/test.
+  Ka¿dy z testów zosta³ przeprowadzony 10 razy, a wyniki zosta³y u¶rednione, w celu uniezale¿nienia wyniku od chwilowych wahañ wydajno¶ci komputera.
   
 \subsection{Wyniki testu}
   
-  Ka¿dy z testów zosta³ przeprowadzony 30 razy, a wyniki zosta³y u¶rednione, w celu uniezale¿nienia wyniku od chwilowych wahañ wydajno¶ci komputera.
-  Oto otrzymane rezultaty:
+  Na pocz±tku testy zosta³y przeprowadzone na standardowym komputerze osobistym, dok³adne dane na temat jego parametrów znajduj± siê w dodatku \nameref{c:konfiguracja}.
+  Najwa¿niejsz± informacj± jest fakt, i¿ komputer posiada³ procesor wyposa¿ony w dwa rdzenie z funkcj± hiperw±tkowo¶ci, czyli w sumie 4 rdzenie logiczne.
+  Limit liczby w±tków dla biblioteki Parallel zosta³ ustalony na 3 (w zwi±zku z tym wliczaj±c w±tek g³owny programu, który równie¿ prowadzi³ obliczenia, otrzymano liczbê w±tków równ± liczbie rdzeni logicznych).
+
+  Oto uzyskane rezultaty testów:
   \begin{itemize}
-   \item sortowanie szybkie sekwencyjne: 	36,29 s.
-   \item sortowanie szybkie z Boost.Thread: 	20,96 s.
-   \item sortowanie szybkie z Parallel: 	20,82 s.
+   \item sortowanie szybkie sekwencyjne: 	36,81 s.
+   \item sortowanie szybkie z Boost.Thread: 	21,77 s.
+   \item sortowanie szybkie z Parallel: 	21,73 s.
   \end{itemize}
 
-  Przyspieszenie osi±gniête w wyniku zrównoleglenia algorytmu szybkiego sortowania wynios³o 1,74 w przypadku implementacji u¿ywaj±cej biblioteki Parallel
-  i 1,73 dla implementacji z Boost.Thread.
+  Maszyna, na której wykonywano testy posiada³a procesor dwurdzeniowy, wiêc teoretycznie maksymalne przyspieszenie wynosi³o 2.
+  Przyspieszenie osi±gniête w wyniku zrównoleglenia algorytmu szybkiego sortowania w przypadku obu metod (Parallel i Boost Thread) wynios³o oko³o 1,69.
+  
+  Dla porównania przeprowadzono identyczne testy na maszynie students nale¿±cej do Wydzia³u Matematyki, Informatyki i Mechaniki Uniwersytetu Warszawskiego.
+  Jest ona wyposa¿ona w 23 procesory o 6 rdzeniach ka¿dy\footnote{Zgodnie z informacjami znalezionymi w pliku \texttt{/proc/cpuinfo}}.
+  Limit liczby w±tków dla biblioteki zosta³ ustawiony na 40, co, jak wykaza³y próby empiryczne, by³o maksymaln± dozwolon± warto¶ci± dla konfiguracji maszyny students.
+  Dla programu korzystaj±cego z Boost Thread fragmenty tablicy poni¿ej 8 000 000 elementów by³y sortowane sekwencyjnie, gdy¿ zmniejszenie tej warto¶ci powodowa³o b³±d wykonania wynikaj±cy z nadmiernej alokacji nowych w±tków.
+  Testy zakoñczy³y siê nastêpuj±cymi wynikami:
+  \begin{itemize}
+   \item sortowanie szybkie sekwencyjne: 	39,19 s.
+   \item sortowanie szybkie z Boost Thread: 	8,09 s.
+   \item sortowanie szybkie z Parallel: 	5,58 s.
+  \end{itemize}
+  
+  Przyspieszenie dla programu korzystaj±cego z Boost Thread by³o równe 4,84, a w przypadku biblioteki Parallel wynios³o 7,02.
+  Biblioteka Parallel w porównaniu z Boost Thread osi±gnê³a w tym te¶cie wyj±tkowo dobry wynik.
   
 \subsection{Podsumowanie wyników testu}
 
   Wyniki przeprowadzonych testów potwierdzi³y postawione hipotezy. 
   Algorytm szybkiego sortowania dzia³a³ po zrównolegleniu znacznie szybciej ni¿ wersja sekwencyjna.
-  Uzyskane przyspieszenie by³o proporcjonalne do liczby jednostek obliczeniowych, wykorzystanych do wykonania programu.
-  Czasy wykonania programów zaimplementowanych w oparciu o Parallel i Boost.Thread ró¿ni³y siê nieznacznie, z niewielk± przewag± na rzecz biblioteki Parallel.
-  Przewaga ta znajdowa³a siê w granicy b³êdu statystycznego, jednak mog³aby zostaæ uwypuklona w przypadku, gdy wyst±pi³oby wiêcej operacji tworzenia w±tków
-  w implementacji korzystaj±cej z biblioteki Boost.Thread.
+  Uzyskane przyspieszenie ros³o wraz ze wzrostem jednostek obliczeniowych wykorzystanych do wykonania programu.
+  Ponadto, czasy wykonania programów na komputerze osobisty zaimplementowanych w oparciu o Parallel i Boost Thread ró¿ni³y siê nieznacznie, z niewielk± przewag± na rzecz biblioteki Parallel.
+  Jednak, gdy programy testowe zosta³y uruchomione na maszynie students okaza³o siê, ¿e program korzystaj±cy z biblioteki Parallel wykonywa³ siê znacznie szybciej.
+  Ten fakt mo¿e zostaæ czê¶ciowo wyt³umaczony przez zastosowanie puli w±tków w bibliotece Parallel, co pozwoli³o unikn±æ wielu operacji tworzenia nowych w±tków.
   
-  Inn± obserwacj± poczynion± podczas przeprowadzania testów by³o b³êdne wykonanie programu korzystaj±ceo z biblioteki Boost.Thread, w przypadku zmniejszenia
-  rozmiaru tablicy, która by³a sortowana sekwencyjnie do 50 000. 
-  Powodem by³a próba stworzenia wiêkszej liczby w±tków ni¿ pozwala³a na to konfiguracja wykorzystanego do testów komputera.
-  Dla tych samych parametrów program u¿ywaj±cy Parallel wykona³ siê bezb³êdnie.
+  Inn± obserwacj± poczynion± podczas przeprowadzania testów by³o b³êdne wykonanie programu korzystaj±cego z biblioteki Boost.Thread, w przypadku zmniejszenia limitu
+  rozmiaru tablicy, poni¿ej którego tablica by³a sortowana sekwencyjnie (do 50 000 w przypadku testów na komputerze osobistym, a do 5 000 000 w przypadku wykonania programu testowego na maszynie students). 
+  Powodem by³a próba stworzenia wiêkszej liczby w±tków ni¿ pozwala³a na to konfiguracja systemu.
+  Dla tych samych parametrów program u¿ywaj±cy Parallel wykonywa³ siê bezb³êdnie.
   
 % 
 % \section{Ocena realizacji celów}

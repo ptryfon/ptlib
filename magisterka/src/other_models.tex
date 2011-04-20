@@ -21,7 +21,7 @@
 #include <iostream>
 int main (int argc, char *argv[]) {
  int th_id, nthreads;
-#pragma omp parallel private(th_id)
+#pragma omp parallel private (th_id)
  {
   th_id = omp_get_thread_num();
   std::cout << "Hello World from thread" << th_id << "\n";
@@ -35,7 +35,7 @@ int main (int argc, char *argv[]) {
 }
   \end{lstlisting}
   Program wypisuje komunikat ``Hello World'' z do³±czonym numerem w±tku. 
-  Zrównoleglenie tego kodu przez kompilator osi±gniêto stosuj±c dyrektywê \texttt{\#pragma omp parallel private(th\_id)}.
+  Zrównoleglenie tego kodu przez kompilator osi±gniêto stosuj±c dyrektywê \texttt{\#pragma omp parallel private (th\_id)}.
   Wynika z niej, ¿e kompilator powinien zrównolegliæ zaznaczony blok kodu, przy czym zmienna \verb|th_id| ma byæ prywatna, czyli ka¿dy w±tek powinien posiadaæ swoj± kopiê.
 
   OpenMP wykorzystuje model Fork-Join.
@@ -82,7 +82,7 @@ chunk = CHUNKSIZE;
   
 \subsubsection{Porównanie OpenMP vs. Parallel}
 
-\begin{tabular}{ | p{0.5\textwidth} | p{0.5\textwidth} |}
+\begin{tabular}{ | p{0.47\textwidth} | p{0.47\textwidth} |}
   \hline\
   \textbf{Podobieñstwa} & \textbf{Ró¿nice} \\ \hline
   \begin{itemize}
@@ -113,12 +113,14 @@ chunk = CHUNKSIZE;
   W przypadku TBB programista, zamiast definowaæ dzia³anie wspó³bie¿nego fragmentu programu manualnie, u¿ywa szkieletów algorytmów dostêpnych w tej bibliotece.
   Nastêpnie biblioteka sama dzieli wykonanie algorytmu na podzadania, przypisuje je do w±tków, 
   zajmuje siê równowa¿eniem obci±¿enia procesorów i przypisywaniem w±tków do procesorów w taki sposób, by zminimalizowaæ migotanie pamiêci podrêcznej.
-  Nawet optymalna liczba w±tków jest dobierana automatycznie przez TBB zale¿nie od konfiguracji komputera.
-  
-  Przyk³ad wykorzystania biblioteki TBB do zrównoleglenia pêtli for wygl±da nastêpuj±co:
-  \begin{lstlisting}
-#include "tbb/blocked_range.h"
+  Nawet optymalna liczba w±tków jest dobierana automatycznie przez TBB zale¿nie od konfiguracji komputera. TBB zawiera, oprócz schematu pêtli for, równie¿ wiele innych: schemat pêtli while, schemat pipeline, schemat reduce.
 
+  Poni¿ej zaprezentowano przyk³ad wykorzystania biblioteki TBB do zrównoleglenia pêtli for.
+  W tym przyk³adzie klasa ApplyFoo definiuje obiekt funkcyjny, który je¶li otrzyma za argument obiekt typu \verb|blocked_range<size_t>| 
+  to przypisze na ka¿dy element tablicy \verb|my_a| warto¶æ zwracan± przez wywo³anie funkcji \verb|Foo| od tego elementu.
+  Ni¿ej w funkcji \verb|main| znajduje siê wywo³anie funkcji TBB \verb|parallel_for|, która równolegle aplikuje obiekt funkcyjny \verb|ApplyFoo(a)|
+  do fragmentów tablicy \verb|a| wielko¶ci \verb|IdealGrainSize|.
+  \begin{lstlisting}
 class ApplyFoo {
   float *const my_a;
   public:
@@ -127,28 +129,21 @@ class ApplyFoo {
         Foo(my_a[i]);     
       }
     }
-  ApplyFoo( float a[] ) :
-    my_a(a) {}
+  ApplyFoo( float a[] ) : my_a(a) {}
 };
 
 #define A_SIZE 1000
-int main() 
-{
+int main() {
   float a[A_SIZE];
   parallel_for(blocked_range<size_t>(0,n,IdealGrainSize), 
     ApplyFoo(a) );
 }
   \end{lstlisting}
-  W tym przyk³adzie klasa ApplyFoo definiuje obiekt funkcyjny, który je¶li otrzyma za argument obiekt typu \verb|blocked_range<size_t>| 
-  to przypisze na ka¿dy element tablicy \verb|my_a| warto¶æ zwracan± przez wywo³anie funkcji \verb|Foo| od tego elementu.
-  Ni¿ej w funkcji \verb|main| znajduje siê wywo³anie funkcji TBB \verb|parallel_for|, która równolegle aplikuje obiekt funkcyjny \verb|ApplyFoo(a)|
-  do fragmentów tablicy \verb|a| wielko¶ci \verb|IdealGrainSize|.
   
-  TBB zawiera, oprócz schematu pêtli for, równie¿ wiele innych: schemat pêtli while, schemat pipeline, schemat reduce.
   
 \subsubsection{Porównanie TBB vs. Parallel}
 
-\begin{tabular}{ | p{0.5\textwidth} | p{0.5\textwidth} |}
+\begin{tabular}{ | p{0.47\textwidth} | p{0.47\textwidth} |}
   \hline\
   \textbf{Podobieñstwa} & \textbf{Ró¿nice} \\ \hline
   \begin{itemize}
@@ -181,6 +176,8 @@ int main()
   Do korzy¶ci z programowania przy pomocy MPI mo¿na zaliczyæ wydajno¶æ tej biblioteki oraz ³atwo¶æ z jak± mo¿na skalowaæ programy na wiêksz± liczbê procesorów.
   Ponadto dziêki szerokiemu wsparciu MPI przez najwiêkszych dostawców sprzêtu i oprogramowania, programy pisane przy pomocy MPI ³atwo przenosi siê na inne platformy.
   
+%\begin{MakeFramed}
+%\setlength{\fboxrule}{5pt}
   Oto przyk³ad programu napisanego przy pomocy MPI, który pokazuje podstawowe operacje zwi±zane z wysy³aniem i odbieraniem komunikatów.
 \begin{lstlisting}
 /*
@@ -250,10 +247,10 @@ int main(int argc, char *argv[])
   W kodzie mo¿na zauwa¿yæ, ¿e MPI udostêpnia niskopoziomowe API. 
   Operacje wysy³ania i odbierania wiadomo¶ci dzia³aj± analogicznie do funkcji systemowych read i write, operuj± na poziomie bitów.
   Wi±¿e siê to z narzuceniem na programistê obowi±zku zadbania o odpowiednie zakodowanie i rozkodowanie wiadomo¶ci.
-  
+\clearpage
 \subsubsection{Porównanie MPI vs. Parallel}
 
-\begin{tabular}{ | p{0.5\textwidth} | p{0.5\textwidth} |}
+\begin{tabular}{ | p{0.47\textwidth} | p{0.47\textwidth} |}
   \hline\
   \textbf{Podobieñstwa} & \textbf{Ró¿nice} \\ \hline
   \begin{itemize}
@@ -315,11 +312,11 @@ int main()
 
   Przyk³ad pokazuje w jaki sposób tworzy siê w±tki i przydziela im zadanie do wykonania, ka¿demu z osobna.
   Nastêpnie w±tek g³ówny oczekuje na zakoñczenie dzia³ania ka¿dego z w±tków wywo³uj±c funkcjê \verb|join|.
+\clearpage
 
+\subsubsection{Porównanie Boost Thread vs. Parallel}
 
-\subsubsection{Porównanie Boost Threads vs. Parallel}
-
-\begin{tabular}{ | p{0.5\textwidth} | p{0.5\textwidth} |}
+\begin{tabular}{ | p{0.47\textwidth} | p{0.47\textwidth} |}
   \hline\
   \textbf{Podobieñstwa} & \textbf{Ró¿nice} \\ \hline
   \begin{itemize}

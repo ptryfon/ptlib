@@ -16,10 +16,10 @@
   Dzieje siê tak, poniewa¿ wykorzystanie kilku w±tków wykonania programu, drastycznie zwiêksza z³o¿ono¶æ pracy programistycznej.
   Programista, aby napisaæ program wspó³bie¿ny (\cite{barney}) musi w pierwszej kolejno¶ci zidentyfikowaæ fragmenty obliczeñ, które mog± zostaæ zrównoleglone.
   Nastêpnie powinien zaprojektowaæ sposób, w jaki poszczególne w±tki wykonania siê ze sob± komunikuj± i w jaki s± synchronizowane.
-  W celu zapewnienia efektywno¶ci programu programista powinien uwzglêdniæ w projekcie równie¿ balansowanie rozk³adu pracy pomiedzy poszczególne w±tki wykonania.
+  W celu zapewnienia efektywno¶ci programu programista powinien uwzglêdniæ w projekcie równie¿ równowa¿enie obci±¿enia pomiedzy poszczególnymi w±tki.
   
-  Programistê w zmaganiach z pisaniem programów wspó³bie¿nych wspieraj± ró¿norodne narzêdzia, jêzyki programowania specjalnie zaprojektowane do obliczeñ równoleg³ych, takie jak Ada, 
-  lub biblioteki oferuj±ce wykonywanie obliczeñ równoleg³ych w jêzykach natywnie sekwencyjnych.
+  Programistê w zmaganiach z pisaniem programów wspó³bie¿nych wspieraj± ró¿norodne narzêdzia, s± to jêzyki programowania specjalnie zaprojektowane do obliczeñ równoleg³ych, takie jak Ada lub Erlang, 
+  lub biblioteki oferuj±ce wykonywanie obliczeñ równoleg³ych w jêzykach sekwencyjnych.
   Pierwsze wywi±zuj± siê zazwyczaj dobrze ze swojego zadania, gdy¿ s± dedykowane do programowania równoleg³ego, lecz nie s± popularne w zastosowaniach praktycznych.
   Wiêkszym problemem jest korzystanie z drugiego typu narzêdzi, poniewa¿ jêzyk sekwencyjny czêsto nie pozwala na zaprojektowanie biblioteki mog±cej konkurowaæ prostot± i intuicyjno¶ci± z jêzykiem do programowania równoleg³ego.
   W praktyce potrzeba skorzystania z bibliotek dla jêzyków sekwencyjnych wystêpuje zdecydowanie czê¶ciej, poniewa¿ jêzyki sekwencyjne s± znacznie szerzej stosowane.
@@ -59,7 +59,7 @@
   }
   \end{lstlisting}
   
-  Ten przyk³ad obrauje, w jaki sposób mo¿na wykorzystaæ bibliotekê Parallel do zrównoleglenia obliczeñ w podej¶ciu ``dziel i zwyciê¿aj'', polegaj±cym na dzieleniu problemu na kilka czê¶ci, z których ka¿da jest obliczana równolegle,
+  Ten przyk³ad obrazuje, w jaki sposób mo¿na wykorzystaæ bibliotekê Parallel do zrównoleglenia obliczeñ w podej¶ciu ``dziel i zwyciê¿aj'', polegaj±cym na dzieleniu problemu na kilka czê¶ci, z których ka¿da jest obliczana równolegle.
   Koñcowy rezultat jest obliczany na podstawie wyników uzyskanych dla poszczególnych podproblemów.
   W tym przypadku zrównoleglenie bêdzie polega³o na tym, ¿e kod g³ówny programu zleci równoleg³e obliczenie wyra¿enia \verb|fibo(n-1)| bibliotece Parallel i nie czekaj±c na wynik przejdzie do nastêpnej instrukcji,
   czyli obliczenia \verb|fibo(n-2)|. Po obliczaniu \verb|fibo(n-1)| i \verb|fibo(n-2)|, zostanie obliczona suma obu warto¶ci i zwrócona jako wynik \verb|fibo(n)|.
@@ -69,7 +69,7 @@
   Pierwszy rozdzia³ pracy opisuje koncepcjê biblioteki, g³ówne zasady jej dzia³ania oraz porównuje projektowane rozwi±zanie do istniej±ch ju¿ rozwi±zañ.
   Drugi rozdzia³ traktuje o sposobie implementacji biblioteki.
   W trzecim rozdziale zosta³y przedstawione metody oraz wyniki ewaluacji biblioteki.
-  Rozdzia³ ostatni nakre¶la mo¿liwo¶ci dalszego rozwoju biblioteki.
+  Rozdzia³ ostatni dokonuje podsumowania wykonanej pracy.
 
 \newpage
 \section*{Definicje pojêæ i skrótów}

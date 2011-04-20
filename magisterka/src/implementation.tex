@@ -373,6 +373,14 @@ inline double eval(double d) {return d;}
   Biblioteka Parallel korzysta z Boost Proto do tworzenia szablonów wyra¿eñ w postaci AST, równie¿ przy pomocy mechanizmu przeci±¿ania operatorów, dziêki czemu budowa AST jest uproszczona.
   Ponadto ewaluacja odbywa siê przy pomocy dostarczonej przez Boost Proto funkcji \verb|proto::eval| z domy¶lnym zachowaniem.
   Zasada dzia³ania Boost Proto jest analogiczna do dzia³ania przyk³adu pokazanego powy¿ej.
+  
+\subsection{Wp³yw na wydajno¶æ biblioteki}
+
+  Nale¿y dokonaæ bardzo istotnego spostrze¿enia dotycz±cego przekazywania wyra¿enia do obliczenia przy pomocy szablonu wyra¿enia.
+  Mianowicie u¿ycie tej metody nie wp³ywa znacz±co na wyd³u¿enie wykonania programu.
+  Zdecydowana wiêkszo¶æ operacji zwi±zanych z tworzeniem szablonu wyra¿enia zachodzi w czasie kompilacji, gdy¿ proces zachodzi poprzez obliczenia na typach.
+  Ponadto, przy dobrze dzia³aj±cym mechani¼mie rozwijania funkcji w miejscu wykonania, równie¿ obliczenie warto¶ci wyra¿enia odbêdzie siê w optymalny sposób,
+  bez utraty wydajno¶ci w stosunku do standardowej postaci wyra¿enia.
 
 \subsection{Alternatywne rozwi±zanie}
 
@@ -455,11 +463,11 @@ inline double eval(double d) {return d;}
   Mo¿e to skutkowaæ zdublowanym wyliczeniem wyra¿enia, w przypadku, gdy zarówno w±tek programu, jak i jeden z w±tków-robotników obliczyliby wyra¿enie.
   Taka sytuacja by³aby niedopuszczalna, poniewa¿ wykonywanie wyra¿enia w C++ nie jest idempotentne z powodu efektów ubocznych.
   
-  Najbardziej standardowym rozwi±zaniem by³oby umieszczenie w ka¿dym obiekcie \dexp flagi wraz mutexem j± chroni±cym w celu zapobie¿enia podwójnej ewaluacji wyra¿enia.
+  Najbardziej standardowym rozwi±zaniem by³oby umieszczenie w ka¿dym obiekcie\\ \texttt{deferred\_expr} flagi wraz mutexem j± chroni±cym w celu zapobie¿enia podwójnej ewaluacji wyra¿enia.
   Jednak¿e umieszczenie mutex-a w ka¿dym obiekcie ma pewien narzut pamiêciowy i wydajno¶ciowy.
   
   Istnieje lepsze rozwi±zanie tego problemu wykorzystuj±ce funkcjê z biblioteki Boost Threads \verb|call_once| gwarantuj±c± jednokrotne wywo³anie pewnej instrukcji.
-  Przekazanie tej funkcji zmiennej typu \verb|once_flag| wraz z funkcj± do wykonania (w tym przypadku funkcj± \verb|deferred_expr::evaluate|) sprawia, ¿e dla danej flagi funkcja wykona siê tylko raz.
+  Przekazanie tej funkcji zmiennej typu \verb|once_flag| wraz z funkcj± do wykonania (w tym przypadku funkcj± \\ \texttt{deferred\_expr::evaluate}) sprawia, ¿e dla danej flagi funkcja wykona siê tylko raz.
   Wywo³anie \verb|call_once| z ju¿ raz wykorzystan± flag± \verb|once_flag| zakoñczy siê natychmiast bez wywo³ania przekazanej funkcji.
   Poniewa¿ typ \verb|once_flag| ma niewielki rozmiar (na wiêkszo¶ci platform jest to typ \verb|long|) to umieszczenie go jako pola ka¿dego obiektu \dexp dodaje mniejszy narzut pamiêciowy ni¿ stosowanie mutexów.
   
@@ -510,7 +518,7 @@ inline double eval(double d) {return d;}
  
 \subsubsection{Pobranie warto¶ci}
 
-  Obiekt typu \dval pozwala na pobranie warto¶ci poprzez wywo³anie metody \verb|get_value| lub te¿ niejawnie, poniewa¿ poprzez operator konwersji do typu, który reprezentuje.
+  Obiekt typu \dval pozwala na pobranie warto¶ci poprzez wywo³anie metody\\ \texttt{get\_value} lub te¿ niejawnie, poniewa¿ poprzez operator konwersji do typu, który reprezentuje.
   Zatem taki ci±g instrukcji:
   \begin{lstlisting}[numbers=none, frame=none]
    deferred_value<int> d = parallel::eval(parallel::val(4) + 5);
@@ -579,10 +587,13 @@ inline double eval(double d) {return d;}
    &=  |=  >>=  <<=  ==  !=  <=  >=  &&   ||  ++  --  []  ()
   \end{verbatim}
 
-  Dla ilustracji sposobu implementacji funkcji przeci±¿aj±cych operatory dla obiektów \dval pos³u¿ê siê przyk³adem przeci±¿enia dodawania:
+  Dla ilustracji sposobu implementacji funkcji przeci±¿aj±cych operatory dla obiektów\\ \dval pos³u¿ê siê przyk³adem przeci±¿enia dodawania:
   \begin{lstlisting}
    inline deferred_value<T> operator + (T& rhs)
-      { return make_deferred_value_from_exp(lazyf(&deferred_value<T>::get_value, this) + rhs); }
+   { 
+      return make_deferred_value_from_exp(lazyf(
+	&deferred_value<T>::get_value, this) + rhs); 
+   }
   \end{lstlisting}
   
   W funkcji przeci±¿aj±cej operator tworzona jest inna ni¿ znana do tej pory wersja obiektu \dval.
@@ -633,7 +644,7 @@ inline double eval(double d) {return d;}
   Dla poradzenia sobie z tym przypadkiem powsta³a odpowiednia specjalizacja wzorca \dval.
   Nie posiada ona ¿adnej warto¶ci, któr± mo¿na by³oby pobraæ ani s³u¿±cych do tego metod.
   
-  W tym przypadku rozwa¿a³em ca³kowit± rezygnacjê ze zwracania obiektu typu \dval z funkcji \feval.
+  W tym przypadku rozwa¿a³em ca³kowit± rezygnacjê ze zwracania obiektu typu \\ \dval z funkcji \feval.
   Istnieje jednak bardzo wa¿ny scenariusz, w którym konkretyzacja wzorca \dval sparametryzowana typem \verb|void| jest niezbêdna.
   Ilustruje to poni¿szy przyk³ad:
   \begin{lstlisting}
@@ -663,7 +674,7 @@ inline double eval(double d) {return d;}
    eval(ref(cout) << "Operacja zakoñczona sukcesem." << endl);
   \end{lstlisting}
 
-  W tym przypadku problemem jest inicjalizacja sk³adowej \verb|m_value| wzorca typu \dval , którego zadaniem jest przechowywanie zwracanej warto¶ci.
+  W tym przypadku problemem jest inicjalizacja sk³adowej \verb|m_value| wzorca typu\\ \dval , którego zadaniem jest przechowywanie zwracanej warto¶ci.
   W przyk³adzie typ zwracany to \verb|ostream&|.
   Referencja mo¿e byæ zainicjalizowana wy³±cznie w li¶cie inicjalizacyjnej konstruktora obiektu.
   Poniewa¿ obiekt, do którego mia³aby siê odnosiæ referencja z obiektu \dval jeszcze nie zosta³ obliczony to w konstruktorze nie mo¿na ustawiæ tej referencji.
