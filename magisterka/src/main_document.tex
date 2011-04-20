@@ -1,0 +1,58 @@
+%
+% Niniejszy plik stanowi przykład formatowania pracy magisterskiej na
+% Wydziale MIM UW.  Szkielet użytych poleceñ można wykorzystywać do
+% woli, np. formatujac wlasna prace.
+%
+% Zawartosc merytoryczna stanowi oryginalnosiagniecie
+% naukowosciowe Marcina Wolinskiego.  Wszelkie prawa zastrzeżone.
+%
+% Copyright (c) 2001 by Marcin Woliñski <M.Wolinski@gust.org.pl>
+% Poprawki spowodowane zmianami przepisów - Marcin Szczuka, 1.10.2004
+% Poprawki spowodowane zmianami przepisow i ujednolicenie 
+% - Seweryn Karłowicz, 05.05.2006
+% dodaj opcję [licencjacka] dla pracy licencjackiej
+\documentclass{pracamgr}
+
+\usepackage{polski}
+
+%Jesli uzywasz kodowania polskich znakow ISO-8859-2 nastepna linia powinna byc 
+%odkomentowana
+\usepackage[utf8]{inputenc}
+%Jesli uzywasz kodowania polskich znakow CP-1250 to ta linia powinna byc 
+%odkomentowana
+%\usepackage[cp1250]{inputenc}
+
+\include{preamble}
+
+\include{introduction}
+
+\include{conception}
+
+%   Programista w celu wykorzystania możliwości równoległego musi dokonać wyboru modelu programowania równoległego, narzędzi, które ten model wspierają, 
+%   a następnie do dokonanych decyzji zaprojektować program.
+%   Proces projektowania programu równoległego jest znacznie bardziej skomplikowany niż programu sekwencyjnego, ze względu na to, 
+%   że zazwyczaj narzędzia do programowania równoległego narzucają strukturę programu, która w znacznym stopniu różni się od programu sekwencyjengo, 
+%   nie jest tak naturalna, a przez to trudniejsza do wykonania i zrozumienia.
+%   Dwa podstawowe problemy, które towarzyszą wyborowi technologii do programowania równoległego, to poziom abstrakcji oraz wydajność.
+%   Poziom abstrakcji
+
+
+
+\chapter{Opis implementacji}\label{r:implementacja}
+
+\chapter{Ewaluacja biblioteki}\label{r:ocena}
+
+\chapter{Podsumowanie}\label{r:podsumowanie}
+
+\appendix
+
+\include{bibliography}
+
+\end{document}
+
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% coding: latin-2
+%%% End:

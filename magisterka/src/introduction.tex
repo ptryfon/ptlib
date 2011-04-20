@@ -1,0 +1,41 @@
+
+\chapter*{Wprowadzenie}
+\addcontentsline{toc}{chapter}{Wprowadzenie}
+
+  Równoległe prowadzenie obliczeń nie jest nowym tematem w informatyce, gdyż liczy sobie już ponad 50 lat\cite{parhist}.
+  Trudno wyznaczyć jeden punkt lub jedną pracę, która zapoczątkowała ten kierunek rozwoju informatyki, ale niewątpliwie do jej pionierów należeli tak znani naukowcy jak
+  Amdahl (prawo Amdahl-a), Flynn (klasyfikacja Flynna), Dijkstra (problem sekcji krytycznych oraz semafory), Petri (sieci Petriego).
+  
+  Zrównoleglanie obliczeń jest jednym ze sposobów przyspieszania wydajności systemów komputerowych.
+  Szczególnego znaczenia nabrało ostatnimi czasy, ponieważ rozwój technologii mikroprocesorowej dotarł do takiego momentu, że przyspieszanie pojedyńczego układu stało się trudne i dlatego nieopłacalne.
+  Stąd obecnie kierunek rozwoju wyznaczany jest przez równoległość, to znaczy umieszczanie w procesorach komputerów wielu układów wykonujących obliczenia równolegle w jednym czasie.
+  Takie rozwiązanie teoretycznie pozwala na uzyskanie przyspieszenia wprost proporcjonalnego do liczby układów umieszczonych w procesorze.
+  Żeby sie jednak tak stało programy wykonywane na takim procesorze powinny być w stanie wykorzystać te możliwości.
+  
+  Programy zatem powinny wykorzystywać równoległe prowadzenie obliczeń, jednakże pomimo długo rozwijanej teorii oraz narzędzi wspierających, programowanie równoległe wciaż pozostaje bardzo trudne do zastosowania w praktyce.
+  Dzieje się tak, ponieważ wykorzystanie kilku ciągów instrukcji w ramach, których program będzie wykonywany, drastycznie zwiększa złożoność kodu.
+  Programista, aby napisać program współbieżny (\cite{barney}) musi w pierwszej kolejności zidentyfikować fragmeny obliczeń, które mogą zostać zrównoleglone.
+  Następnie powinien zaprojektować sposób w jaki poszczególne ciągi wykonania się ze sobą komunikują i w jaki sposób są synchronizowane.
+  W celu zapewnienia efektywności programu programista powinien uwzględnić w projekcie również balansowanie rozkładu pracy pomiedzy poszczególne wątki wykonania.
+  
+  Programistę w zmaganiach z pisaniem programów wspierają różnorodne narzędzia, języki programowania specjalnie zaprojektowane do obliczeń równoległych jak Ada lub biblioteki oferujące wykonywanie obliczeń równoległych
+  w językach natywnie sekwencyjnych.
+  Zazwyczaj te pierwsze wywiązują się ze swojego zadania dobrze, gdyż zostały są dedykowane do programowania równoległego, lecz nie są popularne w zastosowaniach praktycznych.
+  Większym problemem jest korzystanie z tych drugich, ponieważ język sekwencyjny zazwyczaj nie pozwala na zaprojektowanie biblioteki mogącej konkurować prostotą i intiucyjnością z językiem do programowani równoległego.
+  W praktyce potrzeba skorzystania z bibliotek dla języków sekwencyjnych występuje zdecydowanie częściej, ponieważ są bardzo popularne.
+  Niniejsza praca podejmuje próbę stworzenia takiej biblioteki dla języka C++.
+  Nadrzędnymi priorytetami podczas projektowania biblioteki Parallel było zapewnienie łatwości pisania programów równoległych (ukrycie niepotrzebnych detali przed programistą) z jednoczesnym pozostawieniem pełnej kontroli 
+  nad wykonaniem programu w rękach programisty. Zastosowane rozwiązania powinny zagwarantować wydajność działania biblioteki oraz poprawność.
+
+  Pierwszy rozdział pracy opisuje koncepcję biblioteki, główne zasady nią rządzące oraz porównuje projektowane rozwiązanie do istniejąch rozwiażań.
+  Drugi rozdział traktuje o sposobie implementacji biblioteki.
+  W trzecim rozdziale zostały przedstawione metody oraz wyniki ewaluacji biblioteki.
+  Rozdział ostatni podsumowujący nakreśla możliwości dalszego rozwoju biblioteki.
+
+\section*{Definicje pojęć i skrótów}
+\begin{tabular}{ | l | l |}
+  \hline
+  \textbf{Pojęcie} & \textbf{Definicja} \\ \hline
+  Cos & to to \\ 
+  \hline
+\end{tabular} 

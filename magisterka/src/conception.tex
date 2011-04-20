@@ -1,0 +1,46 @@
+
+\chapter{Koncepcja biblioteki}\label{r:koncepcja}
+
+  W tym rozdziale zostaną przedstawione główne założenia biblioteki Parallel na tle istnijących już modeli programowania równoległego, dostępnych w języku C++.
+
+\section{Cele biblioteki}
+
+  Tworzeniu biblioteki Parallel przyświecały bardzo konkretne cele, których ideą przewodnią było ułatwienie wykorzystywania obliczeń równoległych w programach.
+  Wymienionym poniżej celom było podporządkowane projektowanie API i implementacja biblioteki.
+
+\subsection{Wysoka efektywność}
+
+  Jednym z głównych powodów stosowania zrównoleglania obliczeń jest przyspieszanie ich wykonania. Dlatego sama biblioteka do zrównoleglania powinna działać szybko.
+  Niedopuszczalną byłaby sytuacja, gdyby program współbieżny wykonywał się wolniej niż jego sekwencyjny odpowiednik.
+  Napisanie biblioteki, która byłaby w ogólności bardzo wydajna jest raczej niemożliwe, natomiast powinna być wysoce efekwyna, jeśli jest używana do celów, do których została zaprojektowana.
+  Biblioteka Parallel będzie biblioteką ogólnego zastosowania, przy pomocy, które będzie możliwe prowadzenie dowolnych obliczeń.
+  Dlatego, oprócz szybkiego działania mechanizmów wbudowanych w bibliotekę, niezbędne jest pozwolenie programiście na podejmowanie decyzji o podziale obliczeń na takie fragmenty, że ich równoległe wykonanie będzie najszybsze.
+
+\subsection{Czytelność kodu}
+
+  Tym, co najbardziej utrudnia zrozumienie programów współbieżnych jest konieczność zrozumienia zależności pomiędzy odrębnymi równolegle działającymi częściami programu.
+  Zazwyczaj te zależnośći dotyczą miejsc w kodzie, które są od siebie stosunkowo odległe.
+  Mnogość niejawnych zależności i przeplotów wykonań programu sprawiają, że nawet pozornie proste operacje są trudne do poprawnego zaprogramowania.
+  Jednym z bardziej wymownych przykładów popierających to stwierdzenie jest problem implementacji semafora uogólnionego przy pomocy semaforów binarnych \cite{gensem}.
+  Stąd celem, który został postawiony przed biblioteką Parallel było ukrycie do takiego stopnia, do jakiego to możliwe, obecności równoległości w kodzie.
+  Najważniejsze jest to, że struktura programu napisanego przy pomocy biblioteki Parallel nie powinna istotnie różnić się od struktury programu sekwencyjnego.
+  Pozwoli to na uzyskanie kodu, który będzie znacznie łatwiej zrozumieć.
+
+\subsection{Wysoki poziom kontroli nad wykonaniem programu}
+
+  Jeśli biblioteka oferuje wysoki poziom kontroli nad wykonamiem programu odbywa się to często kosztem efektywności programisty, ponieważ wiążę się to często z wykorzystaniem niskopoziomowych mechanizmów.
+  
+
+\subsection{Ograniczenie konieczności korzystania z mechanizmów komunikacji i synchronizacji procesów równoległych}
+
+\subsection{Zwiększenie efektywności programisty}
+  Obecnie decyzja o zrównolegleniu obliczeń w programie obwarowana jest często znacznymi barierami wejścia, 
+  to znaczy nawet zrównoleglenie nieznacznego kawałka kodu wiąże się z koniecznością istotnie większego nakładu pracy, w porównaniu z programowaniem sekwencyjnym.
+
+\section{Inspiracja}
+
+\section{Model programowania w bibliotekce Parallel}
+
+\section{Inne modele programowania równoległego w języku C++}
+
+\section{Analiza cech biblioteki}
