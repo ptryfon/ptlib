@@ -38,12 +38,18 @@
 
   Biblioteka Parallel powinna udostępniać programiście wgląd w to, w jaki sposób oblczenia równoległe będą prowadzone.
   Dzięki temu programista będzie mógł uwzględnić podczas programowania ograniczenia, które wynikają z konstrukcji biblioteki.
-  
+  Między innymi będzie mógł dostosować wielkość zlecanych fragmentów obliczeń (ziarnistość obliczeń), tak aby zmaksymalizować wydajność programu.
   
 \subsection{Abstrakcja}
 
+  Abstrakcja ukrywa niepotrzebne szczegóły implementacji przed programistą, co pozwala na zwiększenie jego produktywności.
+
 \subsection{Ograniczenie konieczności korzystania z mechanizmów komunikacji i synchronizacji procesów równoległych}
 
+  Projektowawnie komunikacji i synchronizacji w programach współbieżnych jest czymś, co decyduje o fakcie, że programowanie równoległe jest tak trudnym zadaniem.
+  Celem biblioteki Parallel jest zdjęcie w znacznym stopniu tego obciążenia z programisty.
+  Komunikacja pomiędzy różnymi wątkami wykonania będzie koordynowana przez bibliotekę.
+  Biblioteka nie może wyręczyć jednak programisty we wszystkim, ochrona spójności struktur danych pozostanie w rękach programisty.
 
 \section{Inspiracja}
 
