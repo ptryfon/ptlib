@@ -12,13 +12,12 @@
 
   Jednym z głównych powodów stosowania zrównoleglania obliczeń jest przyspieszanie ich wykonania. Dlatego sama biblioteka do zrównoleglania powinna działać szybko.
   Niedopuszczalną byłaby sytuacja, gdyby program współbieżny wykonywał się wolniej niż jego sekwencyjny odpowiednik.
-  Napisanie biblioteki, która byłaby w ogólności bardzo wydajna jest raczej niemożliwe, natomiast powinna być wysoce efekwyna, jeśli jest używana do celów, do których została zaprojektowana.
   Biblioteka Parallel będzie biblioteką ogólnego zastosowania, przy pomocy, które będzie możliwe prowadzenie dowolnych obliczeń.
-  Dlatego, oprócz szybkiego działania mechanizmów wbudowanych w bibliotekę, niezbędne jest pozwolenie programiście na podejmowanie decyzji o podziale obliczeń na takie fragmenty, że ich równoległe wykonanie będzie najszybsze.
+  Niemożliwe jest takie napisanie biblioteki ogólnej, żeby w każdej sytuacji działała bardzo wydajnie
+  Dlatego, oprócz szybkiego działania mechanizmów wbudowanych w bibliotekę, niezbędne jest pozwolenie programiście na podejmowanie decyzji o takim prowadzeniu obliczeń, że ich wykonanie przy użyciu biblioteki Parallel będzie efektywne..
   
 \subsection{Zwiększenie produktywności programisty}
-  Problem z efektywnością programisty w przypadku pisania programów równoległych polega na tym, że takie programy są trude do pisania.
-  Dlatego wymagają znacznych nakładów czasowych.
+  Problem z efektywnością programisty w przypadku pisania programów równoległych polega na tym, że takie programy są trude do pisania, stąd wymagają znacznych nakładów czasowych.
   Zrównoleglenie choćby niewielkiego fragmentu programu wymaga często znacznie więcej czasu niż napisanie jego sekwencyjnego odpowiednika.
   Być może dlatego obliczenia równoległe wykorzystywane są wyłącznie wtedy, gdy już nie ma innego sposobu osiągnięcia niezbędnego minimum wydajności programu.
   Biblioteka Parallel celuje w zmianę tego stanu rzeczy, dzięki wprowadzeniu modelu programowania równoległego, który będzie tak samo intuicyjny jak programowanie sekwencyjne.
@@ -43,6 +42,7 @@
 \subsection{Abstrakcja}
 
   Abstrakcja ukrywa niepotrzebne szczegóły implementacji przed programistą, co pozwala na zwiększenie jego produktywności.
+  Używając biblioteki Parallel programista nie będzie musiał uczyć się skomplikowanego API, ponieważ uogólnione API będzie proste.
 
 \subsection{Ograniczenie konieczności korzystania z mechanizmów komunikacji i synchronizacji procesów równoległych}
 
@@ -50,10 +50,72 @@
   Celem biblioteki Parallel jest zdjęcie w znacznym stopniu tego obciążenia z programisty.
   Komunikacja pomiędzy różnymi wątkami wykonania będzie koordynowana przez bibliotekę.
   Biblioteka nie może wyręczyć jednak programisty we wszystkim, ochrona spójności struktur danych pozostanie w rękach programisty.
-
-\section{Inspiracja}
+  
+\subsection{Przenaszalność}
+  
+  Jest to bardzo istotna cecha biblioteki, dzięki której kod pisany przy użyciu biblioteki Parallel będzie mógł być kompilowany i wykonywany na dowolnych platformach.
+  Zostanie to osiągnięte dzięki zaprogramowaniu biblioteki w pełnej zgodności z nowym standardem języka C++ (standard C++0x).
+  Użycie nowego standardu jest niezbędne ze względu na zaawansowane konstrukcje językowe potrzebne do zaprogramowania biblioteki Parallel.
+  Konsekwencją tego będzie niezgodność biblioteki z wcześniejszymi standardami języka C++, ale umożliwi stworzenie lepszego, bardziej czytelnego kodu biblioteki przy użyciu nowoczesnych technik programowania w C++.
 
 \section{Model programowania w bibliotekce Parallel}
+
+  Model programowania przy użyciu biblioteki był tak projekowany, aby spełnić cele wyszczególnione w poprzedniej sekcji.
+  Przedstawię poniżej inspirację oraz wynik końcowy pracy koncepcyjnej nad biblioteką, jak i uzasadnienie podjętych decyzji.
+
+\subsection{Inspiracja}
+
+  Powstanie biblioteki zostało zainspirowane biblioteką do prowadzenia obliczeń równoległych w języku Haskell, Parallel Haskell\cite{parhas}.
+  Ta biblioteka pozwala w sposób bardzo intuicyjny obliczać dwa wyrażenia równolegle.
+  Oto przykład funkcji obliczającej w sposób równoległy n-tą liczbę Fibonacciego:
+  \begin{verbatim}
+    import Control.Parallel
+
+    nfib :: Int -> Int
+    nfib n | n <= 1 = 1
+       | otherwise = par n1 (seq n2 (n1 + n2))
+                     where n1 = nfib (n-1)
+                           n2 = nfib (n-2)
+  \end{verbatim}
+  
+  Analogiczny program sekwencyjny wyglądałby następująco:
+  \begin{verbatim}
+    import Control.Parallel
+
+    nfib :: Int -> Int
+    nfib n | n <= 1 = 1
+       | otherwise = (n1 + n2)
+                     where n1 = nfib (n-1)
+                           n2 = nfib (n-2)
+  \end{verbatim}
+  
+  W Haskellu funkcja \verb|par| wskazuje, że wyliczenie równoległe może być korzystne i w czasie wykonania podejmowana jest decyzja o sposobie wyliczenia.
+  Ta konstrukcja pokazuje z jak zadziwiającą prostotą można pisać programy równoległe.
+  
+\subsection{Zlecanie obliczeń}
+
+  UWAGA!!! We wszystkich przedstawionych poniżej fragmentach kodu przyjęto, że zostały napisane z deklaracją \verb|using parallel;|.\\
+
+  Zlecanie równoległego wykonania obliczeń powinno jak najmniej ingerować w sekwencyjny kod programu dla zachowania jego intuicyjności.
+  Do oznaczenia wyrażenia, które ma zostać wykonane równolegle wykorzystywana jest funkcja \verb|evaluate|, przyjmująca jako argument wyrażenie do wykonania.
+  Obliczenie przekazanego wyrażenia odbędzie się równolegle.
+  W tej chwili czytelnik dobrze zaznajomiony z semantyką języka C++ zapewne zauważył problem związany z przekazaniem wyrażenia do wykonania.
+  Jeśli byłoby ono przekazane w standardowej formie w języku C++, to zostałoby wyliczone i dopiero wtedy przekazane do funkcji \verb|evaluate|, ponieważ w języku C++ wszystkie wyrażenia wyliczane są gorliwie.
+  Dlatego niezbędne było zaprojektowanie uleniwionego sposobu przekazywania wyrażenia do funkcji \verb|evaluate|.
+  
+\subsubsection{Leniwe wyrażenia w języku C++}
+
+  W pierwszej chwili stworzenie leniwego wyrażenia w języku C++ może wydawać się niemożliwe lub bardzo trudne. 
+  Domyśla semantyka jest gorliwe, nie ma żadnych słów kluczowych pozwalających na dodanie leniwości, C++ nie pozwala również na rozszerzenie składni języka.
+  Wskazówkę do rozwiazanie problemu leniwych wyrażeń w języku C++ znalazłem w książce \textit{More C++ Idioms}\cite{idioms}, która przedstawia idiom C++ szablonu wyrażenia.
+  
+\paragraph{Idiom C++ szablonu wyrażenia}
+  
+  Idiom szablonu wyrażenia 
+
+\subsection{Wykonanie zadań}
+
+\subsection{Sposób przekazywania wyniku}
 
 \section{Inne modele programowania równoległego w języku C++}
 
