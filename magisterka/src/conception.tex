@@ -107,13 +107,119 @@
 
   W pierwszej chwili stworzenie leniwego wyrażenia w języku C++ może wydawać się niemożliwe lub bardzo trudne. 
   Domyśla semantyka jest gorliwe, nie ma żadnych słów kluczowych pozwalających na dodanie leniwości, C++ nie pozwala również na rozszerzenie składni języka.
-  Wskazówkę do rozwiazanie problemu leniwych wyrażeń w języku C++ znalazłem w książce \textit{More C++ Idioms}\cite{idioms}, która przedstawia idiom C++ szablonu wyrażenia.
+  Rozwiazanie problemu leniwych wyrażeń w języku C++ znajduje się w książce \textit{More C++ Idioms}\cite{idioms}, która przedstawia idiom C++ szablonu wyrażenia (z ang. Expression Template).
   
-\paragraph{Idiom C++ szablonu wyrażenia}
+%\paragraph{Idiom C++ szablonu wyrażenia}
   
-  Idiom szablonu wyrażenia 
+  Idiom szablonu wyrażenia wykorzystuje inny idiom Rekurencyjnego Składania Typów (z ang. Recursive Type Composition). 
+  Polega on na tym, że szablon typu zawiera pola, których typem jest jest instancja tego samego szablonu typów.
+  W tens sposób powstaje drzewo reprezentujące wyrażenie w postaci drzewa typów, taka konstrukcja nazywana jest Abstrakcyjnym Drzewem Syntaktycznym (z ang. Abstract Syntax Tree - AST) typów.
+  W takiej konstrukcji w liściach drzewa znajdują się terminale wyrażenia, natomiast w węzłach pośrednich operatory użyte w wyrażeniu.
+  Oczywiście każdy operator reprezentowany jest przez odpowiedni typ, z odpowiednio zaimplementowaną funkcją aplikującą operator.
+  W celu dokładnego zrozumienia sposobów obliczeń na typach w języku C++ zalecana jest lektura książki \cite{temguide}.
+  
+%\paragraph{Leniwe wyrażenie przy pomocy idiomu wyrażenia}
+  
+  Mając implementację tworzenia szablonów wyrażeń stworzenie wyrażenia wyliczanego leniwie jest już stosunkowo proste.
+  Naturalnie, nie można przekazać całego wyrażenia w oryginalnej formie do funkcji tworzącej leniwe wyrażenie, ponieważ napotkalibyśmy identyczny problem jak opisano powyżej.
+  Przekazywane wyrażenie najpierw zostałoby wyliczone, a potem przekazane do funkcji uleniwiającej wyrażenie.
+  Leniwość musi zostać ``zaszczepiona'' na niższym poziomie do wyrażenia. Jeszcze przed tym, gdy jakikolwiek operator z wyrażenia zostanie zastosowany.
+  Jest to możliwe, dzieki oznaczeniu terminali wyrażenia jako elementów wyrażenia leniwego (na przykład w ten sposób \verb|lazy_val(4)|).
+  Kolejne etap tworzenia szablonu wyrażenia wykonywałby się dzięki przeciążaniu operatorów, gdyż typ wynikowy funkcji generycznej \verb|lazy_val| miałby przeciążone wszystkie operatory.
+  Typy wynikowe przeciążonych operatórów miałyby identyczną własność i w ten sposób osiągnelibysmy zamierzony efekt stworzenia Abstrakcyjnego Drzewa Syntaktycznego reprezentującego leniwe wyrażenie.
+  
+  Tym sposobem pokazałem, że na poziomie koncepcyjnym jak powinna wyglądać implementacja leniwego wyliczania wyrażeń w języku C++.
+  Pomysł zostanie wykorzystany w trakcie implementacji biblioteki.
+  
+\subsubsection{Alternatywne rozwiązanie}
 
+  Parafrazując popularne powiedzienie można powiedzieć, że nie ma rozwiązań niezastąpionych.
+  Oczywiście istnieje alternatywa do przekazywania wyrażenia do ewaluacji w formie leniwej.
+  Podobny efekt można uzyskać stosując obiekty funkcyjne, które reprezentowałyby dane wyrażenie.
+  Istnieje jednak istotny powód, dla którego zostało wybrane pierwsze z przedstawionych rozwiązań.
+  Leniwe wyrażenia mają znacznie bardziej intuicyjną składnię, natomiast tworzenie odpowiednich obiektów funkcyjnych wymaga znajomości stosownych bibliotek.
+  Przykładami są Boost.Lambda, Boost.Function i Boost.Bind, jednakże pomimo tego, że są to jedne z najlepszych bibliotek w swojej klasie ich składnia jest zdecydowanie nieintuicyjna i nieczytelna, w przypadku pisania rozbudowanego wyrażenia.
+  Szczególnie problematyczny jest zapis zagniężdżonych funkcji, w tym operatorów.
+  Następujący kawałek kodu nie należy do czytelnych:
+\begin{verbatim}
+  bind(f, bind(operator+,5,4)); //f(5+4)
+\end{verbatim}
+  Zamiast bardziej intuicyjnego:
+\begin{verbatim}
+  lazy_fun(f)( lazy_val(5) + lazy_val(4) );
+\end{verbatim}
+  Tak naprawdę wystarczyłoby
+\begin{verbatim}
+ f(lazy_val(5)+4);
+\end{verbatim}
+  gdyż \verb|lazy_val(5)| "zaszczepiłoby" leniwość na najniższym poziomie w drzewie wyrażenia, która następnie propagowałaby się w stronę potomków i rodzeństwa tego węzła w drzewie wyrażenia.
+
+  Stąd ze względu na znacznie bardziej intuicyjną składnię dla przekazywania obliczeń do wykonania równoległego zostały wybrane leniwe wyrażenia.
+  
+\subsubsection{Funkcja \texttt{evaluate}}
+
+  Funkcja \texttt{evaluate} jest główną funkcją z API dostępnego dla programisty.
+  Funkcja służy do zlecenia wykonania obliczeń równoleglych.
+  W ciele funkcji powinno znaleźć się przekazanie wyrażenia w formie leniwej do mechanizmu ewaluacyjnego.
+  Funkcja powinna udostępniać możliwość sprawdzenia wyniku obliczenia.
+  Przekazywanie wyników obliczeń przez bibliotekę Parallel został omówiony w jednej z następnych podsekcji.
+  
 \subsection{Wykonanie zadań}
+
+  W tej podsekcji zostanie omówiony mechanizm wyliczania wyrażeń w bibliotece Parallel.
+  Została podjęta decyzja, iż wyrażenia przeznaczone do wyliczenia równoległęgo będą obliczane w wątkach działających w ramach programu korzystającego z biblioteki Parallel.
+  
+\subsubsection{Wątki-pracownicy}
+
+  Wyrażenie przekazane do funkcji \texttt{evaluate} po zamienieniu na leniwe wyrażenie będzie przekazywane do wyliczenia.
+  Wyrażenia będę w obliczane w bibliotece Parallel w wątkach zwanych wątkami-pracownikami.
+  Jedynym zadaniem tych wątków będzie oczekiwanie na zadanie do wykonania, a następnie wyliczenie leniwego wyrażenia z odpowiednim przekazaniem wyniku.
+  W tym modelu wątki-pracownicy będą konsumentami zadań do wykonania, natomiast kod użytkownika będzie produkował te zadania.
+  
+  
+\subsubsection{Ograniczenia mechanizmu ewaluacji}
+
+  W związku ze sposobem przekazywania wyrażeń do obliczenia, możliwości projektowania mechanizmu ewaluacyji były dość poważnie ograniczone.
+  W ogólności moglibyśmy wyobrazić sobie sytuację, w której wyrażenie z programu działającego na jednym komputerze byłoby przekazywane do wyliczenia do innych programół lub nawet do innych komputerów, w celu jeszcze lepszego zrównoleglenia wykonania programu i uzyskania większego przyspieszenia.
+  W przypadku biblioteki parallel wystąpiło kilka ograniczeń, które uniemożliwiły zaprojektowanie ogólniejszego mechanizmu obliczeń.
+  
+  Migracja kodu (taka jak zostałą opisana w książce \cite{dissys}) nie jest wspierana przez język C++, ponieważ kod kompilowany jest do natywnego kodu maszynowego, a nie kodu pośredniego.
+  Nie ma możliwości zserializowania fragmentu obliczeń i przesłania do wykonania na innym komputerze, o nieznanej architekturze.
+  W przeciwieństwie do języka C++ to jest wykonalne w języku Java.
+  
+  Alternatywą dla wsparcia języka dla migracji kodu jest rozszerzenie narzędzi kompilujących o narzędzia automatycznie generujące kod dla klienta (programu zlecającego obliczenia) i serwera (programu wykonującego obliczenia).
+  To już zaczyna przypominać mechanizm RPC i rodzi szereg innych problemów również opisanych w \cite{dissys}.
+  Implementacja takiego modelu prowadzenia obliczeń w bibliotece Parallel wykraczałaby poza ramy nakreślonej pracy oraz sprawiłaby, iż Parallel przestałaby być zwykłą biblioteką, 
+  której można użyć na każdej platformie zgodnej ze standardem C++0x.
+  
+  Kolejne z ograniczeń jest związane z obecnością w wyrażeniu przekazywanym do obliczenia wartości typu referencje lub wskaźniki, które są ściśle zależne od przestrzeni adresowej programu. 
+  Przesłanie ich nawet do innego programu na tym samym komputerze nie miałoby sensu, gdyż powodowałoby błędy w dostępie do pamięci.
+  Obejście tego problemu oferuje mechanizm pamięci współdzielonej, ale powoduje znaczny narzut na dostęp do pamięci współdzielonej.
+  Natomiast narzut na dostęp do obiektów współdzielonych pomiędzy odseparowanymi fizycznie komputerami byłby ogromny.
+  
+  Wymienione powyżej ograniczenia uzasadniają podjęcie decyzji o przyjęcie dla biblioteki Parallel modelu obliczania wyrażeń opartego o wątki działające w ramach programu zlecającego obliczenia.
+  
+\subsubsection{Działanie mechanizmu ewaluacji}
+  
+  Ewaluacja wyrażeń przekazanych do obliczenia będzie odbywała się zgodnie z powszechnie znanym modelem w dziedzinie współbieżności, producent-konsument.
+  Producentem wyrażeń będzie kod programu korzystającego z biblioteki Parallel i przekazujący wyrażenia przy pomocy funkcji \texttt{evaluate}.
+  Natomiast konsumentem będą wątki-pracownicy biblioteki Parallel, których jedynym zadaniem będzie oczekiwanie na zadania (wyrażenia do ewaluacji) i ich wykonywanie.
+  Ze względu na efektywność wykorzystany zostanie wzorzec puli wątków (thread pool opisany w \cite{threadpool}).
+  Zatem wątek nie będzie tworzony dla wykonania każdego zadania, a będzie istniała grupa wątkół dedykowanych do wykonywania obliczeń, która będzie zaalokowana w programie tak długo jak program będzie korzystał z biblioteki Parallel.
+  O liczbie wątków będzie decydował użytkownik, gdyż ich liczba może mieć znaczący wpływ na wydajność programu, a nie istnieje optymalna liczba wątków dla każdego rodzaju zastosowania biblioteki Parallel.
+  Standardowo w tym modelu wyrażenia będą trafiały do kolejki zadań, w której będą oczekiwały na wyliczenie.
+  
+  Może się zdarzyć, że wyrażenie nie zostanie wyliczone do momentu gdy będzie potrzebne w programie, który przekazał je do obliczenia.
+  W tej sytuacji biblioteka Parallel reaguje w takie sposób, by nie blokować bez przyczyny programu.
+  Program dotarłby do takiego miejsca, że potrzebuje wyliczonego wyrażenia przekazanego do Parallel, a nie zostało jeszcze wykonane, program musiałby oczekiwać na wykonanie obliczeń.
+  Skoro program nie ma nic innego do wykonania to wątek programu sam może wyliczyć wyrażenie, odpowiednio informując bibliotekę Parallel, aby wyrażenie nie zostało wykonane kilkakrotnie, 
+  gdyż nierozsądne byłoby narzucanie ograniczenia nakazującego, żeby wyrażenia przekazywane do biblioteki Parallel były idempotentne.
+  Całością procesu alternatywnego wyliczania obliczenia przez wątek programu powinna zarządzać biblioteka, tak aby nie było to zauważalne dla programisty.
+  
+  Jednym z rozszerzeń mechanizmu ewaluacji mogłoby być
+  Zależności danych i równoważenie obciążenia wątków
+  
+  
 
 \subsection{Sposób przekazywania wyniku}
 
