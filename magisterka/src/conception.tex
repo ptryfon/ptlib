@@ -58,6 +58,10 @@
   Użycie nowego standardu jest niezbędne ze względu na zaawansowane konstrukcje językowe potrzebne do zaprogramowania biblioteki Parallel.
   Konsekwencją tego będzie niezgodność biblioteki z wcześniejszymi standardami języka C++, ale umożliwi stworzenie lepszego, bardziej czytelnego kodu biblioteki przy użyciu nowoczesnych technik programowania w C++.
 
+\section{Istniejące modele programowania równoległego w języku C++}
+
+  
+
 \section{Model programowania w bibliotekce Parallel}
 
   Model programowania przy użyciu biblioteki był tak projekowany, aby spełnić cele wyszczególnione w poprzedniej sekcji.
@@ -169,13 +173,27 @@
   W tej podsekcji zostanie omówiony mechanizm wyliczania wyrażeń w bibliotece Parallel.
   Została podjęta decyzja, iż wyrażenia przeznaczone do wyliczenia równoległęgo będą obliczane w wątkach działających w ramach programu korzystającego z biblioteki Parallel.
   
-\subsubsection{Wątki-pracownicy}
-
-  Wyrażenie przekazane do funkcji \texttt{evaluate} po zamienieniu na leniwe wyrażenie będzie przekazywane do wyliczenia.
-  Wyrażenia będę w obliczane w bibliotece Parallel w wątkach zwanych wątkami-pracownikami.
-  Jedynym zadaniem tych wątków będzie oczekiwanie na zadanie do wykonania, a następnie wyliczenie leniwego wyrażenia z odpowiednim przekazaniem wyniku.
-  W tym modelu wątki-pracownicy będą konsumentami zadań do wykonania, natomiast kod użytkownika będzie produkował te zadania.
+  \subsubsection{Działanie mechanizmu ewaluacji}
   
+  Ewaluacja wyrażeń przekazanych do obliczenia będzie odbywała się zgodnie z powszechnie znanym modelem w dziedzinie współbieżności, producent-konsument.
+  Producentem wyrażeń będzie kod programu korzystającego z biblioteki Parallel i przekazujący wyrażenia przy pomocy funkcji \texttt{evaluate}.
+  Natomiast konsumentem będą wątki-pracownicy biblioteki Parallel, których jedynym zadaniem będzie oczekiwanie na zadania (wyrażenia do ewaluacji) i ich wykonywanie.
+  Ze względu na efektywność wykorzystany zostanie wzorzec puli wątków (thread pool opisany w \cite{threadpool}).
+  Zatem wątek nie będzie tworzony dla wykonania każdego zadania, a będzie istniała grupa wątkół dedykowanych do wykonywania obliczeń, która będzie zaalokowana w programie tak długo jak program będzie korzystał z biblioteki Parallel.
+  O liczbie wątków będzie decydował użytkownik, gdyż ich liczba może mieć znaczący wpływ na wydajność programu, a nie istnieje optymalna liczba wątków dla każdego rodzaju zastosowania biblioteki Parallel.
+  Standardowo w tym modelu wyrażenia będą trafiały do kolejki zadań, w której będą oczekiwały na wyliczenie.
+  
+  Może się zdarzyć, że wyrażenie nie zostanie wyliczone do momentu gdy będzie potrzebne w programie, który przekazał je do obliczenia.
+  W tej sytuacji biblioteka Parallel reaguje w takie sposób, by nie blokować bez przyczyny programu.
+  Program dotarłby do takiego miejsca, że potrzebuje wyliczonego wyrażenia przekazanego do Parallel, a nie zostało jeszcze wykonane, program musiałby oczekiwać na wykonanie obliczeń.
+  Skoro program nie ma nic innego do wykonania to wątek programu sam może wyliczyć wyrażenie, odpowiednio informując bibliotekę Parallel, aby wyrażenie nie zostało wykonane kilkakrotnie, 
+  gdyż nierozsądne byłoby narzucanie ograniczenia nakazującego, żeby wyrażenia przekazywane do biblioteki Parallel były idempotentne.
+  Całością procesu alternatywnego wyliczania obliczenia przez wątek programu powinna zarządzać biblioteka, tak aby nie było to zauważalne dla programisty.
+  
+  Jednym z rozszerzeń mechanizmu ewaluacji mogłoby być dodanie automatycznego dostosowywania liczby wątków w puli do intensywności prowadzonych obliczeń.
+  W pierwszej wersji biblioteki nie przewidziano w projekcie takiej funkcjonalności.
+  
+  W bibliotece nie występuje problem balansowania obciążenia różnych wątków, gdyż wszystkie wątki należące do puli są identycznie i dzięki wykorzystaniu wspólnej kolejki zadań, obciążenie jest równoważone samoczynnie.
   
 \subsubsection{Ograniczenia mechanizmu ewaluacji}
 
@@ -199,30 +217,44 @@
   
   Wymienione powyżej ograniczenia uzasadniają podjęcie decyzji o przyjęcie dla biblioteki Parallel modelu obliczania wyrażeń opartego o wątki działające w ramach programu zlecającego obliczenia.
   
-\subsubsection{Działanie mechanizmu ewaluacji}
-  
-  Ewaluacja wyrażeń przekazanych do obliczenia będzie odbywała się zgodnie z powszechnie znanym modelem w dziedzinie współbieżności, producent-konsument.
-  Producentem wyrażeń będzie kod programu korzystającego z biblioteki Parallel i przekazujący wyrażenia przy pomocy funkcji \texttt{evaluate}.
-  Natomiast konsumentem będą wątki-pracownicy biblioteki Parallel, których jedynym zadaniem będzie oczekiwanie na zadania (wyrażenia do ewaluacji) i ich wykonywanie.
-  Ze względu na efektywność wykorzystany zostanie wzorzec puli wątków (thread pool opisany w \cite{threadpool}).
-  Zatem wątek nie będzie tworzony dla wykonania każdego zadania, a będzie istniała grupa wątkół dedykowanych do wykonywania obliczeń, która będzie zaalokowana w programie tak długo jak program będzie korzystał z biblioteki Parallel.
-  O liczbie wątków będzie decydował użytkownik, gdyż ich liczba może mieć znaczący wpływ na wydajność programu, a nie istnieje optymalna liczba wątków dla każdego rodzaju zastosowania biblioteki Parallel.
-  Standardowo w tym modelu wyrażenia będą trafiały do kolejki zadań, w której będą oczekiwały na wyliczenie.
-  
-  Może się zdarzyć, że wyrażenie nie zostanie wyliczone do momentu gdy będzie potrzebne w programie, który przekazał je do obliczenia.
-  W tej sytuacji biblioteka Parallel reaguje w takie sposób, by nie blokować bez przyczyny programu.
-  Program dotarłby do takiego miejsca, że potrzebuje wyliczonego wyrażenia przekazanego do Parallel, a nie zostało jeszcze wykonane, program musiałby oczekiwać na wykonanie obliczeń.
-  Skoro program nie ma nic innego do wykonania to wątek programu sam może wyliczyć wyrażenie, odpowiednio informując bibliotekę Parallel, aby wyrażenie nie zostało wykonane kilkakrotnie, 
-  gdyż nierozsądne byłoby narzucanie ograniczenia nakazującego, żeby wyrażenia przekazywane do biblioteki Parallel były idempotentne.
-  Całością procesu alternatywnego wyliczania obliczenia przez wątek programu powinna zarządzać biblioteka, tak aby nie było to zauważalne dla programisty.
-  
-  Jednym z rozszerzeń mechanizmu ewaluacji mogłoby być
-  Zależności danych i równoważenie obciążenia wątków
-  
-  
+\subsubsection{Mechanizmy synchronizacji}
 
+  W mechaniźmie ewaluacji istnieją miejsca, w których niezbędne będzie zastosowanie równolegle działających wątów w celu zapewnienia poprawnego działania biblioteki.
+ 
+  Przede wszystkim, ochrony przed wspólbieżnym dostępem wymaga kolejka zadań, na której będę jednocześnie operowały wszystkie wątki z puli, w celu pobierania obliczeń do wykonania, oraz kod programu użytkownika, w celu dodania wyrażenia do obliczenia.
+  Aby zapewnić tym opracjom bezpieczeńśtwo wystarczy dostęp do kolejki zadań otoczyć sekcją krytyczną, w której będzie mógł przebywać tylko jeden program.
+  
+  Ponadto, należy chronić zadania przed podwójnym wyliczeniem, przez wątek programu oraz przez wątek-pracownika biblioteki Parallel. 
+  W tym celu również należy zaprojektować odpowiedni mechanizm synchronizacji.
+  
+  Ochrona danych, na których dokonywane są obliczenia pozostanie w rękach programisty.
+  Jego zadaniem jest odpowiednie umieszczenie sekcji krytycznych w kodzie obliczanych wyrażeń, tak aby program był bezpieczny i żywotny.
+  
 \subsection{Sposób przekazywania wyniku}
 
-\section{Inne modele programowania równoległego w języku C++}
+  Aby kod korzystający z biblioteki Parallel wyglądał naturalnie funkcja \texttt{evaluate} będzie zwracała wartość typu parametryzowanego typem wyniku wyrażenia przekazanego do obliczenia.
+  Będzie to uchwyt do wyniku, który zostanie wyliczony przez mechanizm ewaluacji.
+  Konieczne było wprowadzenie klasy obudowującej wartość zwracaną, nazwijmy ją wartością odroczoną, ponieważ typową sytuacją będzie to, że w momencie powrotu z wywołania funkcji \texttt{evaluate} wartość wyrażenie nie będzie znana.
+  Pomimo tego, możliwe jest zwrócenie wartości typu, której będzie można używać podobnie do typu wynikowego wyrażenia.
+  W momencie, gdy wartość wyrażenia będzie niezbędna nastąpi wymuszenie ewaluacji, jeśli wartość nie została jeszcze wyliczona, i pobranie wyniku.
+  
+\subsubsection{Metody klasy reprezentującej uchwyt do wyniku}
+
+  Interfejs publiczny klasy reprezentującej uchwyt do wyniku będzie zawierał metody:
+\begin{itemize}
+ \item pobrania wartości,
+ \item sprawdzenia czy wartość została już wyliczona,
+ \item operator konwersji do typu wyniku wyrażenia
+\end{itemize}
+
+  Ponadto w interfejsie klasy obudowującej wynik będą znajdowały się wszystkie operatory, których można użyć dla typu wyniku obliczenia wyrażenia.
+  Dzięki temu wartość odroczona w swoim zachowaniu będzie ściśle przypominać wartość typu, który reprezentuje.
+  Oczywiście ze względu na  ograniczenia języka niemożliwe jest zdefinowanie operatorów \verb|+| oraz \verb|.*|, co nie ogranicza użyteczności typu wartość odroczona, gdyż w tym przypadku operatory te nie miałyby sensu.
+  Operatory będą zwracać wartości typu wartość odroczona, aby prowadzić obliczenia w taki sposób, że wymuszenie obliczenia wartości odroczonej było możliwe najpóźniej jak to możliwe.
+  Pozwoli to na lepsze zrównoleglenie obliczeń, ponieważ umożliwie przeprowadzenie większej liczby obliczeń przez wątki-pracowników z biblioteki Parallel.
+  
+\subsubsection{
+
+
 
 \section{Analiza cech biblioteki}

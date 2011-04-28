@@ -102,6 +102,7 @@ public:
 
 	deferred_value() : m_p_implementation(new deferred_value_impl()) {}
 	deferred_value(deferred_value const & other) = delete;
+	//TO DO trzeba zmienić i dać możliwość kopiowania, bo nie ma powodu, żeby tego zabronić.
 	deferred_value & operator=(deferred_value const & other) = delete;
 	deferred_value & operator=(deferred_value && other) { m_p_implementation = std::move(other.m_p_implementation); return *this; }
 	deferred_value(deferred_value && other) { *this = std::move(other); }
