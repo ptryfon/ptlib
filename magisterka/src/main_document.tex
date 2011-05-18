@@ -17,10 +17,49 @@
 
 %Jesli uzywasz kodowania polskich znakow ISO-8859-2 nastepna linia powinna byc 
 %odkomentowana
-\usepackage[utf8]{inputenc}
+\usepackage[latin2]{inputenc}
 %Jesli uzywasz kodowania polskich znakow CP-1250 to ta linia powinna byc 
 %odkomentowana
 %\usepackage[cp1250]{inputenc}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage{epstopdf}
+\usepackage{listings}
+\lstset{ %
+language=C++,                % the language of the code
+numbers=left,
+frame=single,
+showstringspaces=false,
+inputencoding=utf8,
+extendedchars=\true,
+literate= {ą}{{\k{a}}}1
+	  {Ą}{{\k{A}}}1
+	  {ę}{{\k{e}}}1
+	  {Ę}{{\k{E}}}1
+	  {ó}{{\'o}}1
+	  {Ó}{{\'O}}1
+	  {ś}{{\'s}}1
+	  {Ś}{{\'S}}1
+	  {ł}{{\l{}}}1
+	  {Ł}{{\L{}}}1
+	  {ż}{{\.z}}1
+	  {Ż}{{\.Z}}1
+	  {ź}{{\'z}}1
+	  {Ź}{{\'Z}}1
+	  {ć}{{\'c}}1
+	  {Ć}{{\'C}}1
+	  {ś}{{\'n}}1
+	  {ś}{{\'N}}1
+}
+
+\usepackage{float}
+\floatstyle{boxed} 
+\restylefloat{figure}
+
+\newcommand{\feval}{\texttt{eval}}
+\newcommand{\dexp}{\texttt{deferred\_expr}}
+\newcommand{\emgr}{\texttt{evaluation\_mgr}}
+\newcommand{\dval}{\texttt{deferred\_value}}
 
 \include{preamble}
 
@@ -36,14 +75,16 @@
 %   Dwa podstawowe problemy, które towarzyszą wyborowi technologii do programowania równoległego, to poziom abstrakcji oraz wydajność.
 %   Poziom abstrakcji
 
+\include{other_models}
 
+%\chapter{Analiza cech biblioteki}
 
-\chapter{Opis implementacji}\label{r:implementacja}
+\include{implementation}
 
-\chapter{Ewaluacja biblioteki}\label{r:ocena}
+\chapter{Ewaluacja biblioteki}\label{r:ewaluacja}
 
-\section{Teretyczne podstawy}
-Prawo Amdahla - o ile można przyspieszyć program.
+%\section{Teretyczne podstawy}
+%Prawo Amdahla - o ile można przyspieszyć program.
 \chapter{Podsumowanie}\label{r:podsumowanie}
 
 \appendix

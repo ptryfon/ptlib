@@ -12,8 +12,8 @@
   Takie rozwiązanie teoretycznie pozwala na uzyskanie przyspieszenia wprost proporcjonalnego do liczby układów umieszczonych w procesorze.
   Żeby sie jednak tak stało programy wykonywane na takim procesorze powinny być w stanie wykorzystać te możliwości.
   
-  Programy zatem powinny wykorzystywać równoległe prowadzenie obliczeń, jednakże pomimo długo rozwijanej teorii oraz narzędzi wspierających, programowanie równoległe wciaż pozostaje bardzo trudne do zastosowania w praktyce.
-  Dzieje się tak, ponieważ wykorzystanie kilku ciągów instrukcji w ramach, których program będzie wykonywany, drastycznie zwiększa złożoność kodu.
+  Zatem w programach powinno być stosowane równoległe prowadzenie obliczeń, jednakże pomimo długo rozwijanej teorii oraz narzędzi wspierających, programowanie równoległe wciaż pozostaje bardzo trudne do zastosowania w praktyce.
+  Dzieje się tak, ponieważ wykorzystanie kilku wątków wykonania programu, drastycznie zwiększa złożoność pracy programistycznej.
   Programista, aby napisać program współbieżny (\cite{barney}) musi w pierwszej kolejności zidentyfikować fragmeny obliczeń, które mogą zostać zrównoleglone.
   Następnie powinien zaprojektować sposób w jaki poszczególne ciągi wykonania się ze sobą komunikują i w jaki sposób są synchronizowane.
   W celu zapewnienia efektywności programu programista powinien uwzględnić w projekcie również balansowanie rozkładu pracy pomiedzy poszczególne wątki wykonania.
@@ -21,22 +21,74 @@
   Programistę w zmaganiach z pisaniem programów wspierają różnorodne narzędzia, języki programowania specjalnie zaprojektowane do obliczeń równoległych jak Ada lub biblioteki oferujące wykonywanie obliczeń równoległych
   w językach natywnie sekwencyjnych.
   Zazwyczaj te pierwsze wywiązują się ze swojego zadania dobrze, gdyż zostały są dedykowane do programowania równoległego, lecz nie są popularne w zastosowaniach praktycznych.
-  Większym problemem jest korzystanie z tych drugich, ponieważ język sekwencyjny zazwyczaj nie pozwala na zaprojektowanie biblioteki mogącej konkurować prostotą i intiucyjnością z językiem do programowani równoległego.
+  Większym problemem jest korzystanie z tych drugich, ponieważ język sekwencyjny zazwyczaj nie pozwala na zaprojektowanie biblioteki mogącej konkurować prostotą i intiucyjnością z językiem do programowania równoległego.
   W praktyce potrzeba skorzystania z bibliotek dla języków sekwencyjnych występuje zdecydowanie częściej, ponieważ są bardzo popularne.
   Niniejsza praca podejmuje próbę stworzenia takiej biblioteki dla języka C++.
   Nadrzędnymi priorytetami podczas projektowania biblioteki Parallel było zapewnienie łatwości pisania programów równoległych (ukrycie niepotrzebnych detali przed programistą) z jednoczesnym pozostawieniem pełnej kontroli 
-  nad wykonaniem programu w rękach programisty. Zastosowane rozwiązania powinny zagwarantować wydajność działania biblioteki oraz poprawność.
+  nad wykonaniem programu w rękach programisty. 
+  Dzięki temu miały zostać osiągnięte dwa główne cele projektowania biblioteki zwiększeni produktywności programisty oraz zwiększenie szybkości działania programów (przyspieszonych przez wykorzystanie równoległości).
+  
+  Biblioteka Parallel pozwala na zrównoleglanie obliczeń w zwięzły sposób, który nie ingeruje znacząco w strukture kodu.
+  Aby z niej skorzystać wystarczy nieznacznie zmodyfikowane wyrażenie zgodne ze specyfikacją biblioteki Parallel przekazać do funkcji bibliotecznej \verb|eval|.
+  To powoduje przekazanie tego wyrażenia do wyliczenia przez aparat wykonawczy biblioteki Parallel i zwrócenie wyliczonej wartości.
+  Najlepiej objaśni tę sytuację przykład wykorzystania biblioteki.
+  Zgodnie z wieloletnią tradycją literatury informatycznej jako pierwszy pokażę fragment kodu zrównoleglający wypisanie komunikatu ``Hello World!''.
+  Standardowo w języku C++ taki kod wygląda następująco:
+  \begin{lstlisting}
+   #include <iostrem>
+   
+   using std;
+   
+   int main()
+   {
+       cout << "Hello World!" << endl;
+       cout << "...lo World, ...orld, ...rld" << endl; /* Echo */
+       return 0;
+   }
+  \end{lstlisting}
+  W przypadku wykorzystania biblioteki Parallel przyjmie on następującą postać:
+  \begin{lstlisting}
+   #include <parallel.h>
+   #include <iostream>
+   
+   using std, parallel;
+   
+   int main()
+   {
+       parallel::eval(ref(cout) << "Hello World!" << endl);
+       cout << "...lo World, ...orld, ...rld" << endl; /* Echo */
+       return 0;
+   }
+  \end{lstlisting}
+  
+  Zrównoleglenie będzie polegało w tym przypadku na tym, że kod główny programu zleci równoległe obliczenie wyrażenia wypisującego ``Hello World!'' bibliotece Parallel i nie czekając na wynik przejdzie do następnej instrukcji.
+  W szczególności w tym przypadku może się zdarzyć, że odpowiedź echa zostanie wypisana szybciej niż pierwszy komunikat.
+  Wprawdzie ten fregment kodu nie pokazuje przydatności biblioteki, ale prezentuje prosty przykład składni i pomoże zrozumieć dalszy opis biblioteki.
+  Bardziej obszerne przykłady znajdują się w dalszej części pracy.
 
+%   Załóżmy, że chcemy znaleźć maksymalną wartość w bardzo dużej tablicy liczb całkowitych i dysponujemy odpowiednią funkcją \verb|znajdz_maksimum|.
+%   Wtedy kod naszego programu działający w pełni sekwencyjnie wyglądałby  na przykład w ten sposób:
+%   \begin{verbatim}
+%    maks = znajdz_maksimum(tablica, dlugosc_tablicy);
+%   \end{verbatim}
+%   Biblioteka Parallel pozwala zrównoleglić ten proces przy zastosowaniu następującego fragmentu kodu:
+%   \begin{verbatim}
+%     maks = parallel::eval(lazyf(znajdz_maksimum, tablica, dlugosc_tablicy));
+%   \end{verbatim}
+%   Przy takim zapisie powrót z funkcji \verb|eval| nastąpi prawie natychmiast, bo wywołanie funkcji \verb|znajdz_maksimum| odbędzie się w innym wątku programu, a główny wątek programu będzie w tym czasie wykonywał kolejne instrukcje.
+  
   Pierwszy rozdział pracy opisuje koncepcję biblioteki, główne zasady nią rządzące oraz porównuje projektowane rozwiązanie do istniejąch rozwiażań.
   Drugi rozdział traktuje o sposobie implementacji biblioteki.
   W trzecim rozdziale zostały przedstawione metody oraz wyniki ewaluacji biblioteki.
   Rozdział ostatni podsumowujący nakreśla możliwości dalszego rozwoju biblioteki.
 
+\newpage
 \section*{Definicje pojęć i skrótów}
-\begin{tabular}{ | l | l |}
-  \hline
+\begin{tabular}{ | l | p{0.75\textwidth} |}
+  \hline\
   \textbf{Pojęcie} & \textbf{Definicja} \\ \hline
-  Idiom C++& Konstrukcja języka C++, która często pojawia się w kodzie lub projektach doświadczonych programistów C++. Stosowanie jej uważane jest za dobrą praktykę.\\ \hline
+  Idiom C++ & Konstrukcja języka C++, która często pojawia się w kodzie lub projektach doświadczonych programistów C++. Stosowanie jej uważane jest za dobrą praktykę.\\ \hline
+  AST & Abstrakcyjne Drzewo Syntaktyczne (z ang. Abstract Syntax Tree) jest drzewem reprezentującym strukturę kodu źródłowego w pewnym języku programowania.\\
   
   \hline
 \end{tabular} 

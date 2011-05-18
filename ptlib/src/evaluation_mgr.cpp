@@ -24,7 +24,7 @@ void
 evaluation_mgr::close()
 {
 	delete m_p_instance;
-	std::cout << "End of eval_mgr close" << std::endl;
+	//std::cout << "End of eval_mgr close" << std::endl;
 }
 
 void
@@ -51,38 +51,38 @@ evaluation_mgr::~evaluation_mgr()
 	m_continue = false;
 	m_threads_cond.notify_all();
 	m_threads.join_all();
-	std::cout << "Eval_mgr dest finished" << std::endl;
+	//std::cout << "Eval_mgr dest finished" << std::endl;
 }
 
 void
 evaluation_mgr::evaluation_loop()
 {
-	std::cout << "Entering evaluation loop" << std::endl;
+	//std::cout << "Entering evaluation loop" << std::endl;
 	while(m_continue)
 	{
 		task_ptr_type p_task;
 		{// CRITICAL_SECTION
-			std::cout << "Before mutex" << std::endl;
+			//std::cout << "Before mutex" << std::endl;
 			boost::mutex::scoped_lock lock(m_tasks_mutex);
-			std::cout << "Loop critical section" << std::endl;
+			//std::cout << "Loop critical section" << std::endl;
 			if (m_foo.empty())
 			{
-				std::cout << "No tasks" << std::endl;
+				//std::cout << "No tasks" << std::endl;
 				m_threads_cond.wait(lock, boost::bind(&evaluation_mgr::if_stop_waiting, this));
 			}
 			if (!m_continue)
 			{
-				std::cout << "Stop execution" << std::endl;
+				//std::cout << "Stop execution" << std::endl;
 				break;
 			}
 			else // m_tasks is not empty
 			{
-				std::cout << "Some task" << std::endl;
+				//std::cout << "Some task" << std::endl;
 				p_task = std::move(m_tasks.front());
 				m_tasks.pop();
 			}
 		}
-		std::cout << "Evaluation from eval loop" << std::endl;
+		//std::cout << "Evaluation from eval loop" << std::endl;
 		p_task->evaluate();
 	}
 }

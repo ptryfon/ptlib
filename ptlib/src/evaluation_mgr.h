@@ -8,7 +8,7 @@
 #ifndef EVALUATION_MGR_H_
 #define EVALUATION_MGR_H_
 
-#include "deferred.h"
+#include "deferred_expression.h"
 
 #include <boost/thread.hpp>
 
@@ -17,14 +17,10 @@
 
 namespace ptlib { namespace parallel {
 
-#ifndef PARALLEL_DEFAULT_THREADS_NUM
-#define PARALLEL_DEFAULT_THREADS_NUM 10
-#endif
-
 class evaluation_mgr {
 
 public:
-	static void init(unsigned threads_num = PARALLEL_DEFAULT_THREADS_NUM);
+	static void init(unsigned threads_num);
 	static void close();
 	static void add_for_evaluation(deferred_expression_base * const);
 
