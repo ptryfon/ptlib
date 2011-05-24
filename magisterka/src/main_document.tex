@@ -1,16 +1,3 @@
-%
-% Niniejszy plik stanowi przykÅ‚ad formatowania pracy magisterskiej na
-% Wydziale MIM UW.  Szkielet uÅ¼ytych poleceÃ± moÅ¼na wykorzystywaÄ‡ do
-% woli, np. formatujac wlasna prace.
-%
-% Zawartosc merytoryczna stanowi oryginalnosiagniecie
-% naukowosciowe Marcina Wolinskiego.  Wszelkie prawa zastrzeÅ¼one.
-%
-% Copyright (c) 2001 by Marcin WoliÃ±ski <M.Wolinski@gust.org.pl>
-% Poprawki spowodowane zmianami przepisÃ³w - Marcin Szczuka, 1.10.2004
-% Poprawki spowodowane zmianami przepisow i ujednolicenie 
-% - Seweryn KarÅ‚owicz, 05.05.2006
-% dodaj opcjÄ™ [licencjacka] dla pracy licencjackiej
 \documentclass{pracamgr}
 
 \usepackage{polski}
@@ -24,70 +11,104 @@
 \usepackage{hyperref}
 \usepackage{graphicx}
 \usepackage{epstopdf}
+\usepackage{xspace}
 \usepackage{listings}
 \lstset{ %
 language=C++,                % the language of the code
 numbers=left,
 frame=single,
 showstringspaces=false,
-inputencoding=utf8,
-extendedchars=\true,
-literate= {Ä…}{{\k{a}}}1
-	  {Ä„}{{\k{A}}}1
-	  {Ä™}{{\k{e}}}1
-	  {Ä˜}{{\k{E}}}1
-	  {Ã³}{{\'o}}1
-	  {Ã“}{{\'O}}1
-	  {Å›}{{\'s}}1
-	  {Åš}{{\'S}}1
-	  {Å‚}{{\l{}}}1
-	  {Å}{{\L{}}}1
-	  {Å¼}{{\.z}}1
-	  {Å»}{{\.Z}}1
-	  {Åº}{{\'z}}1
-	  {Å¹}{{\'Z}}1
-	  {Ä‡}{{\'c}}1
-	  {Ä†}{{\'C}}1
-	  {Å›}{{\'n}}1
-	  {Å›}{{\'N}}1
 }
 
 \usepackage{float}
 \floatstyle{boxed} 
 \restylefloat{figure}
 
-\newcommand{\feval}{\texttt{eval}}
-\newcommand{\dexp}{\texttt{deferred\_expr}}
-\newcommand{\emgr}{\texttt{evaluation\_mgr}}
-\newcommand{\dval}{\texttt{deferred\_value}}
+\newcommand{\feval}{\texttt{eval}\xspace}
+\newcommand{\dexp}{\texttt{deferred\_expr}\xspace}
+\newcommand{\emgr}{\texttt{evaluation\_mgr}\xspace}
+\newcommand{\dval}{\texttt{deferred\_value}\xspace}
 
-\include{preamble}
+
+\author{Pawe³ Tryfon}
+
+\nralbumu{248444}
+
+\title{Parallel -- biblioteka do równoleg³ego obliczania wyra¿eñ w jêzyku C++}
+
+\tytulang{A library for parallel expression evaluation in C++}
+
+%kierunek: Matematyka, Informatyka, ...
+\kierunek{Informatyka}
+
+% Praca wykonana pod kierunkiem:
+% (podaæ tytu³/stopieñ imiê i nazwisko opiekuna
+% Instytut
+% ew. Wydzia³ ew. Uczelnia (je¿eli nie MIM UW))
+\opiekun{dra Marcina Benke\\
+  Zak³ad Logiki Stosowanej
+  }
+
+% miesi±c i~rok:
+\date{Maj 2011}
+
+%Podaæ dziedzinê wg klasyfikacji Socrates-Erasmus:
+\dziedzina{ 
+%11.0 Matematyka, Informatyka:\\ 
+%11.1 Matematyka\\ 
+%11.2 Statystyka\\ 
+11.3 Informatyka\\ 
+%11.4 Sztuczna inteligencja\\ 
+%11.5 Nauki aktuarialne\\
+%11.9 Inne nauki matematyczne i informatyczne
+}
+
+%Klasyfikacja tematyczna wedlug AMS (matematyka) lub ACM (informatyka)
+\klasyfikacja{D. Software\\
+  D.3. Programming languages\\
+  D.3.3. Language Constructs and Features\\
+  Subject: Concurrent Programming Constructs}
+
+% S³owa kluczowe:
+\keywords{obliczenia równoleg³e, C++, wielow±tkowo¶æ, leniwe wyliczanie, programowanie generyczne}
+
+% Tu jest dobre miejsce na Twoje w³asne makra i~¶rodowiska:
+%\newtheorem{defi}{Definicja}[section]
+
+% koniec definicji
+
+\begin{document}
+\maketitle
+
+%tu idzie streszczenie na strone poczatkowa
+\begin{abstract}
+  Obecne architektury pozwalaj± na przyspieszanie dzia³ania programów dziêki ich wykonywaniu jednocze¶nie na kilku procesorach.
+  Jednak¿e skorzystanie z tej mo¿liwo¶ci przedstawia istotn± trudno¶æ dla programistów, gdy¿ programy wielow±tkowe w swojej strukturze bardzo ró¿ni± siê od programów sekwencyjnych.
+  Projektowanie i implementacja programów wykorzystuj±cych wspó³bie¿no¶æ jest znacznie bardziej czasoch³onna oraz wymaga wy¿szych kwalifikacji.
+  Niniejsza praca podejmuje próbê stworzenia biblioteki, która u³atwi³aby zadanie programowania programów wielow±tkowych.  
+  G³ównym priorytetem by³u umo¿liwienie programi¶cie zrównoleglania obliczeñ w zwiêz³y, zrozumia³y i prosty sposób.    
+  Obecnie nie istnieje w jêzyku C++ ¿adna biblioteka oferuj±ca tak± funcjonalno¶æ.
+  Praca przedstawia model prowadzenia obliczeñ równoleg³ych w jêzyku C++ oraz prezentuje proponowan± implementacjê.
+  W pracy zosta³y szczegó³owo opisane problemy, które zosta³y rozwi±zane podczas projektowania biblioteki, 
+  takie jak: mechanizm przekazywania wyra¿eñ do wyliczenia równoleg³ego, sposób prowadzenia równoleg³ych obliczeñ, 
+  sposób zwracania wyników obliczeñ oraz metody zapobiegania problemom zwi±zanym z prowadzeniem równoleg³ych obliczeñ.
+\end{abstract}
+
+\tableofcontents
 
 \include{introduction}
 
 \include{conception}
 
-%   Programista w celu wykorzystania moÅ¼liwoÅ›ci rÃ³wnolegÅ‚ego musi dokonaÄ‡ wyboru modelu programowania rÃ³wnolegÅ‚ego, narzÄ™dzi, ktÃ³re ten model wspierajÄ…, 
-%   a nastÄ™pnie do dokonanych decyzji zaprojektowaÄ‡ program.
-%   Proces projektowania programu rÃ³wnolegÅ‚ego jest znacznie bardziej skomplikowany niÅ¼ programu sekwencyjnego, ze wzglÄ™du na to, 
-%   Å¼e zazwyczaj narzÄ™dzia do programowania rÃ³wnolegÅ‚ego narzucajÄ… strukturÄ™ programu, ktÃ³ra w znacznym stopniu rÃ³Å¼ni siÄ™ od programu sekwencyjengo, 
-%   nie jest tak naturalna, a przez to trudniejsza do wykonania i zrozumienia.
-%   Dwa podstawowe problemy, ktÃ³re towarzyszÄ… wyborowi technologii do programowania rÃ³wnolegÅ‚ego, to poziom abstrakcji oraz wydajnoÅ›Ä‡.
-%   Poziom abstrakcji
-
 \include{other_models}
 
-%\chapter{Analiza cech biblioteki}
+% \chapter{Analiza cech biblioteki}
 
 \include{implementation}
 
-\chapter{Ewaluacja biblioteki}\label{r:ewaluacja}
+% \chapter{Ewaluacja biblioteki}\label{r:ewaluacja}
 
-%\section{Teretyczne podstawy}
-%Prawo Amdahla - o ile moÅ¼na przyspieszyÄ‡ program.
-\chapter{Podsumowanie}\label{r:podsumowanie}
-
-\appendix
+\include{summary}
 
 \include{bibliography}
 

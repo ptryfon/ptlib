@@ -1,0 +1,680 @@
+\chapter{Opis implementacji}\label{r:implementacja}
+
+  W tym rozdziale zostan± opisane szczegó³y implementacyjne biblioteki Parallel.
+  Nie jest moim celem opisanie pe³ne opisanie ca³o¶ci kodu, które by³oby bardzo obszerne i mêcz±ce dla czytelnika.
+  Swoj± uwage skoncentrujê na najciekawszych aspektach implementacji biblioteki, które nios³y ze sob± pewne wyzwania i wywieraj± najwiêkszy wp³yw na wynik finalny.
+  
+\section{Architektura biblioteki}
+
+  Poni¿ej znajduje siê diagram pokazuj±cy g³ówne komponenty biblioteki i to jak one od siebie wzajemnie zale¿±.
+  Podczas omawiania implementacji biblioteki Parallel bêdê odwo³ywa³ siê czêsto do elementów przedstawionego schematu.
+  Pozwoli to na lepsze zrozumienie pó¼niejszych rozwa¿añ.
+  
+\begin{figure}[h!]
+ \includegraphics[width=\textwidth]{architecture.eps}
+ \caption{Schemat architektury biblioteki Parallel}
+\end{figure}
+
+  Diagram przedstawia najwa¿niejsze elementy statycznej struktury biblioteki wraz z zale¿no¶ciami miêdzy nimi.
+  Na diagramie nie znajduj± siê wszystkie metody zaimplementowane w poszczególnych klasach, a jedynie te niezbêdne do zaprezenowania sposobu architektury biblioteki.
+  
+\subsection{API biblioteki}
+
+  Kod programu komunikuje siê z bibliotek± poprzez API. Oto krótkie wyja¶nienie znaczenia poszczególnych funkcji z API:
+  G³ówn± funkcj± z API jest funkcja \feval, której znaczenie zosta³o opisane w sekcji \nameref{sss:eval}.
+  Pozosta³e funkcje maj± zadanie pomocnicze w stosunku do \feval.
+  S± niezbêdne do stworzenia wyra¿enia, które funkcja \feval mo¿e przyj±æ do wyliczenia.
+  I tak odpowiednio funkcja \verb|val| pozwala przekazaæ swój argument do wyra¿enia przez warto¶æ, \verb|cval| przez warto¶æ sta³±, \verb|ref| przez referencjê, \verb|cref| przez sta³± referencjê.
+  Ponadto w API znajduje sie wzorzec funkcji pozwalaj±cy na uleniwione wywo³ywanie funkcji, \verb|lazyf|.
+  Dok³adna rola i sposób tych funkcji jest opisana w sekcji \nameref{s:przekazywanie_wyrazen}.
+  
+\subsection{Operacje wykonywane w kodzie biblioteki Parallel}\label{ss:operacje}
+
+  Odpowiednio stworzone wyra¿enie jest przetwarzane przez funkcjê \feval.
+  W ciele funkcji z wyra¿enia tworzony jest obiekt typu \verb|deferred_expr| z przypisanym odpowiednim wyra¿eniem, który reprezentuje zadanie do wykonania.
+  Zadanie do wykonania jest dodawane do kolejki zadañ w obiekcie \emgr przy u¿yciu metody \verb|add_for_eval|.
+  Aparat wykonawczy w postaci instancji typu \emgr zawiera oprócz kolejki zadañ do wykonania równie¿ w±tki, którymi zarzadza i które te zadania wykonuj± dzia³aj±c w nieskoñczonej pêtli w funkcji \verb|eval_loop|.
+  Ka¿dy obiekt typu \verb|deferred_expr| jest po³±czony 1-1 z obiektem typu \dval, który reprezentuje wynik obliczenia wyra¿enia.
+  Je¶li zadanie zdefinowane przez wyra¿enie zapisane w obiekcie \dexp zostaje wykonane, to wynik (je¶li istnieje) zostaje przypisany na pole \verb|value| w skojarzonym obiekcie typu \dval.
+  
+\subsection{Zwrócenie wyniku}
+  
+  Wynik jest przekazywany do kodu programu poprzez warto¶æ typu \verb|deferred_value|, która jest zwracana jako wynik funkcji \feval.
+  Je¶li nast±pi wywo³anie pobrania warto¶ci z obiektu typu \dval metod± \verb|get_value| lub wymuszenie wyliczenia warto¶ci przez metodê \verb|force| to je¶li skojarzone \dexp nie zosta³o wykonane
+  to wyliczenie wyra¿enia zostanie wymuszone, o ile siê jeszcze nie rozpoczê³o.
+  
+  
+\section{Implementacja przekazywania wyra¿eñ do wyliczenia}\label{s:przekazywanie_wyrazen}
+  
+  Zaprojektowanie przekazywania wyra¿eñ do wykonania by³o jednym z najtrudniejszych zadañ podczas fazy implementacji biblioteki Parallel.
+  Mechanizm mia³ stanowiæ wa¿n± czê¶æ API biblioteki, które powinno wspieraæ spe³nienie wyznaczonych dla biblioteki celów czytelno¶ci i intuicyjno¶ci.
+  Te cele niew±tpliwie by³yby zrealizowane, gdyby mo¿liwe by³o przekazywanie wyra¿eñ w ich standardowej postaci w jêzyku C++.
+  Jednak problem stanowi³ fakt, i¿ jêzyk C++ posiada gorliw± semantykê wyliczania wyra¿eñ.
+  Definicja problemu podpowiada³a rozwi±zanie, skoro problemem jest gorliwo¶æ nale¿a³o wyra¿enia przekazywane do wyliczenia uleniwiæ.
+  
+  Najbardziej naturalne by³oby u¿ycie s³owa kluczowego lub funkcji, która uleniwia³aby wyra¿enie.
+  Pierwszy pomys³ by³ nie do zrealizowania, poniewa¿ jêzyka C++ nie mo¿na rozszerzyæ o nowe s³owa kluczowe, a standard jêzyka nie przewidzia³ s³owa kluczowego dla uleniwiania wyra¿eñ.
+  Uleniwienie poprzez u¿ycie funkcji mog³oby wygl±daæ nastêpuj±co:
+  \begin{lstlisting}[numbers=none,frame=none]
+   make_lazy_expression(4 + fibonacci(20));
+  \end{lstlisting}
+  Jednak semantyka jêzyka C++ równie¿ nie pozwala³a na tak± realizacjê uleniwiania wyra¿eñ, gdy¿ wyra¿enie podane jako argument jest wyliczane przed wywo³aniem funkcji.
+  
+  Metoda rozwi±zania problemu uleniwiania wyra¿eñ okaza³a siê byæ bardziej skomplikowana i zosta³a zainspirowana przez idiom C++ szablonu wyra¿enia,
+  który jako jedna z dobrych praktyk jêzyka C++ zosta³ opisany w ksi±¿ce \textit{More C++ Idioms} \cite{idioms}.
+  Implementacja tego szablonu nie by³aby mo¿liwa gdyby nie bardzo silny szablonów typów i funkcji w jêzyku C++.
+
+\subsection{Szablony w jêzyku C++}
+
+  Nie chcia³bym zamieszczaæ tutaj opisu podstawowych informacji na temat szablonów.
+  Wprowadzenie do tej tematyki mozna przeczytaæ w ksi±¿ce \cite{c++lang}.
+  Moim celem jest pokazanie, dlaczego implementacja przekazywania wyra¿eñ tak jak tego dokona³em by³a mo¿liwa.
+  
+  Szablony s± bardzo silnym mechanizmem, aczkolwiek si³a ekspresyjna szablonów nie by³a zamierzona przez twórców i dopiero przypadkiem zosta³y odkryte mo¿liwo¶ci, które daj±.
+  Szablony C++ s± w rzeczywisto¶ci pewnym funkcyjnym jêzykiem programowania o ekspresywno¶ci rachunku lambda.
+  Udowodniono, i¿ mechanizm szablonów jest równowa¿ny maszynie Turinga (\cite{turingcom}).
+  W praktyce oznacza to tyle, ¿e szablony C++ pozwalaj± dokonywac dowolnych obliczeñ w oparciu o typy.
+  Oto przyk³ad obliczania silni w czasie kompilacji przy pomocy szablonów:
+  \begin{lstlisting}
+template< unsigned n >
+struct factorial {
+  static const unsigned value = 
+    n * factorial<n-1>::value;};
+template<>
+struct factorial<0> {
+  static const unsigned value = 1; };
+  \end{lstlisting}
+  Obliczenie odbywa siê rekurencyjnie, granic± rekurencji jest \verb|factorial<0>|, które jest specjalizacj± szablonu \verb|factorial|.
+  Taka konstrukcja pozwala obliczyæ dowolne warto¶ci silni w czasie kompilacji
+  \footnote{Pewnym ograniczeniem jest limit kompilatora na rekurencyjne konkretyzowanie szablonów, ale ten limit mo¿na zmieniæ przy pomocy odpowiednich opcji} i korzystaæ z nich w czasie sta³ym podczas wykonania programu.
+  
+\subsection{Idiom C++ szablonu wyra¿enia}
+
+  Intuicyjnie rzecz ujmuj±c, idiom szablonu wyra¿enia polegana opisaniu wyra¿enia przy pomocy instancji pewnego szablonu typu.
+  Ten typ nie jest nigdy zapisywany w postaci jawnej w programie, gdy¿ nale¿a³oby oczekiwaæ, ¿e sk³adnia szablonu typu by³aby wtedy bardzo nieczytelna.
+  Zamiast tego szablon typu jest tworzony w wyniku obliczeñ na typach udostêpnianych przez mechanizm rozwijania szablonów w jêzyku C++.
+  Idiom szablonu wyra¿enia wykorzystuje inny idiom Rekurencyjnego Sk³adania Typów (z ang. Recursive Type Composition). 
+  Polega on na tym, ¿e szablon typu zawiera pola, których typem jest jest instancja tego samego szablonu typów.
+  W tym przypadku szablon wyra¿enia mo¿e zawieraæ pola, które s± szablonem wyra¿enia.
+  W ten sposób powstaje drzewo reprezentuj±ce wyra¿enie w postaci drzewa typów. 
+  Taka konstrukcja nazywana jest Abstrakcyjnym Drzewem Syntaktycznym (z ang. Abstract Syntax Tree - AST).
+  W takiej konstrukcji w li¶ciach drzewa znajduj± siê terminale wyra¿enia, czyli szablony wyra¿enia nie zawieraj±ce ju¿ w sobie ¿adnych szablonów wyra¿enia.
+  Natomiast w wêz³ach po¶rednich reprezentowane s± operatory u¿yte w wyra¿eniu, które jako pola posiadaj± szablony wyra¿enia, bêd±ce argumentami operatora.
+  Ka¿demu operatorowi odpowiada reprezentuj±cy go szablon typu, z odpowiednio zaimplementowan± funkcj± aplikuj±c± operator, w momencie, gdy szablon wyra¿enia jest wyliczany.
+  
+  Zaprezentuje ideê szablonu wyra¿enie na przyk³adzie, w którym jedyna dozwolon± operacj± bêdzie dodawanie liczb ca³kowitych lub zmiennoprzecinkowych.
+\begin{lstlisting}
+/*** TYPY ODPOWIEDZIALNE ZA BUDOWÊ DRZEWA AST ***/
+
+template <typename T> struct Exp;
+
+template <typename T>
+struct Term : Exp<Term<T> >
+{
+  Term(T v) : val(v){}
+  const T val;
+};
+
+/* Definicje wez³ów reprezentuj±cych operatory */
+
+template <typename T1, typename T2>
+struct Sum : Exp<Sum<T1, T2> >
+{
+  Sum (T1 l, T2 r) : lhs(l), rhs(r) {}
+  const T1 lhs;
+  const T2 rhs;
+};
+
+template <typename T1, typename T2>
+struct Mul: Exp<Mul<T1, T2> >
+{
+  Mul(T1 l, T2 r) : lhs(l), rhs(r) {}
+  const T1 lhs;
+  const T2 rhs;
+};
+
+/* Wzorzec Infer s³u¿y do obliczania typu wynikowego wyra¿enia */
+
+template <typename E> 
+struct Infer {
+  typedef E type ; 
+};
+
+template <typename T>
+struct Infer<Term<T> >
+{
+  typedef T type;
+};
+
+/* Wnioskowanie dla sumy zgodnie z semantyk± jêzyka C++ */
+
+template < >
+struct Infer< Sum<double,double> > 
+{ 
+  typedef double type; 
+};
+
+template < >
+struct Infer< Sum<double,int> > 
+{
+  typedef double type;
+};
+
+template < > 
+struct Infer< Sum<int,double> > 
+{
+  typedef double type; 
+};
+
+template < > 
+struct Infer< Sum<int,int> > 
+{ 
+  typedef int    type;
+};
+
+/* Typ(T1 + T2) to typ sumy(typ(T1),typ(T2)) */
+template <typename T1, typename T2> 
+struct Infer < Sum<T1,T2> > {
+  typename Infer<T1>::type typedef T1T ;
+  typename Infer<T2>::type typedef T2T ;
+  typename Infer<Sum<T1T,T2T> >::type typedef type;
+} ;
+
+/* Wnioskowanie o typach dla wzorca Mul jest analogiczne */
+
+/* Wzorzec Exp umo¿liwia unikniêcie definicji operatorów
+ * w ka¿dym typie reprezentujacym weze³ po¶redni w drzewie AST */
+ 
+template <typename T>
+struct Exp
+{
+  template <typename U>
+  inline Sum<T,U> operator + (U u) 
+  { 
+    /* static_cast jest potrzebny i prawid³owy, 
+     * poniewa¿ Exp jedynie obudowuje typ T */
+    return Sum<T,U>(static_cast<T>(*this), u); 
+  }
+  
+  template <typename U>
+  inline Mul<T,U> operator * (U u)
+  {
+    return Mul<T,U>(static_cast<T>(*this), u);
+  }
+};
+
+template <typename T, typename U>
+Sum<T,U> operator + (T t, Exp<U> u)
+{
+  return Sum<T,U>(t, static_cast<U>(u));
+}
+
+template <typename T, typename U>
+Mul<T,U> operator * (T t, Exp<U> u)
+{
+  return Mul<T,U>(t, static_cast<U>(u));
+}
+
+/*** DEFINICJE FUNKCJI EWALUUJ¡CYCH DRZEWA AST ***/
+
+inline template <typename T>
+Infer<T>::type eval(Exp<T> exp)
+{
+  return eval(static_cast<T>(exp));
+}
+
+inline template <typename T>
+Infer<Term<T> >::type eval(Term<T> term)
+{
+  return term.val;
+}
+
+inline template <typename T1, typename T2>
+Infer<Sum<T1, T2> >::type eval(Sum<T1, T2> sum)
+{
+  return eval(sum.lhs) + eval(sum.rhs);
+}
+
+inline template <typename T1, typename T2>
+Infer<Mul<T1, T2> >::type eval(Mul<T1, T2> mul)
+{
+  return eval(mul.lhs) + eval(sum.rhs);
+}
+
+/* Potrzebna jest tak¿e definicja int eval (int) 
+ * oraz double eval(double), poniewa¿ nie ma wymogu,
+ * aby zawsze te typy proste by³y obudowane w Term. */
+ 
+inline int eval(int i) {return i;}
+inline double eval(double d) {return d;}
+\end{lstlisting}
+
+  Wzorzec \verb|Term| (linie 6-11) umo¿liwia oznaczenie dowolnej warto¶ci jako li¶cia w drzewie reprezentujacym szablon wyra¿enia. \footnote{Jednak wzorce \texttt{Term} bêd± zaliczane do wez³ów po¶rednich, warto¶æ, któr± on trzyma jest li¶ciem.}
+  Teoretycznie wszystkie warto¶ci powinny byc oznaczone w ten sposób.
+  Jednak jak sie pó¼niej dowiemy identyczne dzia³anie mo¿na uzyskaæ oznaczaj±c tylko czê¶æ warto¶ci.
+  
+  Wzorce \verb|Sum| oraz \verb|Mul| reprezentuj± wez³y po¶rednie w drzewie AST (linie 15-29).
+  Ich lewa i prawa strona reprezentuj± odpowiednie podwyra¿enia, bêd±ce argumentami operatora binarnego.
+  Najciekawszym zabiegiem u¿ytym w ich definicji jest podanie definicji tego¿ samego wzorca jako argumentu wzorca Exp, bêd±cego klas± bazow± wzorców operatorów.
+  Ma to miejsce przyk³adowo w tym fragmencie kodu: \verb|struct Sum : Exp<Sum<T1, T2> >| i jest w pe³ni dozwolone przez sk³adniê jêzyka.
+  Dziêki takiemu zabiegowi mo¿na podaæ implementacjê operatorów tylko we wzorcu \verb|Exp|, a nie jest to konieczne we wszystkich innych wzorcach wêz³ów po¶rednich.
+  \verb|Sum<T1, T2>| dziedziczy metody przedefiniuj±ce operatory, z tym, ¿e te definicje s± dopasowane do \verb|Sum<T1, T2>|, poniewa¿ s± parametryzowane tym typem.
+  
+  Kolejna czê¶æ przyk³adu (linie 33-78) zajmuje siê definicj± wzorca \verb|Infer|, który oblicza typ wynikowy wyliczenia wyra¿enia, bêdzie on potrzebny do definicji funkcji ewaluuj±cych wyra¿enie.
+  Wykorzystywany jest tutaj mechanizm specjalizacji wzorców w jêzyku C++, który pozwala okre¶liæ typ wynikowy wyra¿enia w zale¿no¶ci od postaci wzorca.
+  Ogólnie, podczas definicji wnioskowania o typach nale¿y pamiêtaæ o uwzglêdnieniu wszystkich istotnych specjalizacji wzorca, czyli dla wêz³ów po¶rednich jak \verb|Term|, \verb|Sum|, \verb|Mul|
+  oraz wszystkich mo¿liwych typów, które mog± wystapiæ w wêz³ach po¶rednich.
+  Jak widaæ implementacja szablonu wzorca wnioskuj±cego o typie wynikowym wyra¿enia jest bardzo d³uga i czasoch³onna (do tego stopnia, ¿e pomin±³em czê¶æ po¶wiêcon± wnioskowaniu typu dlaczego
+  wzorca \verb|Mul|, gdy¿ jest ona dok³adnie analogiczna jak czê¶æ dotycz±ca wzorca \verb|Sum|.
+  
+  Na koniec sekcji kodu, która tworzy AST (linie 83-99) znajduje siê definicja wzorca \verb|Exp|, którego rola zosta³a opisana powy¿ej.
+  \verb|Exp| uwspólnia definicje operatorów w klasach wêz³ów po¶rednich.
+  
+  Kolejna du¿a sekcja kodu przyk³adu (linie od 103 do 132) definiuje funkcjê \feval, która s³u¿y do obliczania warto¶ci szablonu wyra¿enia.
+  Funkcja \feval przyjmuje jako argument szablon wyra¿enia (albo warto¶æ prost± int lub double), a nastêpnie oblicza jego warto¶æ zgodnie z semantyk± jêzyka C++.
+  Typ zwracamy przez \feval jest obliczany przy pomocy wzorca \verb|Infer|.
+  
+\subsubsection{Szablon wyra¿enia w dzia³aniu}
+  Zrozumienie kodu szablonu wyra¿enia przedstawionego powy¿ej bêdzie ³atwiejsze po przeanalizowaniu przyk³adów jego dzia³ania.
+  We¼my najprostszy mo¿liwy przyk³ad:
+  \begin{lstlisting}[numbers=none, frame=none]
+   Term(4) + Term(5);
+  \end{lstlisting}
+  Wyra¿enie reprezentuje dodanie dwóch liczb ca³kowitych i szablon wyra¿enia, który zostanie stworzony w wyniku obliczeñ na typach bêdzie wygl±da³ nastêpuj±co:
+  \begin{lstlisting}[numbers=none, frame=none]
+   Sum<Term<int>,Term<int> >
+  \end{lstlisting}
+  Ju¿ na bazie tego prostego przyk³adu nasuwa siê kilka ciekawych kwestii do omówienia.
+  
+  Po pierwsze mo¿na siê zastanowiæ, po co sk³adania jest tak przegadana oraz czy potrzebne jest pisanie \verb|Term| przy ka¿dej warto¶ci przekazywanej do wyra¿enia.
+  Wiadomo na pewno, ¿e co najmniej jedna warto¶æ musi by³ oznaczona jako terminal szablonu wyra¿enia.
+  Jest tak, poniewa¿ je¶li, ¿adna z warto¶ci nie by³aby oznaczona by³oby to zwyk³e wyra¿enie C++ i zosta³oby obliczone gorliwie.
+  Ponadto, nie da siê tego zmieniæ przy pomocy prze³adowywania operatorów, gdy¿ co najmniej jednym argumentem operatora musi byæ klasa lub typ wyliczeniowy.
+  Zastanówmy siê, czy poni¿sze wyra¿enie jest poprawne sk³adniowo i je¶li tak, to jaki bêdzie szablon typu, który powstanie.
+  \begin{lstlisting}[numbers=none, frame=none]
+   Term(4) + 5;
+  \end{lstlisting}
+  W tym wyra¿eniu mamy do czynienia z operacj± dodawania typu \verb|Term<int>| oraz typu \verb|int|.
+  Poniewa¿ \verb|Term<int>| dziedziczy operator dodawania z \verb|Exp<Term<int> >| to zostanie wywo³any operator dodawania zdefinowany w linii 87 przyk³adu.
+  Warto zauwa¿yæ, ¿e typ prawego argumentu nie jest w ¿aden sposób ograniczony, wiêc zastosowanie typu int jest poprawne i podane wyra¿enie jest poprawne sk³adniowo.
+  W zwi±zku z tym wynikiem budowy drzewa tego wyra¿enia bêdzie \verb|Sum<Term<int>, int>|.
+  To pokazuje, ¿e szablon wyra¿enia zostanie zbudowany poprawnie równie¿ wtedy, gdy nie wszystkie warto¶ci zostan± oznaczone jako terminale.
+  Jednak¿e, czê¶æ warto¶ci, a co najmniej jedna musi zostaæ oznaczona, gdy¿ inaczej budowa szablonu wyra¿enia nie zostanie zapocz±tkowana i wyra¿enie nie zostanie uleniwione, a obliczy siê normalnie.
+  
+  Wa¿nym faktem jest to, ¿e budowa drzewa AST ma miejsce w czasie kompilacji, wiêc budowanie szablonów wyra¿eñ nie nak³ada narzutów na czas wykonania programu.
+  Natomiast narzuty podczas ewaluacji uleniwionego wyra¿enia zale¿± od tego w jakim stopniu kompilator zoptymalizowa³ wywo³ania funkcji \feval wyliczaj±cej warto¶æ wyra¿enia poprzez jej rekurencyjne rozwiniêcie w miejscu wykonania.
+  W najgorszym przypadku nast±pi jedno wywo³anie funkcji dla ka¿dego wêz³a po¶redniego.
+  
+  Teraz na bardziej zaawansowanym przyk³adzie zbadamy to jakie s± zasady decyduj±ce o tym kiedy dodanie oznaczenia \verb|Term| jest wymagane, aby uleniwienie wyra¿enia dzia³a³o zgodnie z ¿yczeniem programisty.
+  Do tej analizy pos³u¿± dwa poni¿sze przyk³ady uleniwionych wyra¿eñ:
+  \begin{lstlisting}[frame=none, numbers=none]
+   4 + 5 * Term(6); /* (1) */
+   
+   Term(4) + 5 * 6; /* (2) */
+  \end{lstlisting}
+  Nale¿y mieæ ¶wiadomo¶æ, ¿e du¿± rolê w procesie budowy drzewa AST odgrywaj± priorytety operatorów.
+  To one decyduj± w du¿ej mierze o postaci drzewa i o tym w jaki sposób wyra¿enie zostanie uleniwione.
+  
+  W pierwszym wyra¿eniu najpierw kompilator zajmie siê podwyra¿eniem \verb|5 * Term(6)|, które da w rezultacie \verb|Mul<int, Term<int> >|.
+  Warto odnotowaæ, ¿e tym razem tylko prawy argument operatora binernego by³ typem szablonu wyra¿enia, wiêc zosta³ u¿yty operator zdefinowany w linii 108 przyk³adu.
+  W nastepnej kolejno¶ci nast±pi dodawanie 4 oraz wyra¿enia typu \verb|Mul<int, Term<int> >|, co da w wyniku kolejny bardziej rozbudowany szablon wyra¿enia \verb|Sum<int, Mul<int, Term<int> > >|.
+  Uda³o siê pokazaæ, ¿e pierwsze z analizowanych wyra¿eñ zachowa siê zgodnie z intencj± programisty, to znaczy ca³e wyra¿enie zostanie uleniwione.
+  
+  Analogicznie badamy zachowanie wyra¿enia drugiego.
+  Na pocz±tku spostrzegamy, ¿e najpierw dojdzie do obliczenia podwyra¿enia \verb|5 * 6|. 
+  Zatem ewaluacja odbêdzie siê gorliwie, poniewa¿ budowa szablonu wyra¿enia nie zosta³a zapocz±tkowana, mamy tu do czynienia ze zwyk³ym mno¿eniem.
+  W nastêpnym kroku odbêdzie siê dodawanie \verb|Term(4)| i wyniku \verb|5 * 6|, czyli \verb|30|, czego konsekwencj± bêdzie stworzenie szablonu wyra¿enia \verb|Sum<Term<int>, int>|.
+  To nie jest to czego oczekiwali¶my, gdy¿ za³o¿yli¶my, ¿e chcemy uleniwiæ ca³e wyra¿enie, a zasz³o to jedynie dla jego czê¶ci.
+  
+  Wnioskiem z powy¿szej analizy jest to w jaki sposób dochodzi do propagowania siê leniwo¶ci w czasie budowania szablonu wyra¿enia.
+  To propagowanie zachodzi od warto¶ci oznaczonej jako terminal w górê drzewa.
+  St±d ka¿dy operator na ¶cie¿ce pomiêdzy uleniwionym terminalem, a korzeniem drzewa (w³±cznie) bêdzie uleniwiony, czyli nie bêdzie wywo³any od razu, 
+  a zostanie zakodowany w strukturze szablonu wyra¿enia i wywo³any, gdy nast±pi wymuszenie obliczenia wyra¿enia.
+  W szczególno¶ci, pisz±c kod tworz±cy szablony wyra¿enia w oparciu o przedstawiony przyk³ad nale¿y mieæ na uwadze to, ¿e tworzenie drzew AST przez kompilator nie jest jednoznaczne,
+  poniwa¿ kompilator mo¿e w przypadku wyst±pienia obok siebie operatorów o identycznym priorytecie stworzyæ ró¿ne drzewa AST.
+  Przyk³adem jest wyra¿enie \verb|4 + 5 + 6|.
+  
+\subsection{Praktyczna implementacja szablonu wyra¿enia -- Boost.Proto}
+
+  Przedstawiony powy¿ej sposób da siê uogólniæ dla dowolnego wyra¿enia w jêzyku C++.
+  To znaczy, ¿e stworzenie dowolnego leniwego wyra¿enia jest mo¿liwe, do czego d±¿y³em podczas pisania pracy.
+  Jednak¿e napisanie takiej biblioteki od podstaw wykracza³o poza ramy tej pracy magisterskiej.
+  Dlatego siêgn±³em po rozwi±zania ju¿ istniej±ce, publicznie dostepne.
+  Wybra³em bibliotekê Boost.Proto w celu implementacji uleniwionych wyra¿eñ, metod± szablonów wyra¿eñ.
+  
+  Boost.Proto jest bibliotek± s³u¿±c± do tworzenia Wbudowanych Jêzyków Domenowych (z ang. Domain Specific Embedded Language) w jêzyku C++. 
+  Zawiera narzêdzia do tworzenia, sprawdzania typów, przetwarzania oraz wykonywania szablonów wyra¿eñ. Proto zapewnia:
+  \begin{itemize}
+   \item Szablony wyra¿eñ w postaci AST
+   \item Mechanizm modyfikacji zachowania wyra¿eñ
+   \item Prze³adowania operatorów dla budowy AST z wyra¿enia
+   \item Narzêdzia do definiowania gramatyki wyra¿eñ
+   \item Rozszerzalny mechanizm natychmiastowego wyliczenia szablonu wyra¿enia
+   \item Rozszerzalny zestaw operacji przetwarzania na szablonach wyra¿eñ
+  \end{itemize}
+
+  Biblioteka Boost.Proto zosta³a wykorzystana do implementacji nastêpuj±cych komponentów biblioteki Parallel:
+  \begin{itemize}
+   \item Funkcje do oznaczania terminali:
+   \begin{itemize}
+    \item \verb|val| -- funkcja przekazuj±ca terminal do wyra¿enia przez warto¶æ
+    \item \verb|cval| -- funkcja przekazuj±ca terminal do wyra¿enie przez sta³± warto¶æ (modyfikator \verb|const|)
+    \item \verb|ref| -- funkcja przekazuj±ca terminal do wyra¿enia przez referencjê
+    \item \verb|cref| -- funkcja przekazuj±ca terminal do wyra¿enia przez sta³± referencjê
+   \end{itemize}
+   \item \verb|lazyf| -- funkcja s³u¿±ca do tworzenia uleniwionego wywo³ania funkcji
+   \item \verb|deferred_expr| -- szablon typu przechowuj±cego uleniwione wyra¿enia i zarz±dzaj±cego jego wyliczeniem
+  \end{itemize}
+  
+  Biblioteka Parallel korzysta z Boost.Proto do tworzenia szablonów wyra¿eñ w postaci AST, równie¿ przy pomocy mechanizmu prze³adowywania operatorów, dziêki czemu budowa AST jest uproszczona.
+  Ponadto ewaluacja odbywa siê przy pomocy dostarczonej przez Boost.Proto funkcji \verb|proto::eval| z domy¶lnym zachowaniem.
+  Zasada dzia³ania Boost.Proto jest analogiczna do dzia³ania przyk³adu pokazanego powy¿ej.
+
+\subsection{Alternatywne rozwi±zanie}
+
+  Do wyboru by³a równie¿ inna mo¿liwo¶æ realizacji przekazywania wyra¿enia ni¿ forma uleniwiona opisana to powy¿ej.
+  Podobny efekt mo¿na uzyskaæ stosuj±c obiekty funkcyjne, które reprezentowa³yby dane wyra¿enie.
+  Istnieje jednak istotny powód, dla którego zosta³o wybrane pierwsze z przedstawionych rozwi±zañ.
+  Leniwe wyra¿enia maj± bardziej intuicyjn± sk³adniê, natomiast tworzenie odpowiednich obiektów funkcyjnych wymaga znajomo¶ci stosownych bibliotek.
+  Przyk³adami s± Boost.Lambda, Boost.Function i Boost.Bind, jednak¿e pomimo tego, ¿e s± to jedne z najlepszych bibliotek w swojej klasie ich sk³adnia jest w przypadku pisania rozbudowanego wyra¿enia zdecydowanie nieintuicyjna.
+  Szczególnie problematyczny jest zapis zagnie¿d¿onych funkcji, w tym operatorów.
+  Nastêpuj±cy kawa³ek kodu nie nale¿y do czytelnych:
+\begin{verbatim}
+  bind(f, bind(operator+,5,4)); //f(5+4)
+\end{verbatim}
+  Zamiast bardziej intuicyjnego:
+\begin{verbatim}
+  fun(f)( val(5) + val(4) );
+\end{verbatim}
+  Tak naprawdê wystarczy³oby
+\begin{verbatim}
+ f(val(5)+4);
+\end{verbatim}
+  gdy¿ \verb|val(5)| wprowadzi³oby leniwo¶æ na najni¿szym poziomie w drzewie wyra¿enia, która nastêpnie propagowa³aby siê w stronê potomków i rodzeñstwa tego wêz³a w drzewie wyra¿enia.
+
+  St±d ze wzglêdu na znacznie bardziej intuicyjn± sk³adniê dla przekazywania obliczeñ do wykonania równoleg³ego zosta³y wybrane leniwe wyra¿enia.
+
+\section{Implementacja mechanizmu ewaluacji}\label{s:ewaluacja}
+
+  Zarys mechanizmu ewaluacji zosta³ przedstawiony w sekcji \nameref{ss:wykonywanie}.
+  G³ówn± funkcj± mechanizmu ewaluacji jest pobieranie zadañ (wyra¿eñ do obliczenia) zlecanych przez kod programu i ich ewaluacja.
+  Do implementacji tej czê¶ci biblioteki wykorzystano wzorzec projektowy puli w±tków oraz kolejki zadañ.
+  G³ówn± klas± tej czê¶ci biblioteki jest \verb|evaluation_mgr| (od ang. evaluation manager -- mened¿er ewaluacji), która jest singletonem i zarz±dza ca³o¶ci± procesu wykonywania zadañ.
+  
+\subsection{Zadania w bibliotece Parallel}
+
+  Zadaniem w kontekscie biblioteki Parallel nazywam uleniwione wyra¿enie, które zosta³o przekazane bibliotece do obliczenia.
+  Zadanie jest reprezentowane przez wzorzec typu \verb|deferred_expr| (od ang. deferred expression -- wyra¿enie odroczone).
+  Naistotniejsz± w³asno¶cia \verb|deferred_expr| jest to, ¿e jedyny konstruktor publiczny przyjmuje jako argument szablon wyra¿enia, taki jaki zosta³ opisany w sekcji \nameref{s:przekazywanie_wyrazen}.
+  Szablon wyra¿enia jest przechowywany jako jedno z pól \verb|deferred_expr|.
+  Ten szablon wyra¿enia jest poddawany ewaluacji po wywo³aniu metody \verb|evaluate|.
+  Pozosta³e pola i metody \verb|deferred_expr| s³u¿a kontrolowaniu wyliczenia wyra¿enia oraz przekazywaniem wyniku do skojarzonego obiektu typu \verb|deferred_value|
+  \footnote{Zgodnie z opisem z \nameref{ss:operacje} obiekt \dexp jest skojarzony 1-1 z obiektem \dval.}.
+  
+\subsection{Pula w±tków}
+
+  Wzorzec puli w±tkó³ zosta³ wybrany ze wzglêdu na efektywno¶æ.
+  Dziêki takiej implementacji unika siê tworzenia w±tku dla ka¿dego zadania do wykonania, co jest operacj± dosyæ drog± i warto zadbaæ, aby nie by³a wykonywana zbyt czêsto.
+  Ka¿dy z w±tków dzia³a w nieskoñczonej pêtli w funkcji \verb|eval_loop|, w której w±tek próbuje pobraæ zadanie do wykonania z kolejki zadañ, a je¶li nie jest ono dostêpne to czeka na zmiennej warunkowej.
+  Do implementacji zosta³a wykorzystana biblioteka Boost.Threads.
+  
+  Pula w±tków pozwala w ³atwy sposób unikn±æ innego problemu zwi±zanego z tworzeniem w±tku dla ka¿dego zadania.
+  W przypadku gdyby pojawi³o siê zbyt wiele zadañ jednocze¶nie liczba w±tków mog³aby wzrosn±æ do takiej liczby, ¿e wydajno¶æ programu znacznie by spad³a z powodu czêstego prze³±czania kontekstu pomiêdzy ró¿nymi w±tkami.
+  Pula w±tków pozwala ustaliæ maksymaln± liczbê w±tków, wiêc pewna liczba nigdy nie zostanie przekroczona i je¶li zostanie ustawiona odpowiedno, nie dojdzie przeci±¿enia systemu.
+  Obecnie liczba w±tków jest ustalana przez programistê, nic nie stoi na przeszkodzie, aby w przysz³o¶ci liczba w±tków by³a dobierana automatycznie w zale¿no¶ci od wydajno¶ci systemu b±d¼ innych parametrów.
+  
+\subsection{Kolejka zadañ}
+
+  Kolejka zadañ jest standardow± kolejk± FIFO przechowuj±c± obiekty \dexp.
+  Poniewa¿ jednocze¶nie kod programu lub ka¿dy z w±tków z puli przechowywanej w \verb|evaluation_mgr| mo¿e chcieæ skorzystaæ z kolejki, dostêp do niej jest chroniony sekcj± krytyczn±.
+  Dodawanie zadañ do kolejki odbywa siê w ciele funkcji \feval przy u¿yciu funkcji \verb|add_for_eval|.
+
+\subsection{Procedura ewaluacji}
+
+  Procedura ewaluacji z punktu widzenia mechanizmu ewaluacji wygl±da bardzo prosto.
+  W±tek-robotnik pobrawszy zadanie wywo³uje jego metodê \verb|evaluate|.
+  To skutkuje wyliczeniem wyra¿enia, a je¶li typ wynikowy wyra¿enie jest inny ni¿ \verb|void| to warto¶æ zostaje przekazana do skojarzonego obiektu \dval.
+  Po wyliczeniu wyra¿enia obiekt \dexp jest niszczony, gdy¿ nie jest ju¿ potrzebny.
+  
+  Ten obraz komplikuje siê, gdy rozwa¿ymy pewien bardzo istotny scenariusz.
+  Otó¿ nie ma problemu je¶li, w±tki-robotnicy nad±¿aj± z ewaluacja z zadañ z kolejki.
+  Jednak, gdy d³ugo¶æ kolejki wzro¶nie mo¿e dojsæ do sytuacji, ¿e w±tek programu, który zleci³ wyliczenie wyra¿enia bêdzie potrzebowa³ jego warto¶ci.
+  Wtedy nast±pi próba pobrania warto¶ci z obiektu \dval, który jeszcze nie otrzyma³ obliczonej warto¶ci.
+  To oznacza, ¿e w±tek programu musi zawiesiæ wykonywanie i poczekaæ, a¿ warto¶æ zostanie obliczona.
+  
+  Nie jest z³± sytuacj±, gdy w±tek programu oczekuje, gdy ewaluacja wyra¿enia ju¿ siê rozpoczê³a, poniewa¿ warto¶æ zostanie przekazana tak szybko jak to mo¿liwe.
+  Jednak, gdy zadanie, na które kod programu oczekuje, jeszcze nie zosta³o pobrane do wykonania dochodzi do absurdalnej sytuacji, 
+  dlatego, ¿e w±tek programu nic nie robi i czeka na wykonanie zadania, podczas gdy móg³by sam wykonaæ potrzebne obliczenia.
+  Odpowienio zaimplementowana procedura ewaluacji w bibliotece Parallel unika tego problemu.
+  
+  W analogicznej sytuacji w±tek programu, gdy zorientuje siê, ¿e wyra¿enie nie zosta³o obliczone sam dokona ewaluacji.
+  Zostanie wywo³ana ta sama procedura \verb|evaluate|, któr± wywo³uj± w±tki-robotnicy.
+  Mo¿e to skutkowaæ zdublowanym wyliczeniem wyra¿enia, w przypadku, gdy zarówno w±tek programu, jak i jeden z w±tków-robotników obliczyliby wyra¿enie.
+  Taka sytuacja by³aby niedopuszczalna, poniewa¿ obliczanie w C++ nie jest idempotentne z powodu efektów ubocznych.
+  
+  Najbardziej standardowym rozwi±zaniem by³oby umieszczenie w ka¿dym obiekcie \dexp flagi wraz mutex-em j± chroni±cym w celu zapobie¿enia podwójnej ewaluacji wyra¿enia.
+  Zapewni³oby to równie¿ drobn± ziarnosto¶æ ochrony, co zwiêksza³oby wspó³bie¿no¶æ i jednocze¶nie wydajno¶æ dzia³ania biblioteki.
+  Jednak¿e umieszczenie mutex-a w ka¿dym obiekcie ma pewien narzut pamiêciowy i wydajno¶ciowy.
+  
+  Na szczê¶cie istnieje lepsze rozwi±zanie tego problemu mo¿liwe dziêki funkcji z biblioteki Boost Threads \verb|call_once| gwarantuj±cej jednokrotne wywo³anie funkcji.
+  Przekazanie tej funkcji zmiennej typu \verb|once_flag| wraz z funkcj± do wykonania (w tym przypadku funkcj± \verb|deferred_expr::evaluate|) sprawi, ¿e dla danej flagi funkcja wykona siê tylko raz.
+  Wywo³anie \verb|call_once| z innego w±tku lub ponownie z tego samego z ju¿ raz wykorzystan± flag± \verb|once_flag| zakoñczy siê natychmiast bez wywo³ania przekazanej funkcji.
+  Poniewa¿ typ \verb|once_flag| ma niewielki rozmiar (na wiêkszo¶ci platform jest to typ \verb|long|) to umieszczenie go jako pola ka¿dego obiektu \dexp dodaje mniejszy narzut pamiêciowy ni¿ stosowanie mutex-ów.
+  
+  Innym wa¿nym aspektem procedury ewaluacji odroczonego wyra¿enia jest obs³uga wyj±tków.
+  Zgodnie z koncepcj± biblioteki wyj±tki, które wyst±pi± podczas ewaluacji wyra¿enia (w ciele funkcji \verb|evaluate| s± wywo³ywane, a nastêpnie przekazywane do obiektu \dval zamiast wyniku.
+  Dziêki temu wyj±tek bêdzie móg³ zostaæ przekazany z obiektu \dval do g³ównego w±tku programu.
+  
+\subsection{Ograniczenia mechanizmu ewaluacji}
+
+  W zwi±zku ze sposobem przekazywania wyra¿eñ do obliczenia, mo¿liwo¶ci projektowania mechanizmu ewaluacyji by³y do¶æ powa¿nie ograniczone.
+  W ogólno¶ci mogliby¶my wyobraziæ sobie sytuacjê, w której wyra¿enie z programu dzia³aj±cego na jednym komputerze by³oby przekazywane do wyliczenia do innych programów lub nawet do innych komputerów, w celu wiêkszego rozproszenia i jeszcze lepszego zrównoleglenia wykonania programu.
+  W przypadku biblioteki parallel wyst±pi³o kilka ograniczeñ, które uniemo¿liwi³y zaprojektowanie ogólniejszego mechanizmu obliczeñ.
+  
+  Migracja kodu (taka jak zosta³± opisana w ksi±¿ce \cite{dissys}) nie jest wspierana przez jêzyk C++, poniewa¿ kod kompilowany jest do natywnego kodu maszynowego, a nie kodu po¶redniego.
+  Nie ma mo¿liwo¶ci zserializowania fragmentu obliczeñ i przes³ania do wykonania na innym komputerze, o nieznanej architekturze.
+  W przeciwieñstwie do jêzyka C++ to jest wykonalne w jêzyku Java.
+  
+  Alternatyw± dla wsparcia jêzyka dla migracji kodu jest rozszerzenie biblioteki o narzêdzia automatycznie generuj±ce kod dla klienta (programu zlecaj±cego obliczenia) i serwera (programu wykonuj±cego obliczenia).
+  To ju¿ zaczyna przypominaæ mechanizm RPC i rodzi szereg innych problemów równie¿ opisanych w \cite{dissys}.
+  Implementacja takiego modelu prowadzenia obliczeñ w bibliotece Parallel wykracza³aby poza ramy nakre¶lonej pracy oraz mog³aby ograniczyæ u¿yteczno¶æ biblioteki ze wzglêdnu na bardziej skomplikowany proces programowania i kompilacji.
+  
+  Kolejne z ograniczeñ jest zwi±zane z obecno¶ci± w wyra¿eniu przekazywanym do obliczenia warto¶ci typu referencje lub wska¼niki, które s± ¶ci¶le zale¿ne od przestrzeni adresowej programu. 
+  Przes³anie ich nawet do innego programu na tym samym komputerze wymaga³oby wykorzystania specjalnego mechanizmu, gdy¿ proste przekazanie warto¶ci tego typu powodowa³oby b³êdy w dostêpie do pamiêci.
+  Obej¶cie tego problemu oferuje mechanizm pamiêci wspó³dzielonej, ale powoduje znaczny narzut zwi±zany z dostêpnem do tego rodzaju pamiêci.
+ 
+  Wymienione powy¿ej ograniczenia uzasadniaj± podjêcie decyzji o przyjêcie dla biblioteki Parallel modelu obliczania wyra¿eñ opartego o w±tki dzia³aj±ce w ramach programu zlecaj±cego obliczenia.
+
+\section{Implementacja zwracania wyniku obliczeñ}
+  
+  Mo¿liwo¶æ zwracania wyników z obliczeñ wykonywanych przez inny w±tek jest jedn± z najwa¿niejszych cech przemawiaj±cych na korzy¶æ biblioteki Parallel w stosunku do standardowych bibliotek oferuj±cych wielow±tkowa¶æ.
+  Najwa¿niejszym elementem procesu zwracania wyników przez bibliotekê Parallel jest wzorzec typu \dval.
+  Obiekty tego typu s± po¶rednikami, które przekazuj± informacje z kodu biblioteki do kodu programu.
+  
+\subsection{Podstawowe w³a¶ciwo¶ci wzorca typu \dval}
+
+\subsubsection{Przekazanie warto¶ci}
+
+  Obiekt typu \dval po utworzeniu i zwróceniu przez funkcjê \feval nie posiadaj± warto¶ci, a dok³adnie maj± warto¶æ nieokre¶lon±.
+  Dopiero po tym wyra¿enie zapisane w skojarzonym obiekcie \dexp zostanie obliczone, warto¶æ jest przekazywana do obiektu \dval w celu jej zapamiêtania.
+  Poniewa¿ jako jedyny obiekt \dexp ma prawo dokonania takiego przypisania, nie jest konieczna ochrona przed wspó³bie¿nym zapisem do obiektu \dval.
+  
+\subsubsection{Wymuszenie wyliczenia wyra¿enia}
+
+  Obiekt typu \dval pozwala w pewnym stopniu na kontrolowanie wyliczenia wyra¿enia przez programistê.
+  Mianowicie, wywo³anie metody \verb|force| powoduje wymuszenie wyliczenia wyra¿enia i metoda nie zakoñczy siê dopóki to siê nie wykona.
+  Zatem programista je¶li tego potrzebuje, mo¿e uzyskaæ pewno¶æ, ¿e ewaluacja wyra¿enia zosta³a zakoñczona.
+  Ponadto kolejn± mo¿liwo¶æi± wymuszenia wyliczenia wyra¿enia jest pobranie warto¶ci zwrócenej przez wyra¿enie.
+ 
+\subsubsection{Pobranie warto¶ci}
+
+  Obiekt typu \dval pozwala na pobranie warto¶ci metod± \verb|get_value| lub te¿ pobranie warto¶ci mo¿e odbyæ siê niejawnie, poniewa¿ obiekt typu \dval ma zdefinowany operator konwersji do typu, który reprezentuje.
+  Zatem taki ci±g instrukcji:
+  \begin{lstlisting}[numbers=none, frame=none]
+   deferred_value<int> d = parallel::eval(parallel::val(4) + 5);
+   /* ... */
+   int c = d + 42;
+  \end{lstlisting}
+  jest w pe³ni poprawny syntaktycznie.
+  Zatem obiektu typu wzorcowego \dval mo¿na u¿yæ w ka¿dym miejscu, gdzie dozwolone jest u¿ycie typu wynikowego wyra¿enia.
+  Skutkuje to wywo³aniem operatora konwersji i pobraniem warto¶ci.
+ 
+  Alternatywnym sposobem definicji wzorca \dval by³o nie umieszczanie w jego interfejsie operatora konwersji.
+  Uniemo¿liwi³oby to stosowanie obiektów typu \dval w miejsce typu wynikowego wyra¿enia, co sprawi³oby, ¿e pobieranie warto¶ci sta³oby siê operacj± zawsze wywo³ywan± jawnie przez programistê.
+  W trakcie projektowania interfejsu biblioteki podjêto decyzjê o umieszczeniu operatora konwersji, poniewa¿ czyni to sk³adniê bardziej naturaln±.
+  Ponadto u¿ywanie obiektów typu \dval w wyra¿eniach bez jawnego pobierania warto¶ci ma bardzo istotne znaczenie dla pe³nego wykorzystania funkcji prze³adowuj±cych operatory dla wzorca typu \dval.
+  Ta kwestia zostanie wyja¶niona w nastêpnej sekcji.
+  
+\subsection{Prze³adowanie operatorów szablonu typu \dval}
+
+\subsubsection{Motywacja dla prze³adowywania operatorów}
+
+  Mo¿na wyobraziæ sobie scenariusz, w którym chc±c skorzystaæ z warto¶ci przechowywanej w zmiennej typu \dval, 
+  programista zawsze wywo³ywa³by jawn± metodê pobrania warto¶ci b±d¼ stosowa³by niejawn± metodê, przy u¿yciu operatora konwersji.
+  Wygl±da³oby to w kodzie w sposób nastêpuj±cy.
+  Wersja z jawnym pobraniem warto¶ci:
+  \begin{lstlisting}[numbers=none, frame=none]
+    deferred_value<int> d = parallel::eval(parallel::val(4) + 5);
+    /* ... */
+    auto c = d.get_value() + 42;
+   \end{lstlisting}
+   Wersja z niejawnym pobraniem warto¶ci:
+   \begin{lstlisting}[numbers=none, frame=none]
+    deferred_value<int> d = parallel::eval(parallel::val(4) + 5);
+    /* ... */
+    auto c = d + 42;
+   \end{lstlisting}
+   
+   Zanim przejdziemy do dalszej czê¶ci rozwa¿añ bardzo wa¿ne jest odpowiedzenie na pytanie ``Po co programista u¿ywa (bêdzie u¿ywa³) biblioteki Parallel?'',
+   która brzmi ``Aby mo¿liwe \emph{jak najwiêksz±} czê¶æ obliczeñ w prosty sposób zrównolegliæ''.
+   Podkre¶li³em s³owa ``jak najwiêksz±'' nie bez przyczyny, poniewa¿ im wiêksza czê¶æ obliczeñ zostanie wykonana przez w±tki biblioteki Parallel tym potencjalnie szybciej mo¿e dzia³aæ program.
+   Natomiast tym wiêksza bêdzie czê¶æ obliczeñ wykonana przez bibliotekê Parallel, im pó¼niej bêdzie wymuszane pobranie warto¶ci z obiektów \dval.
+   
+   W jawnym przypadku wszystko jest jasne, biblioteka nie ma pola manewru, gdy¿ programista za¿±da³ pobrania warto¶ci, wiêc warto¶æ musi zostaæ policzona i zwrócona przez metodê \verb|get_value|.
+   Czy podobnie jest w drugim przypadku?
+   Czy zmienna \verb|c| musi zostaæ oznaczona jako typ \verb|int| i powinna zostaæ do niej natychmiast przypisana warto¶æ 51?
+   By³oby to poprawne, ale na szczê¶cie nie jest to konieczne.
+   
+   Z punktu widzenia zwiêkszania efektywno¶ci wykorzystania biblioteki Parallel lepiej bêdzie, gdy obliczenie warto¶ci wyra¿enia skojarzonego z obiektem \verb|d| nie bêdzie w tej sytuacji wymuszone,
+   gdy¿ mo¿e zostaæ odroczone.
+   Aby to uzyskaæ wystarczy prze³adowaæ operator dodawania, w taki sposób, 
+   aby wyra¿enie \verb|d + 42| zwraca³o warto¶æ odroczon±, zawieraj±c± uleniwione wyra¿enie w postaci szablonu wyra¿enia.
+   Dzia³anie g³ównego w±tku programu mog³oby siê wtedy toczyæ dalej bez wymuszania obliczenia warto¶ci \verb|d|,
+   natomiast pó¼niej gdy zostanie wymuszone obliczenie warto¶ci \verb|c| to rekurencyjnie zostanie wymuszone równie¿ wyliczenie \verb|d|, w celu ewaluacji szablonu wyra¿enia zapisanego w \verb|c|.
+   
+\subsubsection{Implementacja prze³adowywania operatorów}
+
+  Jêzyk C++ pozwala na prze³adowanie wszystkich operatorów, oprócz \verb|::|, \verb|.| oraz \verb|.*|.
+  Nie dla wszystkich pozosta³ych operatorów prze³adowywanie ich dla obiektów \dval ma sens.
+  Przedefiniowanie operatorów \verb|new|, \verb|new []|, \verb|delete| oraz \verb|delete []| nie by³o potrzebne.
+  Ponadto domy¶lne zachowanie operatora \verb|,| jest odpowiednie dla typu \dval.
+  Pozosta³e operatory zosta³y przedefinowane w taki sposób, aby uzyskaæ taki efekt, ¿e obiektów \dval mo¿na u¿ywaæ wszêdzie tam, gdzie mo¿na u¿yæ typu, który dany obiekt \dval reprezentuje.
+  Przedefinowania operatorów zwracaj± jako wynik obiekty \dval, z szablonem wyra¿enia, który po obliczeniu pozwoli uzyskaæ po¿±dany wynik.
+  Oto pe³na lista prze³adowanych operatorów:
+  \begin{verbatim}
+   +  -  *  /  %  ^  &  |  ~  !  =  <  >  <<   >>  +=  -=  *=  /=  %=  ^=  
+   &=  |=  >>=  <<=  ==  !=  <=  >=  &&   ||  ++  --  ->*  ->  []  ()
+  \end{verbatim}
+% 
+%   Dla ilustracji sposobu implementacji funkcji prze³adowuj±cych operatory dla obiektów \dval pos³u¿ê siê przyk³adami poni¿ej:
+%   \begin{lstlisting}
+%   template <typename T>
+%   class deferred_value
+%   {
+%     /* ... */
+%     inline template <typename U>
+%     typename deferred_value<
+%       proto::result_of::make_expr<
+% 	proto::tag::add,
+% 	T,
+% 	U>::type const> operator + (U u)
+%     {
+%       return deferred_value(proto::make_expr<proto::tag::plus>(*this, u));
+%     }
+%     
+%     inline template <typename U>
+%     typename deferred_value<
+%       proto::result_of::make_expr<
+% 	proto::tag::assign,
+% 	deferred_value<T>,
+% 	U>::type const>& operator = (const U& u)
+%     {
+%       if (this != &u)
+%       {
+% 	return deferred_value(proto::make_expr<proto::tag::assign>(*this, u));
+%       }
+%     }
+%   };	
+%   \end{lstlisting}
+  
+\subsection{Szczególne postacie warto¶ci zwracanych przez wyra¿enie}
+
+  Niektóre z postaci wyra¿eñ przekazywanych do obliczenia posiadaj± typ wynikowy, który wymaga specjalnego traktowania, poniewa¿ domy¶lny wzorzec typu \dval nie zadzia³a³by w ich przypadku.
+  Poni¿ej znajduje siê opis takich przypadków wraz z prezentacj± rozwi±zania zastosowanego w implementacji biblioteki Parallel.
+
+\subsubsection{Wyra¿enie zwracaj±ce typ \texttt{void}}
+  
+  Mo¿e siê zdarzyæ, ¿e typem wynikowym wyra¿enia jest typ \verb|void|.
+  Nie mo¿na wtedy mówiæ o warto¶ci jak± wyra¿enie zwraca, nie mo¿na równie¿ zadeklarowaæ zmiennej typu void.
+  Dlatego inaczej powinna wygl±daæ obiekt typu \dval, dla którego typem zwracanym jest typ \verb|void|.
+  Dla poradzenia sobie z tym przypadkiem powsta³a odpowiednia specjalizacja wzorca \dval.
+  Nie posiada ona ¿adnej warto¶ci, któr± mo¿na by³oby pobraæ ani s³u¿±cych do tego metod.
+  
+  W tym przypadku mo¿na by³oby rozwa¿yæ ca³kowit± rezygnacjê ze zwracania obiektu typu \dval z funkcji \feval.
+  Istnieje jednak bardzo wa¿ny scenariusz, w którym konkretyzacja wzorca \dval sparametryzowana typem \verb|void| jest niezbêdna.
+  Ilustruje to poni¿szy przyk³ad:
+  \begin{lstlisting}
+  #include <parallel.h>
+  
+  int main()
+  {
+    /* Array initialized with some numbers */
+    std::vector a = { ... }; 
+    auto d = parallel::eval(lazyf(sort<int*>, a.begin(), a.end()));
+    /* Do something without using a */
+    d.force();
+    for_each(a.begin(), a.end(), process_a);
+  }
+  \end{lstlisting}
+  Po zleceniu równoleg³ego posortowania tablicy \verb|a| kod mo¿e wykonywaæ czynno¶ci niekorzystaj±ce z warto¶ci zapisanych w tablicy.
+  Ale w momencie, gdy dochodzi do przetwa¿ania \verb|a| programista musi uzyskaæ pewno¶æ, ¿e sortowanie siê zakoñczy³o.
+  Wystarczy zatem, ¿e wywo³± metodê \verb|force| na obiekcie \dval, która wymusi wykonanie sortowania, je¶li nie zosta³o rozpoczête i poczeka do jego zakoñczenia.
+  Po powroce z funkcji \verb|force| programista mo¿e bez obaw u¿ywaæ elementów tablicy \verb|a|.
+  
+\subsubsection{Wyra¿enie zwracaj±ce referencjê}
+
+  Problematyczne okazuje siê równie¿, gdy warto¶ci± zwracan± jest referencja do obiektu, a nie sam obiekt.
+  Przyk³adem takiego wyra¿enia jest:
+  \begin{lstlisting}[numbers=none, frame=none]
+   /* using namespace std, parallel; */
+   eval(ref(cout) << "Operacja zakoñczona sukcesem." << endl);
+  \end{lstlisting}
+
+  W tym przypadku problemem jest inicjalizacja sk³adowej \verb|m_val| wzorca typu \dval , którego zadaniem jest przechowywanie zwracanej warto¶ci.
+  W przyk³adzie typ zwracany to \verb|ostream&|.
+  Referencja mo¿e byæ zainicjalizowana wy³±cznie w li¶cie inicjalizacyjnej konstruktora obiektu.
+  Poniewa¿ obiekt, do którego mia³aby siê odnosiæ referencja z obiektu \dval jeszcze nie zosta³ obliczony to w konstruktorze nie mo¿na ustawiæ tej referencji.
+  St±d zastosowanie typu identycznego z typem wynikowym wyra¿enia zwracaj±cego referencjê nie jest mo¿liwe.
+  Konieczne by³o stworzenie odpowiedniej specjalizacji wzorca \dval.
+  
+  Nale¿y wykluczyæ rozwi±zanie polegaj±ce na skopiowanie warto¶ci obiektu.
+  Zmieni³oby to semantykê wyra¿enia i czêsto wywo³ywa³oby b³êdy w kompilacji, gdy¿ referencje do obiektów czêsto stosuje siê, gdy obiektu nie mo¿na kopiowaæ.
+  Niestety zastosowanie wzorca klasy \verb|boost::reference_wrapper| okaza³o siê niemo¿liwe, gdy¿ on równie¿ musi zostaæ zainicjalizowany przez podanie referencji do obiektu.
+  
+  Istnieje w¶ród programistów jêzyka C++ przekonanie, i¿ referencja jest \textit{de facto} wska¼nikiem, ale z ³adniejsz± sk³±dni±.
+  Pomimo, ¿e to stwierdzenie nie jest prawdziwe, poniewa¿ istniej± pewne subtelne ró¿nice w semantyce wska¼ników i referencji, 
+  to rozwi±zanie problemu ze zwracaniem referencji operte na tym stwierdzeniu ¶wietnie sprawdzi³o siê w praktyce.
+  Wska¼niki C++ maj± bowiem tak± istotn± ró¿nice w stosunku do referencji, ¿e mo¿na je przestawiæ na inny obiekt, wiêc nie musz± byæ inicjalizowane w konstruktorze.
+  St±d sk³adowa \dval, która ma przechowywaæ wynik obliczenia wyra¿enia jest wska¼nikiem, natomiast obiekt \dval udostêpnia interfejs, który w pe³ni oddaje fakt, ¿e reprezentuje referencjê.
+  
+\subsection{Obs³uga wyj±tków}
+
+  Jednym za³o¿eñ biblioteki Parallel by³o umo¿liwienie niezawodnej obs³ugi sytuacji wyj±tkowych, które mog± siê zdarzyæ podczas wykonywania zleconych obliczeñ.
+  Gdy zostaje wy³apany wyj±tek jest on przekazywany do odpowiedniego obiektu \dval, gdzie zostaje zapamiêtany.
+  Programista mo¿e sprawdziæ czy podczas wykonania wyra¿enia wyst±pi³ wyj±tek przy pomocy metody \verb|has_exception|.
+  Ponadto pobrany wyj±tek mo¿na pobraæ u¿ywaj±c funkcji \verb|get_exception|.
+  Natomiast w przypadku u¿ycia obiektu \dval, w którym zamiast warto¶ci jest przechowywany wyj±tek to ten wyj±tek zostaje ponownie rzucony i powinien zostaæ przechwycony oraz obs³u¿ony w kodzie programu.
+  
+
+
+

@@ -2,38 +2,38 @@
 \chapter*{Wprowadzenie}
 \addcontentsline{toc}{chapter}{Wprowadzenie}
 
-  RÃ³wnolegÅ‚e prowadzenie obliczeÅ„ nie jest nowym tematem w informatyce, gdyÅ¼ liczy sobie juÅ¼ ponad 50 lat\cite{parhist}.
-  Trudno wyznaczyÄ‡ jeden punkt lub jednÄ… pracÄ™, ktÃ³ra zapoczÄ…tkowaÅ‚a ten kierunek rozwoju informatyki, ale niewÄ…tpliwie do jej pionierÃ³w naleÅ¼eli tak znani naukowcy jak
+  Równoleg³e prowadzenie obliczeñ nie jest nowym tematem w informatyce, gdy¿ liczy sobie ju¿ ponad 50 lat\cite{parhist}.
+  Trudno wyznaczyæ jeden punkt lub jedn± pracê, która zapocz±tkowa³a ten kierunek rozwoju informatyki, ale niew±tpliwie do jej pionierów nale¿eli tak znani naukowcy jak
   Amdahl (prawo Amdahl-a), Flynn (klasyfikacja Flynna), Dijkstra (problem sekcji krytycznych oraz semafory), Petri (sieci Petriego).
   
-  ZrÃ³wnoleglanie obliczeÅ„ jest jednym ze sposobÃ³w przyspieszania wydajnoÅ›ci systemÃ³w komputerowych.
-  SzczegÃ³lnego znaczenia nabraÅ‚o ostatnimi czasy, poniewaÅ¼ rozwÃ³j technologii mikroprocesorowej dotarÅ‚ do takiego momentu, Å¼e przyspieszanie pojedyÅ„czego ukÅ‚adu staÅ‚o siÄ™ trudne i dlatego nieopÅ‚acalne.
-  StÄ…d obecnie kierunek rozwoju wyznaczany jest przez rÃ³wnolegÅ‚oÅ›Ä‡, to znaczy umieszczanie w procesorach komputerÃ³w wielu ukÅ‚adÃ³w wykonujÄ…cych obliczenia rÃ³wnolegle w jednym czasie.
-  Takie rozwiÄ…zanie teoretycznie pozwala na uzyskanie przyspieszenia wprost proporcjonalnego do liczby ukÅ‚adÃ³w umieszczonych w procesorze.
-  Å»eby sie jednak tak staÅ‚o programy wykonywane na takim procesorze powinny byÄ‡ w stanie wykorzystaÄ‡ te moÅ¼liwoÅ›ci.
+  Zrównoleglanie obliczeñ jest jednym ze sposobów przyspieszania wydajno¶ci systemów komputerowych.
+  Szczególnego znaczenia nabra³o ostatnimi czasy, poniewa¿ rozwój technologii mikroprocesorowej dotar³ do takiego momentu, ¿e przyspieszanie pojedyñczego uk³adu sta³o siê trudne i dlatego nieop³acalne.
+  St±d obecnie kierunek rozwoju wyznaczany jest przez równoleg³o¶æ, to znaczy umieszczanie w procesorach komputerów wielu uk³adów wykonuj±cych obliczenia równolegle w jednym czasie.
+  Takie rozwi±zanie teoretycznie pozwala na uzyskanie przyspieszenia wprost proporcjonalnego do liczby uk³adów umieszczonych w procesorze.
+  ¯eby sie jednak tak sta³o programy wykonywane na takim procesorze powinny byæ w stanie wykorzystaæ te mo¿liwo¶ci.
   
-  Zatem w programach powinno byÄ‡ stosowane rÃ³wnolegÅ‚e prowadzenie obliczeÅ„, jednakÅ¼e pomimo dÅ‚ugo rozwijanej teorii oraz narzÄ™dzi wspierajÄ…cych, programowanie rÃ³wnolegÅ‚e wciaÅ¼ pozostaje bardzo trudne do zastosowania w praktyce.
-  Dzieje siÄ™ tak, poniewaÅ¼ wykorzystanie kilku wÄ…tkÃ³w wykonania programu, drastycznie zwiÄ™ksza zÅ‚oÅ¼onoÅ›Ä‡ pracy programistycznej.
-  Programista, aby napisaÄ‡ program wspÃ³Å‚bieÅ¼ny (\cite{barney}) musi w pierwszej kolejnoÅ›ci zidentyfikowaÄ‡ fragmeny obliczeÅ„, ktÃ³re mogÄ… zostaÄ‡ zrÃ³wnoleglone.
-  NastÄ™pnie powinien zaprojektowaÄ‡ sposÃ³b w jaki poszczegÃ³lne ciÄ…gi wykonania siÄ™ ze sobÄ… komunikujÄ… i w jaki sposÃ³b sÄ… synchronizowane.
-  W celu zapewnienia efektywnoÅ›ci programu programista powinien uwzglÄ™dniÄ‡ w projekcie rÃ³wnieÅ¼ balansowanie rozkÅ‚adu pracy pomiedzy poszczegÃ³lne wÄ…tki wykonania.
+  Zatem w programach powinno byæ stosowane równoleg³e prowadzenie obliczeñ, jednak¿e pomimo d³ugo rozwijanej teorii oraz narzêdzi wspieraj±cych, programowanie równoleg³e wcia¿ pozostaje bardzo trudne do zastosowania w praktyce.
+  Dzieje siê tak, poniewa¿ wykorzystanie kilku w±tków wykonania programu, drastycznie zwiêksza z³o¿ono¶æ pracy programistycznej.
+  Programista, aby napisaæ program wspó³bie¿ny (\cite{barney}) musi w pierwszej kolejno¶ci zidentyfikowaæ fragmeny obliczeñ, które mog± zostaæ zrównoleglone.
+  Nastêpnie powinien zaprojektowaæ sposób w jaki poszczególne ci±gi wykonania siê ze sob± komunikuj± i w jaki sposób s± synchronizowane.
+  W celu zapewnienia efektywno¶ci programu programista powinien uwzglêdniæ w projekcie równie¿ balansowanie rozk³adu pracy pomiedzy poszczególne w±tki wykonania.
   
-  ProgramistÄ™ w zmaganiach z pisaniem programÃ³w wspierajÄ… rÃ³Å¼norodne narzÄ™dzia, jÄ™zyki programowania specjalnie zaprojektowane do obliczeÅ„ rÃ³wnolegÅ‚ych jak Ada lub biblioteki oferujÄ…ce wykonywanie obliczeÅ„ rÃ³wnolegÅ‚ych
-  w jÄ™zykach natywnie sekwencyjnych.
-  Zazwyczaj te pierwsze wywiÄ…zujÄ… siÄ™ ze swojego zadania dobrze, gdyÅ¼ zostaÅ‚y sÄ… dedykowane do programowania rÃ³wnolegÅ‚ego, lecz nie sÄ… popularne w zastosowaniach praktycznych.
-  WiÄ™kszym problemem jest korzystanie z tych drugich, poniewaÅ¼ jÄ™zyk sekwencyjny zazwyczaj nie pozwala na zaprojektowanie biblioteki mogÄ…cej konkurowaÄ‡ prostotÄ… i intiucyjnoÅ›ciÄ… z jÄ™zykiem do programowania rÃ³wnolegÅ‚ego.
-  W praktyce potrzeba skorzystania z bibliotek dla jÄ™zykÃ³w sekwencyjnych wystÄ™puje zdecydowanie czÄ™Å›ciej, poniewaÅ¼ sÄ… bardzo popularne.
-  Niniejsza praca podejmuje prÃ³bÄ™ stworzenia takiej biblioteki dla jÄ™zyka C++.
-  NadrzÄ™dnymi priorytetami podczas projektowania biblioteki Parallel byÅ‚o zapewnienie Å‚atwoÅ›ci pisania programÃ³w rÃ³wnolegÅ‚ych (ukrycie niepotrzebnych detali przed programistÄ…) z jednoczesnym pozostawieniem peÅ‚nej kontroli 
-  nad wykonaniem programu w rÄ™kach programisty. 
-  DziÄ™ki temu miaÅ‚y zostaÄ‡ osiÄ…gniÄ™te dwa gÅ‚Ã³wne cele projektowania biblioteki zwiÄ™kszeni produktywnoÅ›ci programisty oraz zwiÄ™kszenie szybkoÅ›ci dziaÅ‚ania programÃ³w (przyspieszonych przez wykorzystanie rÃ³wnolegÅ‚oÅ›ci).
+  Programistê w zmaganiach z pisaniem programów wspieraj± ró¿norodne narzêdzia, jêzyki programowania specjalnie zaprojektowane do obliczeñ równoleg³ych jak Ada lub biblioteki oferuj±ce wykonywanie obliczeñ równoleg³ych
+  w jêzykach natywnie sekwencyjnych.
+  Zazwyczaj te pierwsze wywi±zuj± siê ze swojego zadania dobrze, gdy¿ zosta³y s± dedykowane do programowania równoleg³ego, lecz nie s± popularne w zastosowaniach praktycznych.
+  Wiêkszym problemem jest korzystanie z tych drugich, poniewa¿ jêzyk sekwencyjny zazwyczaj nie pozwala na zaprojektowanie biblioteki mog±cej konkurowaæ prostot± i intiucyjno¶ci± z jêzykiem do programowania równoleg³ego.
+  W praktyce potrzeba skorzystania z bibliotek dla jêzyków sekwencyjnych wystêpuje zdecydowanie czê¶ciej, poniewa¿ jêzyki sekwencyjnie s± znacznie szerzej stosowane.
+  Niniejsza praca podejmuje próbê stworzenia takiej biblioteki dla jêzyka C++.
+  Nadrzêdnymi priorytetami podczas projektowania biblioteki Parallel by³o zapewnienie ³atwo¶ci pisania programów równoleg³ych (ukrycie niepotrzebnych detali przed programist±) z jednoczesnym pozostawieniem pe³nej kontroli 
+  nad wykonaniem programu w rêkach programisty. 
+  Dziêki temu mia³y zostaæ osi±gniête dwa g³ówne cele projektowania biblioteki zwiêkszeni produktywno¶ci programisty oraz zwiêkszenie szybko¶ci dzia³ania programów (przyspieszonych przez wykorzystanie równoleg³o¶ci).
   
-  Biblioteka Parallel pozwala na zrÃ³wnoleglanie obliczeÅ„ w zwiÄ™zÅ‚y sposÃ³b, ktÃ³ry nie ingeruje znaczÄ…co w strukture kodu.
-  Aby z niej skorzystaÄ‡ wystarczy nieznacznie zmodyfikowane wyraÅ¼enie zgodne ze specyfikacjÄ… biblioteki Parallel przekazaÄ‡ do funkcji bibliotecznej \verb|eval|.
-  To powoduje przekazanie tego wyraÅ¼enia do wyliczenia przez aparat wykonawczy biblioteki Parallel i zwrÃ³cenie wyliczonej wartoÅ›ci.
-  Najlepiej objaÅ›ni tÄ™ sytuacjÄ™ przykÅ‚ad wykorzystania biblioteki.
-  Zgodnie z wieloletniÄ… tradycjÄ… literatury informatycznej jako pierwszy pokaÅ¼Ä™ fragment kodu zrÃ³wnoleglajÄ…cy wypisanie komunikatu ``Hello World!''.
-  Standardowo w jÄ™zyku C++ taki kod wyglÄ…da nastÄ™pujÄ…co:
+  Biblioteka Parallel pozwala na zrównoleglanie obliczeñ w zwiêz³y sposób, który nie ingeruje znacz±co w strukture kodu.
+  Aby z niej skorzystaæ wystarczy nieznacznie zmodyfikowane wyra¿enie zgodne ze specyfikacj± biblioteki Parallel przekazaæ do funkcji bibliotecznej \verb|eval|.
+  To powoduje przekazanie tego wyra¿enia do wyliczenia przez aparat wykonawczy biblioteki Parallel i zwrócenie wyliczonej warto¶ci.
+  Najlepiej obja¶ni tê sytuacjê przyk³ad wykorzystania biblioteki.
+  Zgodnie ze zwyczajem stosowanym w literaturze informatycznej jako pierwszy poka¿ê fragment kodu zrównoleglaj±cy wypisanie komunikatu ``Hello World!''.
+  Standardowo w jêzyku C++ taki kod wygl±da nastêpuj±co:
   \begin{lstlisting}
    #include <iostrem>
    
@@ -46,7 +46,7 @@
        return 0;
    }
   \end{lstlisting}
-  W przypadku wykorzystania biblioteki Parallel przyjmie on nastÄ™pujÄ…cÄ… postaÄ‡:
+  W przypadku wykorzystania biblioteki Parallel przyjmie on nastêpuj±c± postaæ:
   \begin{lstlisting}
    #include <parallel.h>
    #include <iostream>
@@ -61,34 +61,23 @@
    }
   \end{lstlisting}
   
-  ZrÃ³wnoleglenie bÄ™dzie polegaÅ‚o w tym przypadku na tym, Å¼e kod gÅ‚Ã³wny programu zleci rÃ³wnolegÅ‚e obliczenie wyraÅ¼enia wypisujÄ…cego ``Hello World!'' bibliotece Parallel i nie czekajÄ…c na wynik przejdzie do nastÄ™pnej instrukcji.
-  W szczegÃ³lnoÅ›ci w tym przypadku moÅ¼e siÄ™ zdarzyÄ‡, Å¼e odpowiedÅº echa zostanie wypisana szybciej niÅ¼ pierwszy komunikat.
-  Wprawdzie ten fregment kodu nie pokazuje przydatnoÅ›ci biblioteki, ale prezentuje prosty przykÅ‚ad skÅ‚adni i pomoÅ¼e zrozumieÄ‡ dalszy opis biblioteki.
-  Bardziej obszerne przykÅ‚ady znajdujÄ… siÄ™ w dalszej czÄ™Å›ci pracy.
-
-%   ZaÅ‚Ã³Å¼my, Å¼e chcemy znaleÅºÄ‡ maksymalnÄ… wartoÅ›Ä‡ w bardzo duÅ¼ej tablicy liczb caÅ‚kowitych i dysponujemy odpowiedniÄ… funkcjÄ… \verb|znajdz_maksimum|.
-%   Wtedy kod naszego programu dziaÅ‚ajÄ…cy w peÅ‚ni sekwencyjnie wyglÄ…daÅ‚by  na przykÅ‚ad w ten sposÃ³b:
-%   \begin{verbatim}
-%    maks = znajdz_maksimum(tablica, dlugosc_tablicy);
-%   \end{verbatim}
-%   Biblioteka Parallel pozwala zrÃ³wnolegliÄ‡ ten proces przy zastosowaniu nastÄ™pujÄ…cego fragmentu kodu:
-%   \begin{verbatim}
-%     maks = parallel::eval(lazyf(znajdz_maksimum, tablica, dlugosc_tablicy));
-%   \end{verbatim}
-%   Przy takim zapisie powrÃ³t z funkcji \verb|eval| nastÄ…pi prawie natychmiast, bo wywoÅ‚anie funkcji \verb|znajdz_maksimum| odbÄ™dzie siÄ™ w innym wÄ…tku programu, a gÅ‚Ã³wny wÄ…tek programu bÄ™dzie w tym czasie wykonywaÅ‚ kolejne instrukcje.
+  Zrównoleglenie bêdzie polega³o w tym przypadku na tym, ¿e kod g³ówny programu zleci równoleg³e obliczenie wyra¿enia wypisuj±cego ``Hello World!'' bibliotece Parallel i nie czekaj±c na wynik przejdzie do nastêpnej instrukcji.
+  W szczególno¶ci w tym przypadku mo¿e siê zdarzyæ, ¿e odpowied¼ echa zostanie wypisana szybciej ni¿ pierwszy komunikat.
+  Wprawdzie ten fregment kodu nie pokazuje przydatno¶ci biblioteki, ale prezentuje prosty przyk³ad sk³adni i pomo¿e zrozumieæ dalszy opis biblioteki.
+  Bardziej obszerne przyk³ady znajduj± siê w dalszej czê¶ci pracy.
   
-  Pierwszy rozdziaÅ‚ pracy opisuje koncepcjÄ™ biblioteki, gÅ‚Ã³wne zasady niÄ… rzÄ…dzÄ…ce oraz porÃ³wnuje projektowane rozwiÄ…zanie do istniejÄ…ch rozwiaÅ¼aÅ„.
-  Drugi rozdziaÅ‚ traktuje o sposobie implementacji biblioteki.
-  W trzecim rozdziale zostaÅ‚y przedstawione metody oraz wyniki ewaluacji biblioteki.
-  RozdziaÅ‚ ostatni podsumowujÄ…cy nakreÅ›la moÅ¼liwoÅ›ci dalszego rozwoju biblioteki.
+  Pierwszy rozdzia³ pracy opisuje koncepcjê biblioteki, g³ówne zasady ni± rz±dz±ce oraz porównuje projektowane rozwi±zanie do istniej±ch rozwia¿añ.
+  Drugi rozdzia³ traktuje o sposobie implementacji biblioteki.
+  W trzecim rozdziale zosta³y przedstawione metody oraz wyniki ewaluacji biblioteki.
+  Rozdzia³ ostatni podsumowuj±cy nakre¶la mo¿liwo¶ci dalszego rozwoju biblioteki.
 
 \newpage
-\section*{Definicje pojÄ™Ä‡ i skrÃ³tÃ³w}
+\section*{Definicje pojêæ i skrótów}
 \begin{tabular}{ | l | p{0.75\textwidth} |}
   \hline\
-  \textbf{PojÄ™cie} & \textbf{Definicja} \\ \hline
-  Idiom C++ & Konstrukcja jÄ™zyka C++, ktÃ³ra czÄ™sto pojawia siÄ™ w kodzie lub projektach doÅ›wiadczonych programistÃ³w C++. Stosowanie jej uwaÅ¼ane jest za dobrÄ… praktykÄ™.\\ \hline
-  AST & Abstrakcyjne Drzewo Syntaktyczne (z ang. Abstract Syntax Tree) jest drzewem reprezentujÄ…cym strukturÄ™ kodu ÅºrÃ³dÅ‚owego w pewnym jÄ™zyku programowania.\\
+  \textbf{Pojêcie} & \textbf{Definicja} \\ \hline
+  Idiom C++ & Konstrukcja jêzyka C++, która czêsto pojawia siê w kodzie lub projektach do¶wiadczonych programistów C++. Stosowanie jej uwa¿ane jest za dobr± praktykê.\\ \hline
+  AST & Abstrakcyjne Drzewo Syntaktyczne (z ang. Abstract Syntax Tree) jest drzewem reprezentuj±cym strukturê kodu ¼ród³owego w pewnym jêzyku programowania.\\
   
   \hline
 \end{tabular} 

@@ -1,0 +1,312 @@
+\section{Istniej±ce biblioteki do programowania równoleg³ego w jêzyku C++}
+
+  W tej sekcji opis idei biblioteki Parallel zestanie przeciwstawiony przegl±dowi obecnie istniej±cych bibliotek do programowania wspó³bie¿nego w jezyku C++.
+  Powsta³o ich wiele, o ró¿nych cechach, jednak ¿adna z nich nie realizuje zestawu celów, który postawi³em przed bibliotek± Parallel.
+  Dlatego, moim zdaniem, istnia³a potrzeba stworzenia nowej biblioteki, która ró¿ni siê znacznie od istniej±cych rozwiazañ i pokrywa inny zakres potrzeb programistów.
+  Swój przegl±d oprê na przegl±dzie najpopularniejszych bibliotek do programowania równoleg³ego w C++ dokonany na podstawie ich dokumentacji oraz publikacji naukowych.
+  
+\subsection{Open Multi-Processing (OpenMP)}
+
+  OpenMP zosta³ stworzony do pisania wielow±tkowych programów w  dla systemów wieloprocesorowych z pamiêci± dzielon±.
+  Dziêki temu, ¿e zosta³ uzgodniony przez najwiêksze firmy dostarczaj±ce oprogramowanie i sprzêt komputerowy wspiera wiele platform, takich jak Microsoft Windows, Unix, oraz wiele jêzyków, na przyk³ad C, C++, Fortran.
+  
+  Nie jest typow± bibliotek±, gdy¿ oprócz pewnego zbioru funkcji udostêpnia równie¿ zbiór dyrektyw kompilatora raz zmiennych ¶rodowiskowych, które modyfikuj± dzia³anie programu.
+  Programowanie odbywa siê w sposób jawny, to znaczy programista wyra¼nie opisuje w kodzie jak powinno przebiegaæ równoleg³e wykonanie programu.
+  Ten opis dokonywany jest w wiêkszo¶ci przez u¿ycie odpowiednich dyrektyw kompilatora.
+  Oczywi¶cie nie wszystkie kompilatory zgodne ze standardem C++, wspieraj± OpenMP, to wsparcie musia³o zostaæ specjalnie do³±czone, tak aby kompilator rozumia³ dyrektywy i kierowany tymi dyrektywami móg³ wygenerowaæ wspó³bie¿ny kod.
+  
+  Oto prosty przyk³ad kodu napisanego przy pomocy OpenMP:
+  \begin{lstlisting}
+#include <omp.h>
+#include <iostream>
+int main (int argc, char *argv[]) {
+ int th_id, nthreads;
+#pragma omp parallel private(th_id)
+ {
+  th_id = omp_get_thread_num();
+  std::cout << "Hello World from thread" << th_id << "\n";
+#pragma omp barrier
+ if ( th_id == 0 ) {
+   nthreads = omp_get_num_threads();
+   std::cout << "There are " << nthreads << " threads\n";
+  }
+ }
+ return 0;
+}
+  \end{lstlisting}
+  Program wypisuje komunikat ``Hello World'' z do³±czonym numerem w±tku. 
+  Zrównoleglenie tego kodu przez kompilator osi±gniêto stosuj±c dyrektywê \verb|#pragma omp parallel private(th_id)|.
+  Wynika z niej, ¿e kompilator powinien zrównolegliæ zaznaczony blok kodu, przy czym zmienna \verb|th_id| ma byæ prywatna, czyli ka¿dy w±tek powinien posiadaæ swoj± kopiê.
+
+  OpenMP wykorzystuje model Fork-Join.
+  W programie napisanym przy u¿yciu OpenMP wystêpuje w±tek g³owny, który koordynuje pracê.
+  Gdy wykonanie dochodzi do pocz±tku regionu kodu, który zosta³ oznaczony odpowiednimi dyrektywami do zrównoleglenia, wtedy nastêpuje faza fork, czyli tworzenia w±tkówi.
+  Ka¿dy z w±tków otrzymuje unikalny identyfikator, którego warto¶æ mo¿na odczytaæ i przy jego pomocy sterowaæ prac± tylko okre¶lonego w±tku.
+  W±tki przetwarzaj± kod przeznaczony do zrównoleglenia niezale¿nie od siebie, aczkolwiek istniej± mechanizmy pozwalaj±ce na zdefiniowany przez programistê podzia³ zadañ.
+  Dziêki temu mo¿liwe jest zrównoleglenie zarówno na poziomie zadañ, ró¿ne w±tki mog± wykonywaæ ró¿ny kod, jak i na poziomie danych, gdy w±tki wykonuj± ten sam kod, ale na ró¿nych danych.
+  Nastêpnie w±tki wykonuj± zadanie, po czym na koñcu kodu zaznaczonego do zrównoleglenia nastêpuje faza-join, w której w±tek g³ówny oczekuje na zakoñczenie pracy wszystkich w±tków pracowników.
+  Liczba w±tków mo¿e byæ kontrolowana przez programistê za pomoc± funkcji OpenMP lub zmiennych ¶rodowiskowych.
+  
+  Kolejny prosty przyk³ad pokazuje jak w OpenMP mo¿na wykonaæ dodawanie dwóch tablic:
+\begin{lstlisting}
+#include <omp.h>
+#define CHUNKSIZE 100
+#define N     1000
+
+main ()  
+{
+
+int i, chunk;
+float a[N], b[N], c[N];
+
+/* Some initializations */
+for (i=0; i < N; i++)
+  a[i] = b[i] = i * 1.0;
+chunk = CHUNKSIZE;
+
+#pragma omp parallel shared(a,b,c,chunk) private(i)
+  {
+
+  #pragma omp for schedule(dynamic,chunk) nowait
+  for (i=0; i < N; i++)
+    c[i] = a[i] + b[i];
+
+  }  /* end of parallel section */
+
+}
+\end{lstlisting}
+  W tym przyk³adzie nastêpuje zrównowleglenie pêtli for, w której sumowane s± elementy dwóch tablic i wynik przypisywany jest na trzeci± tablicê.
+  Dyrektywa \verb|#pragma omp for schedule(dynamic,chunk) nowait| mówi, i¿ pêtla powinna zostaæ zrównoleglona, 
+  ale w taki sposób, ¿e ka¿dy z w±tków zajmie siê fragmentem tablicy o wielko¶ci zapisanej w zmiennej \verb|chunk|.
+  Kolejne obroty pêtli nie s± ze sob± synchronizowane, o czym mówi s³owo \verb|nowait|.
+  
+\subsubsection{Porównanie OpenMP vs. Parallel}
+
+\begin{tabular}{ | p{0.5\textwidth} | p{0.5\textwidth} |}
+  \hline\
+  \textbf{Podobieñstwa} & \textbf{Ró¿nice} \\ \hline
+  \begin{itemize}
+   \item Równoleg³o¶æ inkrementacyjna, mo¿liwe jest dodawanie zrównoleglania obliczeñ stopniowo, bez drastycznych zmian w kodzie.
+   \item Ma³a potrzeba zmian w kodzie przy zrównoleglaniu
+   \item W obu przypadkach mo¿liwa jest kompilacja do kodu sekwencyjnego bez ¿adnych modyfikacji w kodzie.
+   \item OpenMP i Parallel dzia³aj± tylko na platformach z pamiêci± wspó³dzielon±.
+  \end{itemize}
+
+  &
+  \begin{itemize}
+   \item W OpenMP dekompozycja zadañ domy¶lnie jest dokonywana automatycznie
+   \item OpenMP nie jest zwyk³± bibliotek± jêzyka i potrzebuje wsparcia kompilatora.
+   \item Parallel zosta³o zaprojektowane do zrównoleglania zadaniowego, a nie zrównoleglania na poziomie danych (ni¿sza ziarnisto¶æ). W OpenMP oba te podej¶cia s± wspierane.
+   \item OpenMP nie wspiera obs³ugi wyj±tków, a biblioteka Parallel tak.
+   \item OpenMP pozwala na mniejsz± dowolno¶æ synchronizacji równoleg³ych fragmentów kodu. W Parallel w±tki s± synchronizowane, gdy jest to niezbêdne.
+  \end{itemize}\\
+  \hline
+\end{tabular} 
+
+\subsection{Threading Building Blocks (TBB)}
+
+  Threading Building Blocks jest bibliotek±, która s³u¿y do pisania programów wykorzystuj±cych wielow±tkowo¶æ w jêzyku C++.
+  Biblioteka sk³ada siê z szablonów typów i algorytmów, które dzia³aj± w sposób równoleg³y, jednocze¶nie pozwalaj± unikn±æ trudno¶ci i z³o¿ono¶ci zwi±zanych z programowaniem 
+  przy wykorzystaniu standardowych mechanizmów oferuj±cych równoleg³o¶æ, takich jak w±tki POSIX, Windows lub w±tki z biblioteki Boost.Thread.
+  W standardowej bibliotece oferuj±cej wielow±tkowo¶æ programista obcia¿ony jest tworzeniem, usuwaniem lub synchronizacj± w±tków i przypisywaniem do nich zadañ.
+  
+  W przypadku TBB programista, zamiast definowaæ dzia³anie wspó³bie¿nego fragmentu programu manualnie, u¿ywa szkieletów algorytmów dostêpnych w tej biblioitece.
+  Nastêpnie biblioteka ju¿ sama dzieli wykonanie algorytmu na podzadania, przypisuje je do w±tków, 
+  zajmuje siê równowa¿eniem obci±¿enia procesorów i przypisywaniem w±tków do procesorów w taki sposób, by zminimalizowaæ migotanie pamiêci podrêcznej.
+  Nawet liczba w±tków jest dobierana automatycznie przez TBB zale¿nie od konfiguracji komputera.
+  
+  Przyk³ad wykorzystania biblioteki TBB do zrównoleglenia pêtli for wygl±da nastêpuj±co:
+  \begin{lstlisting}
+#include "tbb/blocked_range.h"
+
+class ApplyFoo {
+  float *const my_a;
+  public:
+    void operator()( const blocked_range<size_t>& r ) const {
+      for( size_t i=r.begin(); i!=r.end(); ++i ) {
+        Foo(my_a[i]);     
+      }
+    }
+  ApplyFoo( float a[] ) :
+    my_a(a) {}
+};
+
+#define A_SIZE 1000
+int main() 
+{
+  float a[A_SIZE];
+  parallel_for(blocked_range<size_t>(0,n,IdealGrainSize), 
+    ApplyFoo(a) );
+}
+  \end{lstlisting}
+  W tym przyk³adzie klasa ApplyFoo definiuje obiekt funkcyjny, który je¶li otrzyma za argument obiekt typu \verb|blocked_range<size_t>| 
+  to przypisze na ka¿dy element tablicy \verb|my_a| warto¶æ zwracan± przez wywo³anie funkcji \verb|Foo| od tego elementu.
+  Poni¿ej w funkcji \verb|main| znajduje siê wywo³anie funkcji TBB \verb|parallel_for|, która równolegle aplikuje obiekt funkcyjny \verb|ApplyFoo(a)|
+  do fragmentów tablicy \verb|a| wielko¶ci \verb|IdealGrainSize|.
+  
+  TBB zawiera, oprócz schematu pêtli for, równie¿ wiele innych: schemat pêtli while, schemat pipeline, schemat reduce.
+  
+\subsubsection{Porównanie TBB vs. Parallel}
+
+\begin{tabular}{ | p{0.5\textwidth} | p{0.5\textwidth} |}
+  \hline\
+  \textbf{Podobieñstwa} & \textbf{Ró¿nice} \\ \hline
+  \begin{itemize}
+   \item Równoleg³o¶æ inkrementacyjna, mo¿liwe jest dodawanie zrównoleglania obliczeñ stopniowo, bez drastycznych zmian w kodzie.
+   \item TBB i Parallel dzia³aj± tylko na platformach z pamiêci± wspó³dzielon± i nie jest mo¿liwe przeskalowanie programu na wiele maszyn.
+   \item Obie biblioteki zosta³y zaprojektowane do zrównoleglania kodu na poziomie zadañ do wykonania.
+   \item Obie biblioteki wspieraj± obs³ugê wyj±tków.
+  \end{itemize}
+
+  &
+  \begin{itemize}
+   \item U¿ycie TBB zazwyczaj wymaga zmian w kodzie. Choæ jego struktura pozostaje w wiêkszo¶ci niezmieniona, to niezbêdne jest zdefinowanie klas - obiektów funkcyjnych przekazywanych do algorytmów z TBB.
+   \item Kod TBB jest mniej czytelny, gdy¿ to co siê dzieje w programie opisane jest w miejscu wywo³uj±cym równoleg³e wykonanie, jak i przez obiekty funkcyjne przekazywane do TBB zdefinowane w innym miejscu w kodzie.
+   \item W TBB dekompozycja zadañ domy¶lnie jest dokonywana automatycznie.
+   \item Kod pisany przy u¿yciu TBB zazwyczaj jest d³u¿szy, ze wzglêdu na konieczno¶æ definowania dodatkowych klas.
+  \end{itemize}\\
+  \hline
+\end{tabular} 
+
+\subsection{Message Passing Interface (MPI)}
+
+  Message Passing Interface jest bibliotek± nieco odmienn± od poprzednio opisanych, gdy¿ pozwala na pisanie programów równoleg³ych na systemy komputerowe z pamiêci± rozproszon±.
+  Jest to mo¿liwe dziêki komunikacji poprzez wiadomo¶ci, któr± zapewnia biblioteka.
+  W typowym przypadku program równoleg³y sk³ada siê z wielu procesów komunikuj±cych siê poprzez wywo³ania odpowiednich funkcji MPI do wysy³ania lub odbierania wiadomo¶ci.
+  MPI zosta³o ustandaryzowane i jest dostêpne w wielu jêzykach i na wielu platformach.
+  
+  MPI uwa¿ane jest za dosyæ niskopoziomowy sposób pisania programów równoleg³ych, gdy¿ ca³e dzia³anie programu musi zostaæ zapisane jawnie przez programistê.
+  Programista ustala liczbê procesów, kierunki komunikacji, mechanizmy synchronizacji, podzia³ danych i ich rozk³ad pomiêdzy procesy oraz
+  przydzia³ procesów do procesorów.
+  Jako korzy¶æ z trudno¶ci programowania przy pomocy MPI mo¿na zaliczyæ wydajno¶æ z jak± dzia³aj± dobrze napisane programy oraz ³atwo¶æ z jak± mo¿na skalowaæ je na wiêksz± liczbê procesorów.
+  Ponadto dziêki szerokiemu wsparciu MPI przez najwiêkszych dostawców sprzêtu i oprogramowania, programy pisane przy pomocy MPI s± przeno¶ne.
+  
+  Oto przyk³ad programu napisanego przy pomocy MPI, który pokazuje podstawowe operacje zwi±zane z wysy³aniem i odbieraniem komunikatów.
+\begin{lstlisting}
+/*
+ * "Hello World" MPI Test Program
+ */
+#include <mpi.h>
+#include <stdio.h>
+#include <string.h>
+
+#define BUFSIZE 128
+#define TAG 0
+
+int main(int argc, char *argv[])
+{
+ char idstr[32];
+ char buff[BUFSIZE];
+ int numprocs;
+ int myid;
+ int i;
+ MPI_Status stat;
+ 
+ /* kazdy program MPI musi najpierw wywolac MPI_Init */
+ MPI_Init(&argc,&argv); 
+ /* sprawdzenie ile jest procesow w grupie */
+ MPI_Comm_size(MPI_COMM_WORLD,&numprocs); 
+ /* sprawdzenie numeru danego procesu w grupie */
+ MPI_Comm_rank(MPI_COMM_WORLD,&myid); 
+ 
+ if(myid == 0)
+ {
+   printf("%d: We have %d processors\n", myid, numprocs);
+   for(i=1;i<numprocs;i++)
+   {
+     sprintf(buff, "Hello %d! ", i);
+     MPI_Send(buff, BUFSIZE, MPI_CHAR, i, TAG, MPI_COMM_WORLD);
+   }
+   for(i=1;i<numprocs;i++)
+   {
+     MPI_Recv(buff, BUFSIZE, MPI_CHAR, i, TAG, 
+      MPI_COMM_WORLD, &stat);
+     printf("%d: %s\n", myid, buff);
+   }
+ }
+ else
+ {
+   /* odebranie wiadomosci od procesu o identyfikatorze 0 */
+   MPI_Recv(buff, BUFSIZE, MPI_CHAR, 0, TAG, 
+    MPI_COMM_WORLD, &stat);
+   sprintf(idstr, "Processor %d ", myid);
+   strncat(buff, idstr, BUFSIZE-1);
+   strncat(buff, "reporting for duty\n", BUFSIZE-1);
+   /* wys³anie wiadomo¶ci do procesu z identyfikatorem 0 */
+   MPI_Send(buff, BUFSIZE, MPI_CHAR, 0, TAG, MPI_COMM_WORLD);
+ }
+
+ /* Program MPI powinien zakonczyæ siê wywo³aniem MPI_Finalize, 
+  * ktory jest dla procesow punktem synchronizacji. 
+  */
+ MPI_Finalize(); 
+ return 0;
+}
+\end{lstlisting}
+  W tym programie w±tek g³ówny o identyfikatorze 0 wysy³a wiadomo¶æ ``Hello'' do ka¿dego z w±tków, a nastêpnie oczekuje na odpowied¼ od wszystkich w±tków.
+  W±tki pozosta³e czekaj± na wiadomo¶æ, a nastêpnie wysy³aj± odpowied¼.
+  
+  Kod pokazuje, ¿e programowanie w MPI mo¿na uznaæ za dosyæ niskopoziomowe. 
+  Operacje wysy³ania i odbierania wiadomo¶ci dzia³aj± analogicznie do funkcji systemowych read i write, operuj± na poziomie bitów.
+  St±d programista powinien tak¿e zatroszczyæ siê o odpowiednie zakodowanie i rozkodowanie wiadomo¶ci.
+  
+\subsubsection{Porównanie MPI vs. Parallel}
+
+\begin{tabular}{ | p{0.5\textwidth} | p{0.5\textwidth} |}
+  \hline\
+  \textbf{Podobieñstwa} & \textbf{Ró¿nice} \\ \hline
+  \begin{itemize}
+   \item Obie biblioteki zosta³y zaprojektowane do zrównoleglania kodu na poziomie zadañ do wykonania.
+  \end{itemize}
+
+  &
+  \begin{itemize}
+   \item W MPI raczej trudno jest stopniowo zrównoleglaæ program. Fragmeny programu, które maj± dzia³aæ równoleg³e musz± zostaæ zapisane w ca³o¶ci i musz± dok³adnie sobie odpowiadaæ.
+   \item MPI wymaga znacznych strukturalnych zmian w kodzie.
+   \item Ze wzglêdu na to, ¿e MPI koordynuje pracê wielu niezale¿nych procesów, które dzia³aj± w sposób asynchroniczny trudno jest dok³adnie prze¶ledziæ i zrozumieæ dzia³anie takiego programu.
+   \item MPI dzia³a tak¿e w systemach komputerowych z pamiêci± rozproszon±, Parallel tylko w ¶rodowisku z pamiêci± dzielon±.
+   \item W MPI ca³o¶æ komunikacji, synchronizacji, podzia³ zadañ, zbieranie wyników musi zostaæ zapisane \textit{explicite} przez programistê.
+   \item Komunikacja w MPI odbywa siê pomiêdzy ró¿nymi procesami, a w Parallel pomiêdzy w±tkami o wspólnej przestrzeni adresowej. MPI mo¿na stosowaæ w ogólniejszych przypadkach.
+  \end{itemize}\\
+  \hline
+\end{tabular} 
+
+\subsection{Boost Threads}
+
+  Istnieje kilka bibliotek oferuj±cych programi¶cie mo¿liwo¶æ uruchamiania wielu watków w ramach jednego programu.
+  W¶ród nich mo¿na wymieniæ POSIX Threads, Windows Threads, najbardziej typowe rozwi±zania dla platform odpowiednio Unix i Windows.
+  Do opisu zosta³a Boost.Threads ze wzglêdu na przenaszalno¶æ, natomiast zasada dzia³ania i oferowane mo¿liwo¶ci s± analogicznie jak w innych tego typu bibliotekach.
+  
+  Biblioteka Boost Threads umo¿liwia zarz±dzanie w±tkami, jak i udostêpnia typy oraz funkcje s³u¿±ce do synchronizacji pomiêdzy w±tkami.
+  Mechanizmy synchronizacyjne dostêpne w Boost Thread to miêdzy innymi ró¿nego rodzaju blokady, zmienne warunkowe, bariery.
+  Boost Thread pozwala równie¿ na tworzenie grup w±tków, którymi mo¿na zarz±dzaæ, ale nie ma funkcji puli w±tków, która optymalizowa³aby zu¿ycie zasobów przy pos³ugiwaniu siê w±tkami.
+  Komunikacja w programie pisanym przy u¿yciu Boost Thread odbywa siê zazwyczaj przez wspó³dzielone struktury danych, o ochronê których programista musi zatroszczyæ siê samodzielnie.
+  
+  Poni¿ej znajduje siê przyk³ad prezentuj±cy u¿ycie biblioteki Boost Threads:
+\begin{lstlisting}
+ 
+\end{lstlisting}
+
+
+\subsubsection{Porównanie Boost Threads vs. Parallel}
+
+\begin{tabular}{ | p{0.5\textwidth} | p{0.5\textwidth} |}
+  \hline\
+  \textbf{Podobieñstwa} & \textbf{Ró¿nice} \\ \hline
+  \begin{itemize}
+   \item Boost Threads i Parallel dzia³aj± tylko na platformach z pamiêci± wspó³dzielon± i nie jest mo¿liwe przeskalowanie programu na wiele maszyn.
+   \item Obie biblioteki zosta³y zaprojektowane do zrównoleglania kodu na poziomie zadañ do wykonania.
+   \item W przypadku u¿ycia obu bibliotek programista musi zadbaæ o dekompozycje zadañ.
+  \end{itemize}
+  &
+  \begin{itemize}
+   \item Stopniowe dodawanie równoleg³o¶ci przy u¿yciu Boost Threads jest trudniejsze, poniewa¿ u¿ycie biblioteki wymaga zmian w strukturze kodu i dodania mechanizmu komunikacji miêdzy w±tkami.
+   \item Nie ma mo¿liwo¶ci przekazania do w±tku wyra¿enia do wykonania, w±tki przyjmuj± do wykonania jedynie obiekty funkcyjne, co wi±¿e siê z konieczno¶ci± dodania do kodu definicji tych obiektów.
+   \item Kod Boost Threads jest mniej czytelny, gdy¿ sk³adnia obiektów funkcyjnych jest mniej czytelna ni¿ sk³adnia wyra¿eñ.
+   \item Przekazywanie warto¶ci miêdzy w±tkami wymaga dodatkowej synchronizacji i u¿ycia specjalnych fragmentów pamiêci wspó³dzielonej lub wska¼ników.
+   \item W Parallel zadania s± przydzielane w±tkom dynamicznie, dzieki czemu równowa¿one jest obci±¿enie w±tków.
+   \item Programista u¿ywaj±cy Parallel jest w znacznym stopniu odci±¿ony z u¿ywania mechanizmów synchronizacji i komunikacji pomiêdzy w±tkami.
+   \item W Boost Thread wyj±tki wywo³ane w kodzie wykonywanym przez w±tek nie s± sygnalizowane w±tkowi g³ównemu, który uruchomi³ dany w±tek. Mo¿na taki efektu uzyskaæ pisz±c dodatkowy do przekazywania wyj±tków pomiêdzy w±tkami.
+  \end{itemize}\\
+  \hline
+\end{tabular} 

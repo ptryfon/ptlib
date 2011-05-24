@@ -24,7 +24,6 @@ void
 evaluation_mgr::close()
 {
 	delete m_p_instance;
-	//std::cout << "End of eval_mgr close" << std::endl;
 }
 
 void
@@ -51,7 +50,6 @@ evaluation_mgr::~evaluation_mgr()
 	m_continue = false;
 	m_threads_cond.notify_all();
 	m_threads.join_all();
-	//std::cout << "Eval_mgr dest finished" << std::endl;
 }
 
 void

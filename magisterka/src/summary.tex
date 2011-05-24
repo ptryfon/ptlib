@@ -1,0 +1,36 @@
+\chapter{Podsumowanie}\label{r:podsumowanie}
+
+  Stworzona w ramach pracy biblioteka Parallel spe³nia cele zdefinowane w rozdziale \nameref{r:koncepcja}, które kierowa³y jej projektowaniem.
+  Biblioteka Parallel pozwala na zwiêkszenie produktywno¶ci programisty pisz±cego programy równoleg³e.
+  By³o to mo¿liwe dziêki zaprojektowaniu takiego modelu biblioteki, który pozwala na pisanie czytelnego i intuicyjnego kodu przy pomocy API biblioteki.
+  Równie istotnym priorytetem podczas tworzenia biblioteki by³o uzyskanie wysokiej efektywno¶ci pisanych przy pomocy Parallel programów.
+  Liczba operacji wykonywanych przez bibliotekê zosta³a ograniczona do niezbêdnego minimum.
+  Bardzo wa¿nym czynnikiem osi±gniêcia wysokiej efektywno¶ci by³o zapewnienie programi¶cie wgl±du w to jaki sposób biblioteka dzia³a.
+  Uda³o siê to osi±gn±æ, gdy¿ programista zlecaj±c równoleg³e obliczenie wyra¿enie wie w jaki sposób zostanie ono wykonane przez bibliotekê Parallel,
+  dziêki czemu programista mo¿e dostosowaæ podzia³ zadañ w taki sposób, aby zmaksymalizowaæ wydajno¶æ programu.
+  
+  U³atwienie pracy programi¶cie podczas korzystania z biblioteki Parallel polega równie¿ na tym, ¿e biblioteka zdejmuje z niego obci±¿enie 
+  zwi±zane z projektowaniem i programowaniem komunikacji i synchronizacji pomiêdzy ró¿nymi w±tkami. 
+  Programista musi jedynie zatroszczyæ siê o spójno¶æ danych wykorzystywanych do równoleg³ych obliczeñ.
+  Biblioteka Parallel jest w pe³ni przenaszalna na wszystkie platformy, które posiadaj± kompilator jêzyka C++ zgodny z przysz³ym standardem C++0x
+  oraz wspieraj± bibliotekê Boost.
+  
+  W czasie pracy nad bibliotek± zosta³o rozwi±zanych kilka problemów badawczych, niektóre z nich okaza³y siê bardzo wymagaj±ce.
+  Najtrudniejsze okaza³o siê zaprojektowanie sposobu przekazywania wyra¿eñ do obliczenia. 
+  Problem zosta³ rozwi±zany przy pomocy idiomu C++ szablonu wyra¿enia, a zaimplementowany wykorzystuj±c bibliotekê Boost.Proto.
+  W oparciu o bibliotekê Boost.Threads wykonano implementacjê mechanizmu wykonawczego biblioteki, w której zosta³ wykorzystany wzorzec puli w±tków i kolejki zadañ.
+  Ponadto, zaprojektowano sposób zwracania wyniku obliczenia wyra¿enia, który zosta³ oparty na autorskim pomy¶le polegaj±cym na wprowadzeniu warto¶ci odroczonych.
+  Rozwi±zano równie¿ kilka pomniejszych problemów takich jak obs³uga wyj±tków wywo³anych w trakcie równoleg³ych obliczeñ, unikniêcie zdublowanego obliczenia wyra¿enia przekazanego do obliczenia,
+  dostosowanie warto¶ci odroczonej do specjalnych postaci warto¶ci zwracanych, odroczenie wymuszenia obliczenia warto¶ci odroczonej do jak najpó¼niejszego momentu.
+
+  W implementacji biblioteki u¿yto wielu zaawansowanych technik programowania w jêzyku C++. By³y to miêdzy innymi obliczenia na typach w oparciu o wzorce, specjalizacja wzorców, 
+  inicjowanie przy pozyskiwaniu zasobu (z ang. Resource Acquisition Is Initialization), inteligentne wska¼niki, referencje do r-warto¶ci i construktor przenosz±cy (z ang. move constructor).
+  Tam, gdzie by³o to potrzebne i mo¿liwe wykorzystane zosta³y biblioteki z kolekcji Boost powa¿ane ze wzglêdu na ich wysok± jako¶æ oraz bêd±ce wzorcem nowoczesnego programowania w C++.
+  Zastosowano biblioteki Boost.Proto, Boost.Threds, Boost.Bind, Boost.TypeTraits, Boost.SmartPointers, Boost.MPL, Boost.Ref, a do testowania biblioteki Parallel zosta³a wykorzystana biblioteka Boost.UnitTestFramework.
+  
+  Podsumowuj±c, stworzenie biblioteki Parallel zosta³o poprzedzone szerok± analiz± teoretyczn±, jak równie¿ zosta³y uwzglêdnione wzglêdy praktycznego stosowania biblioteki.
+  Parallel jest dobrym kandydatem, aby staæ siê bibliotek± szeroko u¿ywan± przez programistów jêzyka C++ pisz±cych programy równoleg³e.  
+
+% \section{Mo¿liwo¶ci dalszego rozwoju}
+% 
+% \section{Perspektywy wykorzystania biblioteki Parallel}

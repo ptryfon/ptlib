@@ -1,76 +1,79 @@
 
 \chapter{Koncepcja biblioteki}\label{r:koncepcja}
 
-  W tym rozdziale zostanÄ… przedstawione gÅ‚Ã³wne zaÅ‚oÅ¼enia biblioteki Parallel na tle istnijÄ…cych juÅ¼ modeli programowania rÃ³wnolegÅ‚ego, dostÄ™pnych w jÄ™zyku C++.
+  W tym rozdziale zostan± przedstawione g³ówne za³o¿enia oraz szkic projektu biblioteki Parallel. 
+  Ponadto biblioteka Parallel zostanie zestawiona z istniej±cymi bibliotekami do programowania równoleg³ego w celu pokazania ró¿nic i uzasadnienia potrzeby stworzenia nowej biblioteki.
 
 \section{Cele biblioteki}
 
-  Tworzeniu biblioteki Parallel przyÅ›wiecaÅ‚y jasno sprecyzowane cele, ktÃ³rych ideÄ… przewodniÄ… byÅ‚o uÅ‚atwienie wykorzystywania obliczeÅ„ rÃ³wnolegÅ‚ych w programach.
-  Wymienionym poniÅ¼ej celom byÅ‚o podporzÄ…dkowane projektowanie API i implementacja biblioteki.
+  Tworzeniu biblioteki Parallel przy¶wieca³y jasno sprecyzowane cele, których ide± przewodni± by³o u³atwienie wykorzystywania obliczeñ równoleg³ych w programach.
+  Wymienionym poni¿ej celom by³o podporz±dkowane projektowanie API i implementacja biblioteki.
 
-\subsection{Wysoka efektywnoÅ›Ä‡}
+\subsection{Wysoka efektywno¶æ}
 
-  Jednym z gÅ‚Ã³wnych powodÃ³w stosowania zrÃ³wnoleglania obliczeÅ„ jest przyspieszanie ich wykonania. Dlatego sama biblioteka do zrÃ³wnoleglania powinna dziaÅ‚aÄ‡ szybko.
-  NiedopuszczalnÄ… byÅ‚aby sytuacja, gdyby program wspÃ³Å‚bieÅ¼ny wykonywaÅ‚ siÄ™ wolniej niÅ¼ jego sekwencyjny odpowiednik.
-  Biblioteka Parallel bÄ™dzie bibliotekÄ… ogÃ³lnego zastosowania, przy pomocy, ktÃ³re bÄ™dzie moÅ¼liwe prowadzenie dowolnych obliczeÅ„.
-  W zwiÄ…zu z tym, nie ma moÅ¼liwoÅ›ci zoptymalizowania biblioteki pod kÄ…tem prowadzenia pewnego typu obliczeÅ„.
-  Dlatego, oprÃ³cz szybkiego dziaÅ‚ania mechanizmÃ³w wbudowanych w bibliotekÄ™, niezbÄ™dne jest pozwolenie programiÅ›cie na podejmowanie decyzji o takim prowadzeniu obliczeÅ„, Å¼e ich wykonanie przy uÅ¼yciu biblioteki Parallel bÄ™dzie efektywne.
-  KluczowÄ… rolÄ™ odgrywa odpowiedni podziaÅ‚ zadaÅ„ przez programistÄ™ (granularnoÅ›Ä‡ obliczeÅ„).
+  Jednym z g³ównych powodów stosowania zrównoleglania obliczeñ jest przyspieszanie ich wykonania. Dlatego sama biblioteka do zrównoleglania powinna dzia³aæ szybko.
+  Niedopuszczaln± by³aby sytuacja, gdyby program wspó³bie¿ny wykonywa³ siê wolniej ni¿ jego sekwencyjny odpowiednik.
+  Biblioteka Parallel bêdzie bibliotek± ogólnego zastosowania, przy pomocy, które bêdzie mo¿liwe prowadzenie dowolnych obliczeñ.
+  W zwi±zu z tym, nie ma mo¿liwo¶ci zoptymalizowania biblioteki pod k±tem prowadzenia jednego z góry znanego typu obliczeñ.
+  Dlatego, oprócz szybkiego dzia³ania mechanizmów wbudowanych w bibliotekê, niezbêdne jest pozwolenie programi¶cie na podejmowanie decyzji o takim prowadzeniu obliczeñ, 
+  ¿e ich wykonanie przy u¿yciu biblioteki Parallel bêdzie efektywne.
+  Kluczow± rolê odgrywa odpowiedni podzia³ zadañ przez programistê (granularno¶æ obliczeñ).
   
-\subsection{ZwiÄ™kszenie produktywnoÅ›ci programisty}
-  Problem z efektywnoÅ›ciÄ… programisty w przypadku pisania programÃ³w rÃ³wnolegÅ‚ych polega na tym, Å¼e takie programy sÄ… trude do pisania, stÄ…d wymagajÄ… znacznych nakÅ‚adÃ³w pracy programistÃ³w.
-  ZrÃ³wnoleglenie choÄ‡by niewielkiego fragmentu programu wymaga znacznie wiÄ™cej czasu niÅ¼ napisanie jego sekwencyjnego odpowiednika.
-  ByÄ‡ moÅ¼e dlatego obliczenia rÃ³wnolegÅ‚e wykorzystywane sÄ… wyÅ‚Ä…cznie wtedy, gdy juÅ¼ nie ma innego sposobu osiÄ…gniÄ™cia niezbÄ™dnego minimum wydajnoÅ›ci programu.
-  Biblioteka Parallel celuje w zmianÄ™ tego stanu rzeczy, dziÄ™ki wprowadzeniu modelu programowania rÃ³wnolegÅ‚ego, ktÃ³ry bÄ™dzie tak intuicyjny jak programowanie sekwencyjne.
-  DziÄ™ki czemu napisanie kodu, ktÃ³ry dziaÅ‚a wspÃ³Å‚bieÅ¼nie, bÄ™dzie prawie tak samo szybkie jak kodu sekwencyjnego, co pozwoliÅ‚oby uzyskaÄ‡ programistom szybsze programy przy zbliÅ¼onej produktywnoÅ›ci ich pracy.
+\subsection{Zwiêkszenie produktywno¶ci programisty}
+  Problem z efektywno¶ci± programisty w przypadku pisania programów równoleg³ych polega na tym, ¿e takie programy s± trude do pisania, st±d wymagaj± znacznych nak³adów pracy programistów.
+  Zrównoleglenie choæby niewielkiego fragmentu programu wymaga znacznie wiêcej czasu ni¿ napisanie jego sekwencyjnego odpowiednika.
+  Byæ mo¿e dlatego obliczenia równoleg³e wykorzystywane s± wy³±cznie wtedy, gdy ju¿ nie ma innego sposobu osi±gniêcia niezbêdnego minimum wydajno¶ci programu.
+  Biblioteka Parallel celuje w zmianê tego stanu rzeczy, dziêki wprowadzeniu modelu programowania równoleg³ego, który bêdzie tak intuicyjny jak programowanie sekwencyjne.
+  Dziêki czemu napisanie kodu, który dzia³a wspó³bie¿nie, bêdzie prawie tak samo szybkie jak kodu sekwencyjnego, co pozwoli³oby uzyskaæ programistom szybsze programy przy zbli¿onej produktywno¶ci ich pracy.
 
-\subsection{CzytelnoÅ›Ä‡ kodu}
+\subsection{Czytelno¶æ kodu}
 
-  Tym, co najbardziej utrudnia zrozumienie programÃ³w wspÃ³Å‚bieÅ¼nych jest koniecznoÅ›Ä‡ zrozumienia zaleÅ¼noÅ›ci pomiÄ™dzy odrÄ™bnymi rÃ³wnolegle dziaÅ‚ajÄ…cymi czÄ™Å›ciami programu.
-  Zazwyczaj te zaleÅ¼noÅ›Ä‡i dotyczÄ… miejsc w kodzie, ktÃ³re sÄ… od siebie stosunkowo odlegÅ‚e.
-  MnogoÅ›Ä‡ niejawnych zaleÅ¼noÅ›ci i przeplotÃ³w wykonaÅ„ programu sprawiajÄ…, Å¼e nawet pozornie proste operacje sÄ… trudne do poprawnego zaprogramowania, a przyczyny ewentualnych bÅ‚Ä™dÃ³w sÄ… bardzo trudne do zidentyfikowania.
-  Jednym z bardziej wymownych przykÅ‚adÃ³w popierajÄ…cych to stwierdzenie jest problem implementacji semafora uogÃ³lnionego przy pomocy semaforÃ³w binarnych \cite{gensem}, gdzie bÅ‚Ä™dne rozwiÄ…zania pojawiaÅ‚y siÄ™ w publikacjach naukowych i nawet przez dÅ‚ugie okresy czasu byÅ‚y uwaÅ¼ane za poprawne.
-  StÄ…d celem, ktÃ³ry zostaÅ‚ postawiony przed bibliotekÄ… Parallel byÅ‚o stworzenie takiego modelu obliczeÅ„, w ktÃ³rym obliczenia rÃ³wnolegÅ‚e prowadzone byÅ‚yby w sposÃ³b czytelny.
-  Oznacza to, iÅ¼ miejsca wykorzystania rÃ³wnolegÅ‚oÅ›ci powinny byÄ‡ wyraÅºnie widoczne i Å‚atwe do odnalezienia, a sam zapis nie powinnien komplikowaÄ‡ kodu.
-  NajwaÅ¼niejsze jest to, Å¼e struktura programu napisanego przy pomocy biblioteki Parallel nie powinna istotnie rÃ³Å¼niÄ‡ siÄ™ od struktury programu sekwencyjnego.
-  Pozwoli to na uzyskanie kodu, ktÃ³ry bÄ™dzie znacznie Å‚atwiej zrozumieÄ‡.
+  Tym, co najbardziej utrudnia zrozumienie programów wspó³bie¿nych jest konieczno¶æ zrozumienia zale¿no¶ci pomiêdzy odrêbnymi równolegle dzia³aj±cymi czê¶ciami programu.
+  Zazwyczaj te zale¿no¶æi dotycz± miejsc w kodzie, które s± od siebie stosunkowo odleg³e.
+  Mnogo¶æ niejawnych zale¿no¶ci i przeplotów wykonañ programu sprawiaj±, ¿e nawet pozornie proste operacje s± trudne do poprawnego zaprogramowania, a przyczyny ewentualnych b³êdów s± bardzo trudne do zidentyfikowania.
+  Jednym z bardziej wymownych przyk³adów popieraj±cych to stwierdzenie jest problem implementacji semafora uogólnionego przy pomocy semaforów binarnych \cite{gensem}, 
+  gdzie b³êdne rozwi±zania pojawia³y siê w publikacjach naukowych i nawet przez kilka lat by³y uwa¿ane za poprawne.
+  St±d celem, który zosta³ postawiony przed bibliotek± Parallel by³o stworzenie takiego modelu obliczeñ, w którym obliczenia równoleg³e prowadzone by³yby w sposób czytelny.
+  Oznacza to, i¿ miejsca wykorzystania równoleg³o¶ci powinny byæ wyra¼nie widoczne i ³atwe do odnalezienia, a sam zapis nie powinnien komplikowaæ kodu.
+  Najwa¿niejsze jest to, ¿e struktura programu napisanego przy pomocy biblioteki Parallel nie powinna istotnie ró¿niæ siê od struktury programu sekwencyjnego.
+  Pozwoli to na uzyskanie kodu, który bêdzie znacznie ³atwiej zrozumieæ.
 
 \subsection{Transparencja}
 
-  Biblioteka Parallel powinna udostÄ™pniaÄ‡ programiÅ›cie wglÄ…d w to, w jaki sposÃ³b oblczenia rÃ³wnolegÅ‚e bÄ™dÄ… prowadzone.
-  DziÄ™ki temu programista bÄ™dzie mÃ³gÅ‚ uwzglÄ™dniÄ‡ podczas programowania specyfikÄ™ biblioteki.
-  MiÄ™dzy innymi bÄ™dzie mÃ³gÅ‚ dostosowaÄ‡ wielkoÅ›Ä‡ zlecanych fragmentÃ³w obliczeÅ„ (ziarnistoÅ›Ä‡ obliczeÅ„), tak aby zmaksymalizowaÄ‡ wydajnoÅ›Ä‡ programu.
+  Biblioteka Parallel powinna udostêpniaæ programi¶cie wgl±d w to, w jaki sposób oblczenia równoleg³e bêd± prowadzone.
+  Dziêki temu programista bêdzie móg³ uwzglêdniæ podczas programowania specyfikê biblioteki.
+  Miêdzy innymi bêdzie móg³ dostosowaæ wielko¶æ zlecanych fragmentów obliczeñ (ziarnisto¶æ obliczeñ), tak aby zmaksymalizowaæ wydajno¶æ programu.
   
-% \subsection{Abstrakcja}
-% 
-%   Abstrakcja ukrywa niepotrzebne szczegÃ³Å‚y implementacji przed programistÄ…, co pozwala na zwiÄ™kszenie jego produktywnoÅ›ci.
-%   Biblioteka powinna ofertowaÄ‡ proste ogÃ³lne API, tak aby programista mÃ³gÅ‚ bez 
+\subsection{Abstrakcja}
 
-\subsection{Ograniczenie koniecznoÅ›ci korzystania z mechanizmÃ³w komunikacji i synchronizacji procesÃ³w rÃ³wnolegÅ‚ych}
+  Abstrakcja ukrywa niepotrzebne szczegó³y implementacji przed programist±, co pozwala na zwiêkszenie jego produktywno¶ci.
+  Biblioteka powinna ofertowaæ proste ogólne API, tak aby programista móg³, po zapoznaniu siê z funkcjami oferowanymi przez bibliotekê, w krótkim czasie przyst±piæ do korzystania z Parallel.
 
-  Projektowawnie komunikacji i synchronizacji w programach wspÃ³Å‚bieÅ¼nych jest czymÅ›, co decyduje o fakcie, Å¼e programowanie rÃ³wnolegÅ‚e jest tak trudnym zadaniem.
-  Celem biblioteki Parallel jest zdjÄ™cie w znacznym stopniu tego obciÄ…Å¼enia z programisty.
-  Komunikacja pomiÄ™dzy rÃ³Å¼nymi wÄ…tkami wykonania bÄ™dzie koordynowana przez bibliotekÄ™.
-  Biblioteka nie moÅ¼e wyrÄ™czyÄ‡ jednak programisty we wszystkim, ochrona spÃ³jnoÅ›ci struktur danych programu pozostanie w rÄ™kach programisty.
+\subsection{Ograniczenie konieczno¶ci korzystania z mechanizmów komunikacji i synchronizacji procesów równoleg³ych}
+
+  Projektowawnie komunikacji i synchronizacji w programach wspó³bie¿nych jest czym¶, co decyduje o fakcie, ¿e programowanie równoleg³e jest tak trudnym zadaniem.
+  Celem biblioteki Parallel jest zdjêcie w znacznym stopniu tego obci±¿enia z programisty.
+  Komunikacja pomiêdzy ró¿nymi w±tkami wykonania bêdzie koordynowana przez bibliotekê.
+  Biblioteka nie mo¿e wyrêczyæ jednak programisty we wszystkim, ochrona spójno¶ci struktur danych programu pozostanie w rêkach programisty.
   
-\subsection{PrzenaszalnoÅ›Ä‡}
+\subsection{Przenaszalno¶æ}
   
-  Jest to bardzo istotna cecha biblioteki, dziÄ™ki ktÃ³rej kod pisany przy uÅ¼yciu biblioteki Parallel bÄ™dzie mÃ³gÅ‚ byÄ‡ kompilowany i wykonywany na dowolnych platformach.
-  Zostanie to osiÄ…gniÄ™te dziÄ™ki zaprogramowaniu biblioteki w peÅ‚nej zgodnoÅ›ci z nowym standardem jÄ™zyka C++ (standard C++0x).
-  UÅ¼ycie nowego standardu jest niezbÄ™dne ze wzglÄ™du na zaawansowane konstrukcje jÄ™zykowe potrzebne do zaprogramowania biblioteki Parallel.
-  KonsekwencjÄ… tego bÄ™dzie niezgodnoÅ›Ä‡ biblioteki z wczeÅ›niejszymi standardami jÄ™zyka C++, ale umoÅ¼liwi stworzenie lepszego, bardziej czytelnego kodu biblioteki przy uÅ¼yciu nowoczesnych technik programowania w C++.
+  Jest to bardzo istotna cecha biblioteki, dziêki której kod pisany przy u¿yciu biblioteki Parallel bêdzie móg³ byæ kompilowany i wykonywany na dowolnych platformach.
+  Zostanie to osi±gniête dziêki zaprogramowaniu biblioteki w pe³nej zgodno¶ci z przysz³ym standardem jêzyka C++ (standard C++0x).
+  U¿ycie nowego standardu jest niezbêdne ze wzglêdu na zaawansowane konstrukcje jêzykowe potrzebne do zaprogramowania biblioteki Parallel.
+  Konsekwencj± tego bêdzie niezgodno¶æ biblioteki z wcze¶niejszymi standardami jêzyka C++, ale umo¿liwi stworzenie lepszego, bardziej czytelnego kodu biblioteki przy u¿yciu nowoczesnych technik programowania w C++.
 
 
 \section{Prezentacja idei biblioteki Parallel}
 
-  Niniejsza sekcja przedstawia inspiracjÄ™ oraz wynik koÅ„cowy pracy koncepcyjnej nad bibliotekÄ….
-  ZostanÄ… zarysowane wysokopoziomowa architektura biblioteki oraz funkcjonowanie biblioteki z punktu widzenia programisty-uÅ¼ytkownika.
+  Niniejsza sekcja przedstawia inspiracjê oraz wynik koñcowy pracy koncepcyjnej nad bibliotek±.
+  Zostan± zarysowane wysokopoziomowa architektura biblioteki oraz funkcjonowanie biblioteki z punktu widzenia programisty-u¿ytkownika.
 
 \subsection{Inspiracja}
 
-  Powstanie biblioteki zostaÅ‚o zainspirowane bibliotekÄ… do prowadzenia obliczeÅ„ rÃ³wnolegÅ‚ych w jÄ™zyku Haskell, Parallel Haskell\cite{parhas}.
-  Ta biblioteka pozwala w sposÃ³b bardzo intuicyjny obliczaÄ‡ dwa wyraÅ¼enia rÃ³wnolegle.
-  Oto przykÅ‚ad funkcji obliczajÄ…cej w sposÃ³b rÃ³wnolegÅ‚y n-tÄ… liczbÄ™ Fibonacciego:
+  Powstanie biblioteki zosta³o zainspirowane bibliotek± do prowadzenia obliczeñ równoleg³ych w jêzyku Haskell, Parallel Haskell\cite{parhas}.
+  Ta biblioteka pozwala w sposób bardzo intuicyjny obliczaæ dwa wyra¿enia równolegle.
+  Oto przyk³ad funkcji obliczaj±cej w sposób równoleg³y n-t± liczbê Fibonacciego:
   \begin{lstlisting}[language=Haskell]
     import Control.Parallel
 
@@ -81,7 +84,7 @@
                            n2 = nfib (n-2)
   \end{lstlisting}
   
-  Analogiczny program sekwencyjny wyglÄ…daÅ‚by nastÄ™pujÄ…co:
+  Analogiczny program sekwencyjny wygl±da³by nastêpuj±co:
   \begin{lstlisting}[language=Haskell]
     import Control.Parallel
 
@@ -92,192 +95,166 @@
                            n2 = nfib (n-2)
   \end{lstlisting}
   
-  W Haskellu funkcja \verb|par| wskazuje, Å¼e wyliczenie dwÃ³ch wyraÅ¼eÅ„ moÅ¼e odbyÄ‡ siÄ™ rÃ³wnolegle i w czasie wykonania podejmowana jest decyzja o sposobie wyliczenia.
-  Obliczenia odbywajÄ… siÄ™ rÃ³wnolegle, gdy jest to bardziej efektywne od wykonania sekwencyjnego.
-  Ta konstrukcja pokazuje z jak zadziwiajÄ…cÄ… prostotÄ… moÅ¼na pisaÄ‡ programy rÃ³wnolegÅ‚e.
-  W Haskellu wystarczy dodaÄ‡ jedno sÅ‚owo, aby oznaczyÄ‡ wyraÅ¼enie jako przeznaczone do zrÃ³wnoleglenia.
-  Taka byÅ‚a pierwotna inspiracja dla zbudowania biblioteki Parallel.
-  Przekazanie wyraÅ¼enia do odpowiedniej funkcji powinno poskutkowaÄ‡ jego zrÃ³wnolegleniem.
+  W Haskellu funkcja \verb|par| wskazuje, ¿e wyliczenie dwóch wyra¿eñ mo¿e odbyæ siê równolegle i w czasie wykonania podejmowana jest decyzja o sposobie wyliczenia.
+  Obliczenia odbywaj± siê równolegle, gdy jest to bardziej efektywne od wykonania sekwencyjnego.
+  Ta konstrukcja pokazuje z jak zadziwiaj±c± prostot± mo¿na pisaæ programy równoleg³e.
+  W Haskellu wystarczy dodaæ jedno s³owo, aby oznaczyæ wyra¿enie jako przeznaczone do zrównoleglenia.
+  Taka by³a pierwotna inspiracja dla zbudowania biblioteki Parallel.
+  Przekazanie wyra¿enia do odpowiedniej funkcji powinno poskutkowaæ jego zrównolegleniem.
   
-\subsection{Zlecanie obliczeÅ„}\label{ss:zlecanie}
+\subsection{Zlecanie obliczeñ}\label{ss:zlecanie}
 
-%  UWAGA!!! We wszystkich przedstawionych poniÅ¼ej fragmentach kodu przyjÄ™to, Å¼e zostaÅ‚y napisane z deklaracjÄ… \verb|using parallel;|.\\
-
-  Zlecanie rÃ³wnolegÅ‚ego wykonania obliczeÅ„ powinno jak najmniej ingerowaÄ‡ w sekwencyjny kod programu dla zachowania jego intuicyjnoÅ›ci.
-  (Dla wyjaÅ›nienia dodam, Å¼e nie twierdzÄ™, iÅ¼ jedynie sekwencyjny kod programu moÅ¼e byÄ‡ intuicyjny, jednak praktyka pokazuje, Å¼e zrozumienie programu, 
-  ktÃ³ry zostaÅ‚ zapisany jako kilka jednoczeÅ›nie wykonywanych ciÄ…gÃ³w instrukcji jest znacznie trudniejsze od zrozumienia programu sekwencyjnego.)
-  Do oznaczenia wyraÅ¼enia, ktÃ³re ma zostaÄ‡ wykonane rÃ³wnolegle bÄ™dzie sÅ‚uÅ¼yÅ‚a funkcja \verb|eval|, przyjmujÄ…ca jako argument wyraÅ¼enie do wykonania.
-  Obliczenie przekazanego wyraÅ¼enia odbÄ™dzie siÄ™ rÃ³wnolegle.
+  Zlecanie równoleg³ego wykonania obliczeñ powinno jak najmniej ingerowaæ w sekwencyjny kod programu dla zachowania jego intuicyjno¶ci.
+  (Dla wyja¶nienia dodam, ¿e nie twierdzê, i¿ jedynie sekwencyjny kod programu mo¿e byæ intuicyjny, jednak praktyka pokazuje, ¿e zrozumienie programu, 
+  który zosta³ zapisany jako kilka jednocze¶nie wykonywanych ci±gów instrukcji jest znacznie trudniejsze od zrozumienia programu sekwencyjnego.)
+  Do oznaczenia wyra¿enia, które ma zostaæ wykonane równolegle bêdzie s³u¿y³a funkcja \verb|eval|, przyjmuj±ca jako argument wyra¿enie do wykonania.
+  Obliczenie przekazanego wyra¿enia odbêdzie siê równolegle.
   
-  SkÅ‚adnia wyraÅ¼eÅ„ powinna byÄ‡ jak najbardziej zbliÅ¼ona do skÅ‚adni jÄ™zyka C++, bo to by konstruowanie wyraÅ¼eÅ„ byÅ‚o Å‚atwe dla programisty.
-  Idealnie byÅ‚oby, gdyby programista mÃ³gÅ‚ przekazaÄ‡ wyraÅ¼enie w jego standardowej postaci w jÄ™zyku C++, czyli w nastÄ™pujÄ…cy sposÃ³b:
+  Sk³adnia wyra¿eñ powinna byæ jak najbardziej zbli¿ona do sk³adni jêzyka C++, bo to by konstruowanie wyra¿eñ by³o ³atwe dla programisty.
+  Idealnie by³oby, gdyby programista móg³ przekazaæ wyra¿enie w jego standardowej postaci w jêzyku C++, czyli w nastêpuj±cy sposób:
   \begin{lstlisting}[numbers=none, frame=none]
     parallel::eval(fibonacci_od(40));
   \end{lstlisting}
-  W tej chwili czytelnik dobrze zaznajomiony z semantykÄ… jÄ™zyka C++ mÃ³gÅ‚ dostrzec pewien problem do pokonania zwiÄ…zany z przekazaniem wyraÅ¼enia do wykonania.
-  W podanym przykÅ‚adzie takie wyraÅ¼enie najpierw zostaÅ‚oby wyliczone, poniewaÅ¼ jÄ™zyk C++ posiada gorliwÄ… semantykÄ™ wyliczania wyraÅ¼eÅ„, a dopiero nastÄ™pnie byÅ‚oby przekazane do funkcji \verb|eval|.
-  Zatem funkcja eval otrzymaÅ‚aby gotowy wynik i Å¼adne rÃ³wnolegÅ‚e obliczenia nie byÅ‚yby juÅ¼ potrzebne.
-  Takiej sytuacji naleÅ¼y uniknÄ…Ä‡ poprzez zaprojektowanie specjalnego sposobu przekazywania wyraÅ¼eÅ„ do funkcji \feval.
-  Zabieg, ktÃ³ry naleÅ¼y zastosowaÄ‡ nazywa siÄ™ uleniwieniem wyraÅ¼enia i polega na odroczeniu obliczenia wartoÅ›ci wyraÅ¼enia do momentu, gdy ta wartoÅ›Ä‡ bÄ™dzie potrzebna.
-  WyraÅ¼enie leniwe nie jest wyliczane w miejscu pojawienia siÄ™.
-  DziÄ™ki zastosowaniu takiem metody wyraÅ¼enie, ktÃ³re ma byÄ‡ wyliczone rÃ³wnolegle pojawia siÄ™ w kodzie tam, gdzie jest to najwygodniejsze, w jawnej postaci, a potem moÅ¼e zostaÄ‡ przekazane od mechanizmu ewaluacji biblioteki Parallel.
+  W tej chwili czytelnik dobrze zaznajomiony z semantyk± jêzyka C++ móg³ dostrzec pewien problem do pokonania zwi±zany z przekazaniem wyra¿enia do wykonania.
+  W podanym przyk³adzie takie wyra¿enie najpierw zosta³oby wyliczone, poniewa¿ jêzyk C++ posiada gorliw± semantykê wyliczania wyra¿eñ, a dopiero nastêpnie by³oby przekazane do funkcji \verb|eval|.
+  Zatem funkcja eval otrzyma³aby gotowy wynik i ¿adne równoleg³e obliczenia nie by³yby ju¿ potrzebne.
+  Takiej sytuacji nale¿y unikn±æ poprzez zaprojektowanie specjalnego sposobu przekazywania wyra¿eñ do funkcji \feval.
+  Zabieg, który nale¿y zastosowaæ nazywa siê uleniwieniem wyra¿enia i polega na odroczeniu obliczenia warto¶ci wyra¿enia do momentu, gdy ta warto¶æ bêdzie potrzebna.
+  Wyra¿enie leniwe nie jest wyliczane w miejscu pojawienia siê.
+  Dziêki zastosowaniu takiem metody wyra¿enie, które ma byæ wyliczone równolegle pojawia siê w kodzie tam, gdzie jest to najwygodniejsze, w jawnej postaci, a potem mo¿e zostaæ przekazane od mechanizmu ewaluacji biblioteki Parallel.
   
-\subsubsection{Leniwe wyraÅ¼enia w jÄ™zyku C++}
+\subsubsection{Leniwe wyra¿enia w jêzyku C++}
 
-  Stworzenie leniwego wyraÅ¼enia w jÄ™zyku C++ nie wydaje siÄ™ prostym zadaniem.
-  DomyÅ›la semantyka obliczeÅ„ jest gorliwa, nie ma sÅ‚Ã³w kluczowych pozwalajÄ…cych na dodanie leniwoÅ›ci, C++ nie pozwala rÃ³wnieÅ¼ na rozszerzenie skÅ‚adni jÄ™zyka.
-  WskazÃ³wka do rozwiazanie problemu leniwych wyraÅ¼eÅ„ w jÄ™zyku C++ znajduje siÄ™ w ksiÄ…Å¼ce \textit{More C++ Idioms}\cite{idioms}, ktÃ³ra przedstawia idiom C++ szablonu wyraÅ¼enia (z ang. Expression Template).
-  Idea stworzenia szablonu wyraÅ¼enia polega na reprezentacji wyraÅ¼enia przez zbudowanie odpowiedniego drzewa typÃ³w, ktÃ³re jest Abstrakcyjnym Drzewem Syntaktycznym (z ang. Abstract Syntax Tree - AST) wyraÅ¼enia.
-  DokÅ‚adny opis zastosowanej metody znajduje siÄ™ w rozdziale poÅ›wiÄ™conym implementacji biblioteki.
+  Stworzenie leniwego wyra¿enia w jêzyku C++ nie wydaje siê prostym zadaniem.
+  Domy¶la semantyka obliczeñ jest gorliwa, nie ma s³ów kluczowych pozwalaj±cych na dodanie leniwo¶ci, C++ nie pozwala równie¿ na rozszerzenie sk³adni jêzyka.
+  Wskazówka do rozwiazanie problemu leniwych wyra¿eñ w jêzyku C++ znajduje siê w ksi±¿ce \textit{More C++ Idioms}\cite{idioms}, która przedstawia idiom C++ szablonu wyra¿enia (z ang. Expression Template).
+  Idea stworzenia szablonu wyra¿enia polega na reprezentacji wyra¿enia przez zbudowanie odpowiedniego drzewa typów, które jest Abstrakcyjnym Drzewem Syntaktycznym (z ang. Abstract Syntax Tree - AST) wyra¿enia.
+  Dok³adny opis zastosowanej metody znajduje siê w rozdziale po¶wiêconym implementacji biblioteki.
   
   \subsubsection{Funkcja \texttt{eval}}\label{sss:eval}
 
-  Jeszcze sÅ‚owo w rozdziale przedstawiajÄ…cym koncepcje biblioteki naleÅ¼y siÄ™ funkcji \feval, ktÃ³ra jest gÅ‚Ã³wnÄ… funkcjÄ… z API dostÄ™pnego dla programisty.
-  Funkcja sÅ‚uÅ¼y do zlecenia wykonania obliczeÅ„ rÃ³wnoleglych.
-  W ciele funkcji znajduje siÄ™ przekazanie wyraÅ¼enia w formie leniwej do mechanizmu ewaluacyjnego.
-  WartoÅ›Ä‡ zwracana przez funkcjÄ™ powinna udostÄ™pniaÄ‡ moÅ¼liwoÅ›Ä‡ sprawdzenia wyniku obliczenia.
-  Przekazywanie wynikÃ³w obliczeÅ„ przez bibliotekÄ™ Parallel zostaÅ‚o omÃ³wione w sekcji \nameref{s:koncepcja_wynik}.
+  Jeszcze s³owo w rozdziale przedstawiaj±cym koncepcje biblioteki nale¿y siê funkcji \feval, która jest g³ówn± funkcj± z API dostêpnego dla programisty.
+  Funkcja s³u¿y do zlecenia wykonania obliczeñ równoleglych.
+  W ciele funkcji znajduje siê przekazanie wyra¿enia w formie leniwej do mechanizmu ewaluacyjnego.
+  Warto¶æ zwracana przez funkcjê powinna udostêpniaæ mo¿liwo¶æ sprawdzenia wyniku obliczenia.
+  Przekazywanie wyników obliczeñ przez bibliotekê Parallel zosta³o omówione w sekcji \nameref{s:koncepcja_wynik}.
   
-\subsection{Wykonanie zadaÅ„}
+\subsection{Wykonanie zadañ}\label{ss:wykonywanie}
 
-  W tej podsekcji zostanie omÃ³wiony mechanizm wyliczania wyraÅ¼eÅ„ w bibliotece Parallel po przekazaniu ich do funkcji \texttt{eval}.
-  Jest to serce biblioteki, dziÄ™ki ktÃ³remu biblioteka potrafi peÅ‚niÄ‡ swoje funkcje.
+  W tej podsekcji zostanie omówiony mechanizm wyliczania wyra¿eñ w bibliotece Parallel po przekazaniu ich do funkcji \texttt{eval}.
+  Jest to serce biblioteki, dziêki któremu biblioteka potrafi pe³niæ swoje funkcje.
   
-  \subsubsection{DziaÅ‚anie mechanizmu ewaluacji}
+  \subsubsection{Dzia³anie mechanizmu ewaluacji}
   
-  Ewaluacja wyraÅ¼eÅ„ przekazanych do obliczenia bÄ™dzie odbywaÅ‚a siÄ™ zgodnie z wzorcem producent-konsument.
-  Producentem wyraÅ¼eÅ„ bÄ™dzie kod programu korzystajÄ…cego z biblioteki Parallel i przekazujÄ…cy wyraÅ¼enia przy pomocy funkcji \texttt{eval}.
-  Natomiast konsumentem bÄ™dÄ… wÄ…tki-pracownicy biblioteki Parallel, ktÃ³rych jedynym zadaniem bÄ™dzie oczekiwanie na zadania (wyraÅ¼enia do ewaluacji) i ich wykonywanie.
-  Ze wzglÄ™du na efektywnoÅ›Ä‡ wykorzystany zostanie wzorzec puli wÄ…tkÃ³w (thread pool opisany w \cite{threadpool}).
-  Zatem wÄ…tek nie bÄ™dzie tworzony dla wykonania kaÅ¼dego zadania, a bÄ™dzie istniaÅ‚a grupa wÄ…tkÃ³Å‚ dedykowanych do wykonywania obliczeÅ„, ktÃ³ra bÄ™dzie zaalokowana w programie tak dÅ‚ugo jak program bÄ™dzie korzystaÅ‚ z biblioteki Parallel.
-  O liczbie wÄ…tkÃ³w bÄ™dzie decydowaÅ‚ uÅ¼ytkownik, gdyÅ¼ ich liczba moÅ¼e mieÄ‡ znaczÄ…cy wpÅ‚yw na wydajnoÅ›Ä‡ programu, a nie istnieje optymalna liczba wÄ…tkÃ³w dla kaÅ¼dego rodzaju zastosowania biblioteki Parallel.
-  Standardowo w tym modelu wyraÅ¼enia bÄ™dÄ… trafiaÅ‚y do kolejki zadaÅ„, w ktÃ³rej bÄ™dÄ… oczekiwaÅ‚y na wyliczenie.
+  Ewaluacja wyra¿eñ przekazanych do obliczenia bêdzie odbywa³a siê zgodnie z wzorcem producent-konsument.
+  Producentem wyra¿eñ bêdzie kod programu korzystaj±cego z biblioteki Parallel i przekazuj±cy wyra¿enia przy pomocy funkcji \texttt{eval}.
+  Natomiast konsumentem bêd± w±tki-pracownicy biblioteki Parallel, których jedynym zadaniem bêdzie oczekiwanie na zadania (wyra¿enia do ewaluacji) i ich wykonywanie.
+  Ze wzglêdu na efektywno¶æ wykorzystany zostanie wzorzec puli w±tków (thread pool opisany w \cite{threadpool}).
+  Zatem w±tek nie bêdzie tworzony dla wykonania ka¿dego zadania, a bêdzie istnia³a grupa w±tków dedykowanych do wykonywania obliczeñ, która bêdzie zaalokowana w programie tak d³ugo jak program bêdzie korzysta³ z biblioteki Parallel.
+  O liczbie w±tków bêdzie decydowa³ u¿ytkownik, gdy¿ ich liczba mo¿e mieæ znacz±cy wp³yw na wydajno¶æ programu, a nie istnieje optymalna liczba w±tków dla ka¿dego rodzaju zastosowania biblioteki Parallel.
+  Standardowo w tym modelu wyra¿enia bêd± trafia³y do kolejki zadañ, w której bêd± oczekiwa³y na wyliczenie.
   
-  MoÅ¼e siÄ™ zdarzyÄ‡, Å¼e wyraÅ¼enie nie zostanie wyliczone do momentu gdy bÄ™dzie potrzebne w programie, ktÃ³ry przekazaÅ‚ je do obliczenia.
-  W tej sytuacji biblioteka Parallel reaguje w takie sposÃ³b, by nie blokowaÄ‡ programu bez przyczyny.
-  Program dotarÅ‚by do takiego miejsca, Å¼e potrzebuje wyliczonego wyraÅ¼enia przekazanego do Parallel, a nie zostaÅ‚o jeszcze wykonane, program musiaÅ‚by oczekiwaÄ‡ na wykonanie obliczeÅ„.
-  Skoro program nie ma nic innego do wykonania to wÄ…tek programu sam moÅ¼e wyliczyÄ‡ wyraÅ¼enie, odpowiednio informujÄ…c bibliotekÄ™ Parallel, aby wyraÅ¼enie nie zostaÅ‚o wykonane kilkakrotnie, 
-  gdyÅ¼ nierozsÄ…dne byÅ‚oby narzucanie ograniczenia nakazujÄ…cego, Å¼eby wyraÅ¼enia przekazywane do biblioteki Parallel byÅ‚y idempotentne.
-  CaÅ‚oÅ›ciÄ… procesu alternatywnego wyliczania obliczenia przez wÄ…tek programu powinna zarzÄ…dzaÄ‡ biblioteka, tak aby nie byÅ‚o to zauwaÅ¼alne dla programisty.
+  Mo¿e siê zdarzyæ, ¿e wyra¿enie nie zostanie wyliczone do momentu gdy bêdzie potrzebne w programie, który przekaza³ je do obliczenia.
+  W tej sytuacji biblioteka Parallel reaguje w takie sposób, by nie blokowaæ programu bez przyczyny.
+  Program dotar³by do takiego miejsca, ¿e potrzebuje wyliczonego wyra¿enia przekazanego do Parallel, a nie zosta³o jeszcze wykonane, program musia³by oczekiwaæ na wykonanie obliczeñ.
+  Skoro program nie ma nic innego do wykonania to w±tek programu sam mo¿e wyliczyæ wyra¿enie, odpowiednio informuj±c bibliotekê Parallel, aby wyra¿enie nie zosta³o wykonane kilkakrotnie, 
+  gdy¿ nierozs±dne by³oby narzucanie ograniczenia nakazuj±cego, ¿eby wyra¿enia przekazywane do biblioteki Parallel by³y idempotentne.
+  Ca³o¶ci± procesu alternatywnego wyliczania obliczenia przez w±tek programu powinna zarz±dzaæ biblioteka, tak aby nie by³o to zauwa¿alne dla programisty.
   
-  Jednym z rozszerzeÅ„ mechanizmu ewaluacji mogÅ‚oby byÄ‡ dodanie automatycznego dostosowywania liczby wÄ…tkÃ³w w puli do intensywnoÅ›ci prowadzonych obliczeÅ„.
-  W pierwszej wersji biblioteki nie przewidziano w projekcie takiej funkcjonalnoÅ›ci.
+  Jednym z rozszerzeñ mechanizmu ewaluacji mog³oby byæ dodanie automatycznego dostosowywania liczby w±tków w puli do intensywno¶ci prowadzonych obliczeñ.
+  W pierwszej wersji biblioteki nie przewidziano w projekcie takiej funkcjonalno¶ci.
   
-  W bibliotece nie wystÄ™puje problem balansowania obciÄ…Å¼enia rÃ³Å¼nych wÄ…tkÃ³w, gdyÅ¼ wszystkie wÄ…tki naleÅ¼Ä…ce do puli sÄ… identycznie i dziÄ™ki wykorzystaniu wspÃ³lnej kolejki zadaÅ„, obciÄ…Å¼enie jest rÃ³wnowaÅ¼one samoczynnie.
-  WÄ…tek koÅ„czÄ…c pracÄ™ nad jednym zadaniem siÄ™ga do kolejki po nastÄ™pne.
+  W bibliotece nie wystêpuje problem balansowania obci±¿enia ró¿nych w±tków, gdy¿ wszystkie w±tki nale¿±ce do puli s± identycznie i dziêki wykorzystaniu wspólnej kolejki zadañ, obci±¿enie jest równowa¿one samoczynnie.
+  W±tek koñcz±c pracê nad jednym zadaniem siêga do kolejki po nastêpne.
   
-\subsubsection{Ograniczenia mechanizmu ewaluacji}
+\subsubsection{Mechanizmy synchronizacji}
 
-  W zwiÄ…zku ze sposobem przekazywania wyraÅ¼eÅ„ do obliczenia, moÅ¼liwoÅ›ci projektowania mechanizmu ewaluacyji byÅ‚y doÅ›Ä‡ powaÅ¼nie ograniczone.
-  W ogÃ³lnoÅ›ci moglibyÅ›my wyobraziÄ‡ sobie sytuacjÄ™, w ktÃ³rej wyraÅ¼enie z programu dziaÅ‚ajÄ…cego na jednym komputerze byÅ‚oby przekazywane do wyliczenia do innych programÃ³w lub nawet do innych komputerÃ³w, w celu wiÄ™kszego rozproszenia i jeszcze lepszego zrÃ³wnoleglenia wykonania programu.
-  W przypadku biblioteki parallel wystÄ…piÅ‚o kilka ograniczeÅ„, ktÃ³re uniemoÅ¼liwiÅ‚y zaprojektowanie ogÃ³lniejszego mechanizmu obliczeÅ„.
+  Dla poprawno¶ci dzia³ania biblioteki niezbêdne by³o zaimplementowanie mechanizmów synchronizacji w±tków-pracowników oraz kodu programu. 
+  Zosta³y one opisane w sekcji \nameref{s:ewaluacja}.
+  U¿ywaj±c biblioteki Parallel programista nie musi martwiæ siê o synchronizacjê dzia³ania biblioteki Parallel.
   
-  Migracja kodu (taka jak zostaÅ‚Ä… opisana w ksiÄ…Å¼ce \cite{dissys}) nie jest wspierana przez jÄ™zyk C++, poniewaÅ¼ kod kompilowany jest do natywnego kodu maszynowego, a nie kodu poÅ›redniego.
-  Nie ma moÅ¼liwoÅ›ci zserializowania fragmentu obliczeÅ„ i przesÅ‚ania do wykonania na innym komputerze, o nieznanej architekturze.
-  W przeciwieÅ„stwie do jÄ™zyka C++ to jest wykonalne w jÄ™zyku Java.
+  Biblioteka nie mo¿e jednak przewidzieæ zale¿no¶ci w kodzie programu, dlatego ochrona danych, na których dokonywane s± obliczenia pozostaje w rêkach programisty.
+  Parallel nie narzuca ¿adnych ograniczeñ, co do korzystania w kodzie zrównoleglanych wyra¿eñ instrukcji dostêpu do struktur danych, z których korzysta wiele w±tków jednoczesnie.
+  W tej sytuacji programista musi zadbaæ o odpowiednie umieszczenie sekcji krytycznych w kodzie obliczanych wyra¿eñ, tak aby program by³ bezpieczny i ¿ywotny.
   
-  AlternatywÄ… dla wsparcia jÄ™zyka dla migracji kodu jest rozszerzenie biblioteki o narzÄ™dzia automatycznie generujÄ…ce kod dla klienta (programu zlecajÄ…cego obliczenia) i serwera (programu wykonujÄ…cego obliczenia).
-  To juÅ¼ zaczyna przypominaÄ‡ mechanizm RPC i rodzi szereg innych problemÃ³w rÃ³wnieÅ¼ opisanych w \cite{dissys}.
-  Implementacja takiego modelu prowadzenia obliczeÅ„ w bibliotece Parallel wykraczaÅ‚aby poza ramy nakreÅ›lonej pracy oraz mogÅ‚aby ograniczyÄ‡ uÅ¼ytecznoÅ›Ä‡ biblioteki ze wzglÄ™dnu na bardziej skomplikowany proces programowania i kompilacji.
+\subsection{Sposób przekazywania wyniku}\label{s:koncepcja_wynik}
+
+  Kod korzystaj±cy z biblioteki Parallel powinien wygl±daæ naturalnie.
+  Skoro do funkcji \texttt{eval} przekazujemy wyra¿enie, to naturalnym oczekiwaniem jest to, ¿e w wyniku ewaluacji otrzymamy warto¶æ tego wyra¿enia.
+  Problem le¿y w tym, ¿e w momencie powrotu z funkcji \texttt{eval} bêdzie znany jedynie typ wyra¿enia, a nie jego warto¶æ.
+  Warto¶æ zostanie obliczona pó¼niej przez mechanizm ewaluacji biblioteki Parallel.
+  Wynika st±d potrzeba wprowadzenie klasy obudowuj±cej warto¶æ zwracan±, uchwytu do wyniku, nazwijmy go warto¶ci± odroczon± (z ang. deferred value).
+  Aby warto¶æ odroczona ¶ci¶le odpowiada³a typowi wynikowemu wyra¿enia, bêdzie ona szablonem typu parametryzowanym typem wynikowym wyra¿enia.
+  Dziêki temu, ¿e znany by³ typ zwracany, mo¿liwe jest takie zaprojektowanie klasy warto¶ci odroczonej, ¿e przypomina w swoim zachowaniu typ wynikowy wyra¿enia.
   
-  Kolejne z ograniczeÅ„ jest zwiÄ…zane z obecnoÅ›ciÄ… w wyraÅ¼eniu przekazywanym do obliczenia wartoÅ›ci typu referencje lub wskaÅºniki, ktÃ³re sÄ… Å›ciÅ›le zaleÅ¼ne od przestrzeni adresowej programu. 
-  PrzesÅ‚anie ich nawet do innego programu na tym samym komputerze wymagaÅ‚oby wykorzystania specjalnego mechanizmu, gdyÅ¼ proste przekazanie wartoÅ›ci tego typu powodowaÅ‚oby bÅ‚Ä™dy w dostÄ™pie do pamiÄ™ci.
-  ObejÅ›cie tego problemu oferuje mechanizm pamiÄ™ci wspÃ³Å‚dzielonej, ale powoduje znaczny narzut zwiÄ…zany z dostÄ™pnem do tego rodzaju pamiÄ™ci.
- 
-  Wymienione powyÅ¼ej ograniczenia uzasadniajÄ… podjÄ™cie decyzji o przyjÄ™cie dla biblioteki Parallel modelu obliczania wyraÅ¼eÅ„ opartego o wÄ…tki dziaÅ‚ajÄ…ce w ramach programu zlecajÄ…cego obliczenia.
+  Warto¶ci odroczonej mo¿na u¿ywaæ prawie zamiennie z typem, który obudowuje.
+  To dziêki temu, ¿e jest dostêpna niejawna konwersja do obudowywanego typu, a zastosowanie operatorów bêdzie dawa³o identyczny wynik.
+  W momencie, gdy warto¶æ wyra¿enia bêdzie niezbêdna nast±pi wymuszenie ewaluacji, je¶li warto¶æ nie zosta³a jeszcze wyliczona, i pobranie wyniku.
+  Przyk³adem takiej sytuacji jest przypisanie warto¶ci odroczonej na zmienn± o typie warto¶ci obudowywanej.
+  Odbêdzie siê wtedy niejawna konwersja, do której bêdzie potrzebna rzeczywista warto¶æ wyra¿enia.
   
-% \subsubsection{Mechanizmy synchronizacji}
+\subsubsection{Obs³uga sytuacji wyj±tkowych}
+  Nale¿y równie¿ przyjrzeæ siê sytuacji, w której w czasie obliczania wyra¿enia wyst±pi b³±d, zasygnalizowany przez rzucenie wyj±tku.
+  Biblioteka Parallel powinna wspieraæ obs³ugê takiej sytuacji w kodzie.
+  Aby reakcja ze strony programisty by³a mo¿liwa wyj±tek musi zostaæ z³apany i zasygnalizowany programi¶cie.
+  Przepuszczenie wyj±tku przez bibliotekê skutkowa³oby natychmiastowym b³êdnym zakoñczeniem programu, 
+  gdy¿ programista nie mia³by ¿adnej mo¿liwo¶ci z³apania wyj±tku, gdy¿ wyj±tek ten pochodzi³by z kodu biblioteki Parallel wykonywanym w innym w±tku.
+  Biblioteka nie powinna równie¿ t³umiæ wszystkich wyj±tków, gdy¿ programista nie wiedzia³by wtedy co siê dzieje w programie, a warto¶æ przypisana na warto¶æ odroczon± by³aby niezdefinowana.
+  
+  Nasuwa siê zatem rozwi±zanie, w którym biblioteka wy³apywa³aby wyj±tki wywo³ane w obliczanych wyra¿eniach, ale przekazywane by³yby one do w±tku g³ównego programu.
+  Mo¿e to nast±piæ jedynie za po¶rednictwem warto¶ci odroczonej, poniewa¿ powrót z funkcji \feval nastêpuje zazwyczaj przed rozpoczêciem obliczania wyra¿enia.
+  Warto¶æ odroczona ma ustalony typ, wiêc warto¶æ odroczona nie mo¿e zwróciæ wyj±tku.
+  Jednak¿e, to co mo¿e zostaæ wykonane to ponowne rzucenie wy³apanego i przekazanego do warto¶ci odroczonej wyj±tku przy próbie pobrania wyliczonej warto¶ci.
+  Wtedy wyj±tek powsta³y w obliczeniach by³by przekazywany do kodu g³ównego w±tku i programista mia³by mo¿liwo¶æ jego obs³ugi w dobrze zdefinowanym miejscu.
+  
+% \subsubsection{Metody klasy reprezentuj±cej uchwyt do wyniku}
 % 
-%   Dla poprawnoÅ›ci dziaÅ‚ania biblioteki niezbÄ™dne byÅ‚o zaimplementowanie mechanizmu synchronizacji wÄ…tkÃ³w-pracownikÃ³w oraz kodu programu. 
-%   Przede wszystkim, ochrony przed wspÃ³lbieÅ¼nym dostÄ™pem wymaga kolejka zadaÅ„, na ktÃ³rej bÄ™dÄ™ jednoczeÅ›nie operowaÅ‚y wszystkie wÄ…tki z puli, w celu pobierania obliczeÅ„ do wykonania, oraz kod programu uÅ¼ytkownika, w celu dodania wyraÅ¼enia do obliczenia.
-%   Aby zapewniÄ‡ tym operacjom bezpieczeÅ„Å›two wystarczy dostÄ™p do kolejki zadaÅ„ otoczyÄ‡ sekcjÄ… krytycznÄ…, w ktÃ³rej bÄ™dzie mÃ³gÅ‚ przebywaÄ‡ tylko jeden program.
-%   
-%   Ponadto, naleÅ¼y chroniÄ‡ zadania przed podwÃ³jnym wyliczeniem, przez wÄ…tek programu oraz przez wÄ…tek-pracownika biblioteki Parallel.
-%   MogÅ‚oby to mieÄ‡ miejsce, gdyÅ¼ jak zostaÅ‚o to nadmienione powyÅ¼ej, kod programu uÅ¼ytkownika zamiast czekaÄ‡ aÅ¼ wyraÅ¼enie siÄ™ wyliczy, moÅ¼e sam to zrobiÄ‡, jeÅ›li biblioteka nie rozpoczÄ™Å‚a jeszcze ewaluacji danego wyraÅ¼enia.
-%   StÄ…d kod uÅ¼ytkownika, gdy rozpocznie samodzielne wyliczenie wyraÅ¼enia oznacza je jako wykonane.
-%   
-%   Biblioteka nie moÅ¼e przewidzieÄ‡ zaleÅ¼noÅ›ci w kodzie programu, dlatego ochrona danych, na ktÃ³rych dokonywane sÄ… obliczenia pozostanie w rÄ™kach programisty.
-%   Parallel nie narzuca Å¼adnych ograniczeÅ„, co do korzystania w kodzie zrÃ³wnoleglanych wyraÅ¼eÅ„ instrukcji dostÄ™pu do struktur danych, z ktÃ³rych korzysta wiele wÄ…tkÃ³w jednoczesnie.
-%   W tej sytuacji programista musi zadbaÄ‡ o odpowiednie umieszczenie sekcji krytycznych w kodzie obliczanych wyraÅ¼eÅ„, tak aby program byÅ‚ bezpieczny i Å¼ywotny.
-  
-\subsection{SposÃ³b przekazywania wyniku}\label{s:koncepcja_wynik}
-
-  Kod korzystajÄ…cy z biblioteki Parallel powinien wyglÄ…daÄ‡ naturalnie.
-  Skoro do funkcji \texttt{eval} przekazujemy wyraÅ¼enie, to naturalnym oczekiwaniem jest to, Å¼e w wyniku ewaluacji otrzymamy wartoÅ›Ä‡ tego wyraÅ¼enia.
-  Problem leÅ¼y w tym, Å¼e w momencie powrotu z funkcji \texttt{eval} bÄ™dzie znany jedynie typ wyraÅ¼enia, a nie jego wartoÅ›Ä‡.
-  WartoÅ›Ä‡ zostanie obliczona pÃ³Åºniej przez mechanizm ewaluacji biblioteki Parallel.
-  Wynika stÄ…d potrzeba wprowadzenie klasy obudowujÄ…cej wartoÅ›Ä‡ zwracanÄ…, uchwytu do wyniku, nazwijmy go wartoÅ›ciÄ… odroczonÄ… (z ang. deferred value).
-  Aby wartoÅ›Ä‡ odroczona Å›ciÅ›le odpowiadaÅ‚a typowi wynikowemu wyraÅ¼enia, bÄ™dzie ona szablonem typu parametryzowanym typem wynikowym wyraÅ¼enia.
-  DziÄ™ki temu, Å¼e znany byÅ‚ typ zwracany, moÅ¼liwe jest takie zaprojektowanie klasy wartoÅ›ci odroczonej, Å¼e przypomina w swoim zachowaniu typ wynikowy wyraÅ¼enia.
-  
-  WartoÅ›ci odroczonej moÅ¼na uÅ¼ywaÄ‡ prawie zamiennie z typem, ktÃ³ry obudowuje.
-  To dziÄ™ki temu, Å¼e jest dostÄ™pna niejawna konwersja do obudowywanego typu, a zastosowanie operatorÃ³w bÄ™dzie dawaÅ‚o identyczny wynik.
-  W momencie, gdy wartoÅ›Ä‡ wyraÅ¼enia bÄ™dzie niezbÄ™dna nastÄ…pi wymuszenie ewaluacji, jeÅ›li wartoÅ›Ä‡ nie zostaÅ‚a jeszcze wyliczona, i pobranie wyniku.
-  PrzykÅ‚adem takiej sytuacji jest przypisanie wartoÅ›ci odroczonej na zmiennÄ… o typie wartoÅ›ci obudowywanej.
-  OdbÄ™dzie siÄ™ wtedy niejawna konwersja, do ktÃ³rej bÄ™dzie potrzebna rzeczywista wartoÅ›Ä‡ wyraÅ¼enia.
-  
-\subsubsection{ObsÅ‚uga sytuacji wyjÄ…tkowych}
-  NaleÅ¼y rÃ³wnieÅ¼ przyjrzeÄ‡ siÄ™ sytuacji, w ktÃ³rej w czasie obliczania wyraÅ¼enia wystÄ…pi bÅ‚Ä…d, zasygnalizowany przez rzucenie wyjÄ…tku.
-  Biblioteka Parallel powinna wspieraÄ‡ obsÅ‚ugÄ™ takiej sytuacji w kodzie.
-  Aby reakcja ze strony programisty byÅ‚a moÅ¼liwa wyjÄ…tek musi zostaÄ‡ zÅ‚apany i zasygnalizowany programiÅ›cie.
-  Przepuszczenie wyjÄ…tku przez bibliotekÄ™ skutkowaÅ‚oby natychmiastowym bÅ‚Ä™dnym zakoÅ„czeniem programu, 
-  gdyÅ¼ programista nie miaÅ‚by Å¼adnej moÅ¼liwoÅ›ci zÅ‚apania wyjÄ…tku, gdyÅ¼ wyjÄ…tek ten pochodziÅ‚by z kodu biblioteki Parallel wykonywanym w innym wÄ…tku.
-  Biblioteka nie powinna rÃ³wnieÅ¼ tÅ‚umiÄ‡ wszystkich wyjÄ…tkÃ³w, gdyÅ¼ programista nie wiedziaÅ‚by wtedy co siÄ™ dzieje w programie, a wartoÅ›Ä‡ przypisana na wartoÅ›Ä‡ odroczonÄ… byÅ‚aby niezdefinowana.
-  
-  Nasuwa siÄ™ zatem rozwiÄ…zanie, w ktÃ³rym biblioteka wyÅ‚apywaÅ‚aby wyjÄ…tki wywoÅ‚ane w obliczanych wyraÅ¼eniach, ale przekazywane byÅ‚yby one do wÄ…tku gÅ‚Ã³wnego programu.
-  MoÅ¼e to nastÄ…piÄ‡ jedynie za poÅ›rednictwem wartoÅ›ci odroczonej, poniewaÅ¼ powrÃ³t z funkcji \feval nastÄ™puje zazwyczaj przed rozpoczÄ™ciem obliczania wyraÅ¼enia.
-  WartoÅ›Ä‡ odroczona ma ustalony typ, wiÄ™c wartoÅ›Ä‡ odroczona nie moÅ¼e zwrÃ³ciÄ‡ wyjÄ…tku.
-  JednakÅ¼e, to co moÅ¼e zostaÄ‡ wykonane to ponowne rzucenie wyÅ‚apanego i przekazanego do wartoÅ›ci odroczonej wyjÄ…tku przy prÃ³bie pobrania wyliczonej wartoÅ›ci.
-  Wtedy wyjÄ…tek powstaÅ‚y w obliczeniach byÅ‚by przekazywany do kodu gÅ‚Ã³wnego wÄ…tku i programista miaÅ‚by moÅ¼liwoÅ›Ä‡ jego obsÅ‚ugi w dobrze zdefinowanym miejscu.
-  
-% \subsubsection{Metody klasy reprezentujÄ…cej uchwyt do wyniku}
-% 
-%   Interfejs publiczny klasy reprezentujÄ…cej uchwyt do wyniku bÄ™dzie zawieraÅ‚ metody:
+%   Interfejs publiczny klasy reprezentuj±cej uchwyt do wyniku bêdzie zawiera³ metody:
 % \begin{itemize}
-%  \item pobrania wartoÅ›ci,
-%  \item sprawdzenia czy wartoÅ›Ä‡ zostaÅ‚a juÅ¼ wyliczona,
-%  \item operator konwersji do typu wyniku wyraÅ¼enia
+%  \item pobrania warto¶ci,
+%  \item sprawdzenia czy warto¶æ zosta³a ju¿ wyliczona,
+%  \item operator konwersji do typu wyniku wyra¿enia
 % \end{itemize}
 % 
 % \paragraph{Operatory}~\\
-%   Ponadto w interfejsie klasy obudowujÄ…cej wynik bÄ™dÄ… znajdowaÅ‚y siÄ™ wszystkie operatory, ktÃ³re majÄ… sens dla typu obudowywanego.
-%   OczywiÅ›cie ze wzglÄ™du na  ograniczenia jÄ™zyka niemoÅ¼liwe jest zdefinowanie operatorÃ³w, ktÃ³rych przeÅ‚adowywanie jest zabronione, takich jak \verb|.| oraz \verb|.*|.
+%   Ponadto w interfejsie klasy obudowuj±cej wynik bêd± znajdowa³y siê wszystkie operatory, które maj± sens dla typu obudowywanego.
+%   Oczywi¶cie ze wzglêdu na  ograniczenia jêzyka niemo¿liwe jest zdefinowanie operatorów, których prze³adowywanie jest zabronione, takich jak \verb|.| oraz \verb|.*|.
 %   
-%   MoÅ¼liwa jest taka sytuacja, w ktÃ³rej wykorzystanie wartoÅ›ci odroczonej w wyraÅ¼eniu nie bÄ™dzie wymuszaÅ‚o natychmiastowego wyliczenia wartoÅ›ci odroczonej.
-%   WeÅºmy jako przykÅ‚ad nastepujÄ…cÄ… instrukcjÄ™:
+%   Mo¿liwa jest taka sytuacja, w której wykorzystanie warto¶ci odroczonej w wyra¿eniu nie bêdzie wymusza³o natychmiastowego wyliczenia warto¶ci odroczonej.
+%   We¼my jako przyk³ad nastepuj±c± instrukcjê:
 % \begin{verbatim}
 %   auto c = odroczony_int + 42;
 % \end{verbatim}
-%   Czy musimy znaÄ‡ wartoÅ›Ä‡ odroczony\_int, aby przypisaÄ‡ odpowiedniÄ… wartoÅ›Ä‡ na zmiennÄ… c?
-%   To zaleÅ¼y w tym przypadku od implementacji operatora \verb|+|.
-%   JeÅ›li operator dodawania bÄ™dzie tak zaprojektowany, Å¼e dodanie wartoÅ›ci odroczonej sparametryzowanej typem int oraz liczby caÅ‚kowitej zwraca inta, to oczywiÅ›cie wartoÅ›Ä‡ odroczona musi byÄ‡ znana.
-%   Natomiast dziÄ™ki temu, Å¼e przytoczona w przykÅ‚adzie instrukcja zawiera pewnÄ… dowolnoÅ›Ä‡ w postaci automatycznego typowania zmiennej c, to nic nie stoi na przeszkodzie, Å¼eby c byÅ‚o rÃ³wnieÅ¼ wartoÅ›ciÄ… odroczonÄ….
-%   I taka decyzja projektowa zostaÅ‚a podjÄ™ta w bibliotece Parallel.
-%   Operatory bÄ™dÄ… zwracaÄ‡ wartoÅ›Ä‡ typu wartoÅ›Ä‡ odroczona, aby prowadziÄ‡ obliczenia w taki sposÃ³b, Å¼e wymuszenie obliczenia wartoÅ›ci odroczonej byÅ‚o odÅ‚oÅ¼one najpÃ³Åºniej jak to moÅ¼liwe.
-%   WartoÅ›Ä‡ odroczna zwracana przez operatory, bÄ™dzie zawieraÅ‚a leniwe wyraÅ¼enie podobne do tego, ktÃ³re jest przekazywane funkcji \verb|eval|.
-%   W momencie wymuszenia wyliczenia takiej wartoÅ›ci odroczonej to leniwe wyraÅ¼enie zostanie wyliczone.
-%   Pozwoli to na lepsze zrÃ³wnoleglenie obliczeÅ„, poniewaÅ¼ umoÅ¼liwie przeprowadzenie wiÄ™kszej liczby obliczeÅ„ przez wÄ…tki-pracownikÃ³w z biblioteki Parallel.
+%   Czy musimy znaæ warto¶æ odroczony\_int, aby przypisaæ odpowiedni± warto¶æ na zmienn± c?
+%   To zale¿y w tym przypadku od implementacji operatora \verb|+|.
+%   Je¶li operator dodawania bêdzie tak zaprojektowany, ¿e dodanie warto¶ci odroczonej sparametryzowanej typem int oraz liczby ca³kowitej zwraca inta, to oczywi¶cie warto¶æ odroczona musi byæ znana.
+%   Natomiast dziêki temu, ¿e przytoczona w przyk³adzie instrukcja zawiera pewn± dowolno¶æ w postaci automatycznego typowania zmiennej c, to nic nie stoi na przeszkodzie, ¿eby c by³o równie¿ warto¶ci± odroczon±.
+%   I taka decyzja projektowa zosta³a podjêta w bibliotece Parallel.
+%   Operatory bêd± zwracaæ warto¶æ typu warto¶æ odroczona, aby prowadziæ obliczenia w taki sposób, ¿e wymuszenie obliczenia warto¶ci odroczonej by³o od³o¿one najpó¼niej jak to mo¿liwe.
+%   Warto¶æ odroczna zwracana przez operatory, bêdzie zawiera³a leniwe wyra¿enie podobne do tego, które jest przekazywane funkcji \verb|eval|.
+%   W momencie wymuszenia wyliczenia takiej warto¶ci odroczonej to leniwe wyra¿enie zostanie wyliczone.
+%   Pozwoli to na lepsze zrównoleglenie obliczeñ, poniewa¿ umo¿liwie przeprowadzenie wiêkszej liczby obliczeñ przez w±tki-pracowników z biblioteki Parallel.
 %   
-%\subsubsection{WpÅ‚yw sposobu przekazywania wyniku na cele biblioteki Parallel}
+%\subsubsection{Wp³yw sposobu przekazywania wyniku na cele biblioteki Parallel}
 
-\subsection{Schemat interakcji kodu programu z bibliotekÄ… Parallel}
+\subsection{Schemat interakcji kodu programu z bibliotek± Parallel}
 
-  Podsumowania opisu idei biblioteki Parallel dokonam poprzez opisanie pokrÃ³tce tego jak kod aplikacji pisany przez programistÄ™ wspÃ³Å‚pracuje z kodem biblioteki Parallel.
-  Schematycznie ilustruje to poniÅ¼szy diagram.
+  Podsumowania opisu idei biblioteki Parallel dokonam poprzez opisanie pokrótce tego jak kod aplikacji pisany przez programistê wspó³pracuje z kodem biblioteki Parallel.
+  Schematycznie ilustruje to poni¿szy diagram.
 \begin{figure}[h!]
  \includegraphics[width=\textwidth]{interaction.eps}
- \caption{Schemat interakcji z bibliotekÄ… Parallel}
+ \caption{Schemat interakcji z bibliotek± Parallel}
 \end{figure}
 
-  Schemat pokazuje jak w pierwszej kolejnoÅ›ci kod programu wywoÅ‚uje funkcjÄ™ \feval, ktÃ³ra sÅ‚uÅ¼y do zlecenia obliczenia rÃ³wnolegÅ‚ego wyraÅ¼enia.
-  NastÄ™pnie sterowanie przechodzi do ciaÅ‚a funkcji \feval, czyli do kodu biblioteki Parallel.
-  Funkca \feval tworzy niezbÄ™dne struktury danych oraz dodaje wyraÅ¼enie \verb|exp| do wyraÅ¼eÅ„ czekajÄ…cych na wyliczenie.
-  Potem nastÄ™puje powrÃ³t z funkcji \feval ze zwrÃ³ceniem wartoÅ›ci odroczonej \verb|d| i na jakiÅ› czas kod programu i biblioteki Parallel zaprzestajÄ… komunikacji.
-  Kod programu wykonuje wÅ‚asne instrukcje, a kod Parallel wykonuje wÅ‚asne zadania, miÄ™dzy innymi wyliczajÄ…c wyraÅ¼enia, ktÃ³re zostaÅ‚y wskazane do wyliczenia rÃ³wnolegÅ‚ego.
-  Takie wyliczenie zachodzi w pewnym momencie w czasie rÃ³wniez dla wyraÅ¼enia \verb|exp|.
+  Schemat pokazuje jak w pierwszej kolejno¶ci kod programu wywo³uje funkcjê \feval, która s³u¿y do zlecenia obliczenia równoleg³ego wyra¿enia.
+  Nastêpnie sterowanie przechodzi do cia³a funkcji \feval, czyli do kodu biblioteki Parallel.
+  Funkca \feval tworzy niezbêdne struktury danych oraz dodaje wyra¿enie \verb|exp| do wyra¿eñ czekaj±cych na wyliczenie.
+  Potem nastêpuje powrót z funkcji \feval ze zwróceniem warto¶ci odroczonej \verb|d| i na jaki¶ czas kod programu i biblioteki Parallel zaprzestaj± komunikacji.
+  Kod programu wykonuje w³asne instrukcje, a kod Parallel wykonuje w³asne zadania, miêdzy innymi wyliczaj±c wyra¿enia, które zosta³y wskazane do wyliczenia równoleg³ego.
+  Takie wyliczenie zachodzi w pewnym momencie w czasie równiez dla wyra¿enia \verb|exp|.
   
-  Gdy nadchodzi moment w kodzie programu, gdy potrzebna jest wyliczona wartoÅ›Ä‡ wyraÅ¼enia to nastÄ™puje automatycznie prÃ³ba pobrania wartoÅ›ci wyraÅ¼enia z wartoÅ›ci odroczonej \verb|d|.
-  Wtedy nastÄ™puje przekazanie sterowania do kodu biblioteki, ktÃ³ry przekazuje z powrotem wyliczonÄ… wartoÅ›Ä‡ wyraÅ¼enia \verb|exp|.
-  Kod programu otrzymuje wartoÅ›Ä‡ i moÅ¼e dalej prowadziÄ‡ swoje obliczenia.
-  Tak wyglÄ…da jeden cykl skorzystania z mechanizmu zlecania wyraÅ¼eÅ„ do rÃ³wnolegÅ‚ego wyliczenia w bibliotece Parallel.
+  Gdy nadchodzi moment w kodzie programu, gdy potrzebna jest wyliczona warto¶æ wyra¿enia to nastêpuje automatycznie próba pobrania warto¶ci wyra¿enia z warto¶ci odroczonej \verb|d|.
+  Wtedy nastêpuje przekazanie sterowania do kodu biblioteki, który przekazuje z powrotem wyliczon± warto¶æ wyra¿enia \verb|exp|.
+  Kod programu otrzymuje warto¶æ i mo¿e dalej prowadziæ swoje obliczenia.
+  Tak wygl±da jeden cykl skorzystania z mechanizmu zlecania wyra¿eñ do równoleg³ego wyliczenia w bibliotece Parallel.
   

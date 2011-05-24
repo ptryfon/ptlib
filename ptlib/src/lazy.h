@@ -63,21 +63,21 @@ rval(T && arg)
 template <typename T>
 inline typename proto::result_of::make_expr<
 	proto::tag::function,
-	T>::type const
-lazyf(T fun) {return proto::make_expr<proto::tag::function>(fun);}
+	const T>::type const
+lazyf(const T fun) {return proto::make_expr<proto::tag::function>(fun);}
 
 template <typename T, typename U>
 inline typename proto::result_of::make_expr<
 	proto::tag::function,
-	T,
+	const T,
 	U>::type const
-lazyf(T fun, U arg1) { return proto::make_expr<proto::tag::function>(fun, arg1); }
+lazyf(const T fun, U arg1) { return proto::make_expr<proto::tag::function>(fun, arg1); }
 
 
 template <typename T, typename Arg1, typename Arg2>
 inline typename proto::result_of::make_expr<
 	proto::tag::function,
-	T,
+	const T,
 	Arg1,
 	Arg2>::type const
 lazyf(T fun, Arg1 arg1, Arg2 arg2) { return proto::make_expr<proto::tag::function>(fun, arg1, arg2); }
@@ -85,11 +85,26 @@ lazyf(T fun, Arg1 arg1, Arg2 arg2) { return proto::make_expr<proto::tag::functio
 template <typename T, typename Arg1, typename Arg2, typename Arg3>
 inline typename proto::result_of::make_expr<
 	proto::tag::function,
-	T,
+	const T,
 	Arg1,
 	Arg2,
 	Arg3>::type const
 lazyf(T fun, Arg1 arg1, Arg2 arg2, Arg3 arg3) { return proto::make_expr<proto::tag::function>(fun, arg1, arg2, arg3); }
+
+template <typename T, typename Arg1>
+inline typename proto::result_of::make_expr<
+	proto::tag::function,
+	T,
+	const Arg1>::type const
+lazym(T fun, const Arg1 arg1)
+{return proto::make_expr<proto::tag::function>(fun, arg1);}
+
+template <typename T>
+class mem_fun
+{
+public:
+
+};
 
 /*template <typename T, typename Arg, typename...RArgs>
 inline typename proto::result_of::make_expr<
