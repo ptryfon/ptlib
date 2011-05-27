@@ -4,7 +4,7 @@
   W tym rozdziale zostan± przedstawione g³ówne za³o¿enia oraz szkic projektu biblioteki Parallel. 
   Ponadto biblioteka Parallel zostanie zestawiona z istniej±cymi bibliotekami do programowania równoleg³ego w celu pokazania ró¿nic i uzasadnienia potrzeby stworzenia nowej biblioteki.
 
-\section{Cele biblioteki}
+\section{Cele biblioteki}\label{s:cele}
 
   Tworzeniu biblioteki Parallel przy¶wieca³y jasno sprecyzowane cele, których ide± przewodni± by³o u³atwienie wykorzystywania obliczeñ równoleg³ych w programach.
   Wymienionym poni¿ej celom by³o podporz±dkowane projektowanie API i implementacja biblioteki.
@@ -126,7 +126,7 @@
 \subsubsection{Leniwe wyra¿enia w jêzyku C++}
 
   Stworzenie leniwego wyra¿enia w jêzyku C++ nie wydaje siê prostym zadaniem.
-  Domy¶la semantyka obliczeñ jest gorliwa, nie ma s³ów kluczowych pozwalaj±cych na dodanie leniwo¶ci, C++ nie pozwala równie¿ na rozszerzenie sk³adni jêzyka.
+  Domy¶lna semantyka obliczeñ jest gorliwa, nie ma s³ów kluczowych pozwalaj±cych na dodanie leniwo¶ci, C++ nie pozwala równie¿ na rozszerzenie sk³adni jêzyka.
   Wskazówka do rozwiazanie problemu leniwych wyra¿eñ w jêzyku C++ znajduje siê w ksi±¿ce \textit{More C++ Idioms}\cite{idioms}, która przedstawia idiom C++ szablonu wyra¿enia (z ang. Expression Template).
   Idea stworzenia szablonu wyra¿enia polega na reprezentacji wyra¿enia przez zbudowanie odpowiedniego drzewa typów, które jest Abstrakcyjnym Drzewem Syntaktycznym (z ang. Abstract Syntax Tree - AST) wyra¿enia.
   Dok³adny opis zastosowanej metody znajduje siê w rozdziale po¶wiêconym implementacji biblioteki.
@@ -181,9 +181,52 @@
 
   Kod korzystaj±cy z biblioteki Parallel powinien wygl±daæ naturalnie.
   Skoro do funkcji \texttt{eval} przekazujemy wyra¿enie, to naturalnym oczekiwaniem jest to, ¿e w wyniku ewaluacji otrzymamy warto¶æ tego wyra¿enia.
-  Problem le¿y w tym, ¿e w momencie powrotu z funkcji \texttt{eval} bêdzie znany jedynie typ wyra¿enia, a nie jego warto¶æ.
+  Problem le¿y w tym, ¿e  je¶li warto¶æ by³aby zwracana w momencie powrotu z funkcji \texttt{eval} to otrzymaliby¶my \textit{de facto} program sekwencyjny, choæ roz³o¿ony na kilka w±tków,
+  nie by³oby mo¿liwo¶ci wykorzystania korzy¶ci z równoleg³ego prowadzenia obliczeñ na wielu w±tkach.
+  Dlatego wywo³anie obliczenia wyra¿enia przez funkcjê \feval biblioteki Parallel nie zwraca wyniku natychmiast,
+  a kod programu przechodzi do kolejnych instrukcji.
+  W momencie powrotu z funkcji \feval bêdzie znany jedynie typ wyra¿enia, a nie jego warto¶æ.
   Warto¶æ zostanie obliczona pó¼niej przez mechanizm ewaluacji biblioteki Parallel.
-  Wynika st±d potrzeba wprowadzenie klasy obudowuj±cej warto¶æ zwracan±, uchwytu do wyniku, nazwijmy go warto¶ci± odroczon± (z ang. deferred value).
+  
+  To podej¶cie w jêzyku fachowym nazywa siê komunikacj± asynchroniczn± i czêsto pojawia siê w kontek¶cie programowania wspó³bie¿nego.
+  Wykorzystuj± je takie technologie jak asynchroniczne zdalne wywo³anie procedur (z ang. Asychronous RPC), zdalne wywo³anie metod w jêzyku Java ??
+  Jego przeciwieñstwem, w którym wynik funkcji jest zwracany w momencie powrotu z funkcji wywo³uj±cej równoleg³e obliczenie, jest komunikacja synchroniczna.
+  Wybór asynchronicznego sposobu zwracania wyniku pozwala na nastêpuj±ce optymalizacje:
+  \begin{itemize}
+   \item Gdy w±tek g³ówny nie wymaga wyniku ani informacji o zakoñczeniu zadania, to po prostu mo¿e pój¶æ dalej i wykonywaæ inne instrukcje.
+   \item W±tek g³ówny mo¿e uruchomiæ kilka równoleg³ych obliczeñ jednocze¶nie.
+   \item W±tek g³ówny mo¿e uruchomiæ obliczenia, wykonywaæ inne instrukcje i odebraæ wynik pó¼niej, w momencie, gdy to jest niezbêdne. 
+  \end{itemize}
+  
+\subsubsection{Omówienie asynchronicznych sposobów zwracania wyniku}
+  Programowanie w sposób asynchroniczny jest trudniejsze, gdy¿ programista musi w odpowiedni sposób zarz±dzaæ asynchronicznymi obliczeniami.
+  Generalnie istniej± dwa sposoby zwracania wyniku z asynchronicznego.
+  Oba zosta³y opisane w ksia¿ce \cite{dissys} w rozdziale dotycz±cym Asychronicznego Zdalnego Wywo³ania Procedur (z ang. Asychronous RPC).
+  
+  Pierwszy ze sposobów to sposób jawny, w którym asynchroniczne wywo³anie pewnej funkcji zwraca identyfikator wyniku.
+  Nastêpnie w±tek, który wywo³a³ tê funkcjê mo¿e przy pomocy identyfikatora odpytywaæ o wynik (z ang. polling) proces wykonuj±cy obliczenie.
+  
+  Drugi sposób jest niejawny, poniewa¿ kod programu nie obs³uguje zwracanego wyniku \textit{explicite}.
+  Mechanizm polega na tym, ¿e proces wykonuj±cy obliczenie wywo³uje pewn± funkcjê, której przekazuje obliczony wynik i ta funkcja odpowiada za dalsze przetwarzanie wyniku.
+  Jest to tak zwane zwrotne wywo³anie funkcji (z ang. callback).
+  
+  W kontek¶cie projektowania biblioteki Parallel natychmiast odrzucone zosta³o wykorzystanie drugiego z opisanych sposobów, poniewa¿ sta³by on w zdecydowanej sprzeczno¶ci z celami biblioteki.
+  W przypadku niejawnego sposobu przetwarzania wyniku, kod programu u¿ywaj±cego biblioteki Parallel sta³by siê mniej czytelny i trudniejszy do analizy.
+  Zlecenie obliczenia i odebranie wyniku by³oby opisane przez dwa ró¿ne odleg³e od siebie miejsca w kodzie.
+  
+  Zdecydowanie bli¿szy idei biblioteki Parallel jest sposób pierwszy.
+  Jednak¿e zdecydowana wiêkszo¶æ tego typu rozwi±zañ zrzuca on na programistê obowi±zek aktywnego jawnego odpytywania o wynik.
+  Nie jest to rozwi±zaniem z³ym, ale zmusza programistê do zaprogramowania dodatkowych czynno¶ci.
+  Na przyk³ad, programista musi obs³u¿yæ zarówno sytuacjê, gdy wynik ju¿ jest dostêpny, oraz sytuacjê, gdy obliczenie nie zosta³o jeszcze wykonane.
+  W celu pozwolenia programistom na bardziej produktywn± pracê warto by³o poszukaæ lepszego rozwiazania.
+  
+\subsubsection{Synchroniczne zwracanie odroczonego (asynchronicznego) wyniku}  
+
+  Rozwi±zanie zaprojektowane dla biblioteki Parallel opiera siê na asynchronicznym zwracaniu wyniku, ale asynchroniczno¶æ jest ukryta przed programist±.
+  Z jego punktu widzenia kod programu dzia³a tak, jakby wynik zosta³ zwrócony w sposób synchroniczny.
+  To wyja¶nia tytu³ nadany tej podsekcji.
+
+  Zosta³o to osi±gniête poprzez wprowadzenie klasy obudowuj±cej warto¶æ zwracan±, uchwytu do wyniku, który nazwiemy warto¶ci± odroczon± (z ang. deferred value).
   Aby warto¶æ odroczona ¶ci¶le odpowiada³a typowi wynikowemu wyra¿enia, bêdzie ona szablonem typu parametryzowanym typem wynikowym wyra¿enia.
   Dziêki temu, ¿e znany by³ typ zwracany, mo¿liwe jest takie zaprojektowanie klasy warto¶ci odroczonej, ¿e przypomina w swoim zachowaniu typ wynikowy wyra¿enia.
   

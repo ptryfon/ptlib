@@ -102,7 +102,7 @@ struct factorial<0> {
   Natomiast w wêz³ach po¶rednich reprezentowane s± operatory u¿yte w wyra¿eniu, które jako pola posiadaj± szablony wyra¿enia, bêd±ce argumentami operatora.
   Ka¿demu operatorowi odpowiada reprezentuj±cy go szablon typu, z odpowiednio zaimplementowan± funkcj± aplikuj±c± operator, w momencie, gdy szablon wyra¿enia jest wyliczany.
   
-  Zaprezentuje ideê szablonu wyra¿enie na przyk³adzie, w którym jedyna dozwolon± operacj± bêdzie dodawanie liczb ca³kowitych lub zmiennoprzecinkowych.
+  Zaprezentujê ideê szablonu wyra¿enia na przyk³adzie, w którym jedyn± dozwolon± operacj± bêdzie dodawanie liczb ca³kowitych lub zmiennoprzecinkowych.
 \begin{lstlisting}
 /*** TYPY ODPOWIEDZIALNE ZA BUDOWÊ DRZEWA AST ***/
 
@@ -249,7 +249,7 @@ inline int eval(int i) {return i;}
 inline double eval(double d) {return d;}
 \end{lstlisting}
 
-  Wzorzec \verb|Term| (linie 6-11) umo¿liwia oznaczenie dowolnej warto¶ci jako li¶cia w drzewie reprezentujacym szablon wyra¿enia. \footnote{Jednak wzorce \texttt{Term} bêd± zaliczane do wez³ów po¶rednich, warto¶æ, któr± on trzyma jest li¶ciem.}
+  Wzorzec \verb|Term| (linie 6-11) umo¿liwia oznaczenie dowolnej warto¶ci jako li¶cia w drzewie reprezentujacym szablon wyra¿enia.  
   Teoretycznie wszystkie warto¶ci powinny byc oznaczone w ten sposób.
   Jednak jak sie pó¼niej dowiemy identyczne dzia³anie mo¿na uzyskaæ oznaczaj±c tylko czê¶æ warto¶ci.
   
@@ -289,7 +289,7 @@ inline double eval(double d) {return d;}
   Po pierwsze mo¿na siê zastanowiæ, po co sk³adania jest tak przegadana oraz czy potrzebne jest pisanie \verb|Term| przy ka¿dej warto¶ci przekazywanej do wyra¿enia.
   Wiadomo na pewno, ¿e co najmniej jedna warto¶æ musi by³ oznaczona jako terminal szablonu wyra¿enia.
   Jest tak, poniewa¿ je¶li, ¿adna z warto¶ci nie by³aby oznaczona by³oby to zwyk³e wyra¿enie C++ i zosta³oby obliczone gorliwie.
-  Ponadto, nie da siê tego zmieniæ przy pomocy prze³adowywania operatorów, gdy¿ co najmniej jednym argumentem operatora musi byæ klasa lub typ wyliczeniowy.
+  Ponadto, nie da siê tego zmieniæ przy pomocy przeci±¿ania operatorów, gdy¿ co najmniej jednym argumentem operatora musi byæ klasa lub typ wyliczeniowy.
   Zastanówmy siê, czy poni¿sze wyra¿enie jest poprawne sk³adniowo i je¶li tak, to jaki bêdzie szablon typu, który powstanie.
   \begin{lstlisting}[numbers=none, frame=none]
    Term(4) + 5;
@@ -347,7 +347,7 @@ inline double eval(double d) {return d;}
   \begin{itemize}
    \item Szablony wyra¿eñ w postaci AST
    \item Mechanizm modyfikacji zachowania wyra¿eñ
-   \item Prze³adowania operatorów dla budowy AST z wyra¿enia
+   \item Przeci±¿anie operatorów dla budowy AST z wyra¿enia
    \item Narzêdzia do definiowania gramatyki wyra¿eñ
    \item Rozszerzalny mechanizm natychmiastowego wyliczenia szablonu wyra¿enia
    \item Rozszerzalny zestaw operacji przetwarzania na szablonach wyra¿eñ
@@ -366,7 +366,7 @@ inline double eval(double d) {return d;}
    \item \verb|deferred_expr| -- szablon typu przechowuj±cego uleniwione wyra¿enia i zarz±dzaj±cego jego wyliczeniem
   \end{itemize}
   
-  Biblioteka Parallel korzysta z Boost.Proto do tworzenia szablonów wyra¿eñ w postaci AST, równie¿ przy pomocy mechanizmu prze³adowywania operatorów, dziêki czemu budowa AST jest uproszczona.
+  Biblioteka Parallel korzysta z Boost.Proto do tworzenia szablonów wyra¿eñ w postaci AST, równie¿ przy pomocy mechanizmu przeci±¿ania operatorów, dziêki czemu budowa AST jest uproszczona.
   Ponadto ewaluacja odbywa siê przy pomocy dostarczonej przez Boost.Proto funkcji \verb|proto::eval| z domy¶lnym zachowaniem.
   Zasada dzia³ania Boost.Proto jest analogiczna do dzia³ania przyk³adu pokazanego powy¿ej.
 
@@ -467,7 +467,7 @@ inline double eval(double d) {return d;}
   
 \subsection{Ograniczenia mechanizmu ewaluacji}
 
-  W zwi±zku ze sposobem przekazywania wyra¿eñ do obliczenia, mo¿liwo¶ci projektowania mechanizmu ewaluacyji by³y do¶æ powa¿nie ograniczone.
+  W zwi±zku ze sposobem przekazywania wyra¿eñ do obliczenia, mo¿liwo¶ci projektowania mechanizmu ewaluacji by³y do¶æ powa¿nie ograniczone.
   W ogólno¶ci mogliby¶my wyobraziæ sobie sytuacjê, w której wyra¿enie z programu dzia³aj±cego na jednym komputerze by³oby przekazywane do wyliczenia do innych programów lub nawet do innych komputerów, w celu wiêkszego rozproszenia i jeszcze lepszego zrównoleglenia wykonania programu.
   W przypadku biblioteki parallel wyst±pi³o kilka ograniczeñ, które uniemo¿liwi³y zaprojektowanie ogólniejszego mechanizmu obliczeñ.
   
@@ -522,12 +522,12 @@ inline double eval(double d) {return d;}
   Alternatywnym sposobem definicji wzorca \dval by³o nie umieszczanie w jego interfejsie operatora konwersji.
   Uniemo¿liwi³oby to stosowanie obiektów typu \dval w miejsce typu wynikowego wyra¿enia, co sprawi³oby, ¿e pobieranie warto¶ci sta³oby siê operacj± zawsze wywo³ywan± jawnie przez programistê.
   W trakcie projektowania interfejsu biblioteki podjêto decyzjê o umieszczeniu operatora konwersji, poniewa¿ czyni to sk³adniê bardziej naturaln±.
-  Ponadto u¿ywanie obiektów typu \dval w wyra¿eniach bez jawnego pobierania warto¶ci ma bardzo istotne znaczenie dla pe³nego wykorzystania funkcji prze³adowuj±cych operatory dla wzorca typu \dval.
+  Ponadto u¿ywanie obiektów typu \dval w wyra¿eniach bez jawnego pobierania warto¶ci ma bardzo istotne znaczenie dla pe³nego wykorzystania funkcji przeci±¿aj±cych operatory dla wzorca typu \dval.
   Ta kwestia zostanie wyja¶niona w nastêpnej sekcji.
   
-\subsection{Prze³adowanie operatorów szablonu typu \dval}
+\subsection{Przeci±¿±nie operatorów szablonu typu \dval}
 
-\subsubsection{Motywacja dla prze³adowywania operatorów}
+\subsubsection{Motywacja dla przeci±¿ania operatorów}
 
   Mo¿na wyobraziæ sobie scenariusz, w którym chc±c skorzystaæ z warto¶ci przechowywanej w zmiennej typu \dval, 
   programista zawsze wywo³ywa³by jawn± metodê pobrania warto¶ci b±d¼ stosowa³by niejawn± metodê, przy u¿yciu operatora konwersji.
@@ -557,20 +557,20 @@ inline double eval(double d) {return d;}
    
    Z punktu widzenia zwiêkszania efektywno¶ci wykorzystania biblioteki Parallel lepiej bêdzie, gdy obliczenie warto¶ci wyra¿enia skojarzonego z obiektem \verb|d| nie bêdzie w tej sytuacji wymuszone,
    gdy¿ mo¿e zostaæ odroczone.
-   Aby to uzyskaæ wystarczy prze³adowaæ operator dodawania, w taki sposób, 
+   Aby to uzyskaæ wystarczy przeci±¿yæ operator dodawania, w taki sposób, 
    aby wyra¿enie \verb|d + 42| zwraca³o warto¶æ odroczon±, zawieraj±c± uleniwione wyra¿enie w postaci szablonu wyra¿enia.
    Dzia³anie g³ównego w±tku programu mog³oby siê wtedy toczyæ dalej bez wymuszania obliczenia warto¶ci \verb|d|,
    natomiast pó¼niej gdy zostanie wymuszone obliczenie warto¶ci \verb|c| to rekurencyjnie zostanie wymuszone równie¿ wyliczenie \verb|d|, w celu ewaluacji szablonu wyra¿enia zapisanego w \verb|c|.
    
-\subsubsection{Implementacja prze³adowywania operatorów}
+\subsubsection{Implementacja przeci±¿ania operatorów}
 
-  Jêzyk C++ pozwala na prze³adowanie wszystkich operatorów, oprócz \verb|::|, \verb|.| oraz \verb|.*|.
-  Nie dla wszystkich pozosta³ych operatorów prze³adowywanie ich dla obiektów \dval ma sens.
+  Jêzyk C++ pozwala na przeci±¿enie wszystkich operatorów, oprócz \verb|::|, \verb|.| oraz \verb|.*|.
+  Przecie¿anie operatorów dla obiektów \dval ma sens dla zdecydowanej wiêkszo¶ci, ale nie dla wszystkich operatorów.
   Przedefiniowanie operatorów \verb|new|, \verb|new []|, \verb|delete| oraz \verb|delete []| nie by³o potrzebne.
   Ponadto domy¶lne zachowanie operatora \verb|,| jest odpowiednie dla typu \dval.
   Pozosta³e operatory zosta³y przedefinowane w taki sposób, aby uzyskaæ taki efekt, ¿e obiektów \dval mo¿na u¿ywaæ wszêdzie tam, gdzie mo¿na u¿yæ typu, który dany obiekt \dval reprezentuje.
   Przedefinowania operatorów zwracaj± jako wynik obiekty \dval, z szablonem wyra¿enia, który po obliczeniu pozwoli uzyskaæ po¿±dany wynik.
-  Oto pe³na lista prze³adowanych operatorów:
+  Oto pe³na lista przeci±¿onych operatorów:
   \begin{verbatim}
    +  -  *  /  %  ^  &  |  ~  !  =  <  >  <<   >>  +=  -=  *=  /=  %=  ^=  
    &=  |=  >>=  <<=  ==  !=  <=  >=  &&   ||  ++  --  ->*  ->  []  ()

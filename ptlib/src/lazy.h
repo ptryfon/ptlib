@@ -60,6 +60,7 @@ rval(T && arg)
 	return proto::make_expr<proto::tag::terminal>(arg);
 }
 
+//TODO
 template <typename T>
 inline typename proto::result_of::make_expr<
 	proto::tag::function,
@@ -71,7 +72,7 @@ inline typename proto::result_of::make_expr<
 	proto::tag::function,
 	const T,
 	U>::type const
-lazyf(const T fun, U arg1) { return proto::make_expr<proto::tag::function>(fun, arg1); }
+lazymf(const T fun, U arg1) { return proto::make_expr<proto::tag::function>(fun, arg1); }
 
 
 template <typename T, typename Arg1, typename Arg2>
@@ -95,16 +96,9 @@ template <typename T, typename Arg1>
 inline typename proto::result_of::make_expr<
 	proto::tag::function,
 	T,
-	const Arg1>::type const
-lazym(T fun, const Arg1 arg1)
-{return proto::make_expr<proto::tag::function>(fun, arg1);}
-
-template <typename T>
-class mem_fun
-{
-public:
-
-};
+	Arg1*>::type const
+lazym(T fun, Arg1& arg1)
+{return proto::make_expr<proto::tag::function>(fun, &arg1);}
 
 /*template <typename T, typename Arg, typename...RArgs>
 inline typename proto::result_of::make_expr<

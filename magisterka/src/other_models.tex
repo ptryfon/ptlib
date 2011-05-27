@@ -40,7 +40,7 @@ int main (int argc, char *argv[]) {
 
   OpenMP wykorzystuje model Fork-Join.
   W programie napisanym przy u¿yciu OpenMP wystêpuje w±tek g³owny, który koordynuje pracê.
-  Gdy wykonanie dochodzi do pocz±tku regionu kodu, który zosta³ oznaczony odpowiednimi dyrektywami do zrównoleglenia, wtedy nastêpuje faza fork, czyli tworzenia w±tkówi.
+  Gdy wykonanie dochodzi do pocz±tku regionu kodu, który zosta³ oznaczony odpowiednimi dyrektywami do zrównoleglenia, wtedy nastêpuje faza fork, czyli tworzenia w±tków.
   Ka¿dy z w±tków otrzymuje unikalny identyfikator, którego warto¶æ mo¿na odczytaæ i przy jego pomocy sterowaæ prac± tylko okre¶lonego w±tku.
   W±tki przetwarzaj± kod przeznaczony do zrównoleglenia niezale¿nie od siebie, aczkolwiek istniej± mechanizmy pozwalaj±ce na zdefiniowany przez programistê podzia³ zadañ.
   Dziêki temu mo¿liwe jest zrównoleglenie zarówno na poziomie zadañ, ró¿ne w±tki mog± wykonywaæ ró¿ny kod, jak i na poziomie danych, gdy w±tki wykonuj± ten sam kod, ale na ró¿nych danych.

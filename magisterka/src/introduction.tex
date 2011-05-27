@@ -32,39 +32,40 @@
   Aby z niej skorzystaæ wystarczy nieznacznie zmodyfikowane wyra¿enie zgodne ze specyfikacj± biblioteki Parallel przekazaæ do funkcji bibliotecznej \verb|eval|.
   To powoduje przekazanie tego wyra¿enia do wyliczenia przez aparat wykonawczy biblioteki Parallel i zwrócenie wyliczonej warto¶ci.
   Najlepiej obja¶ni tê sytuacjê przyk³ad wykorzystania biblioteki.
-  Zgodnie ze zwyczajem stosowanym w literaturze informatycznej jako pierwszy poka¿ê fragment kodu zrównoleglaj±cy wypisanie komunikatu ``Hello World!''.
+  Pos³u¿ê siê przyk³adem funkcji obliczaj±cej n-t± liczbê Fibonacciego.
   Standardowo w jêzyku C++ taki kod wygl±da nastêpuj±co:
   \begin{lstlisting}
-   #include <iostrem>
-   
-   using std;
-   
-   int main()
-   {
-       cout << "Hello World!" << endl;
-       cout << "...lo World, ...orld, ...rld" << endl; /* Echo */
-       return 0;
-   }
+  unsigned fibo(unsigned n)
+  {
+    if (n == 0)
+      return 0;
+    else if (n == 1)
+      return 1;
+    else
+      return fibo(n-1) + fibo(n-2);
+  }
   \end{lstlisting}
   W przypadku wykorzystania biblioteki Parallel przyjmie on nastêpuj±c± postaæ:
   \begin{lstlisting}
-   #include <parallel.h>
-   #include <iostream>
+  #include <parallel.h>
    
-   using std, parallel;
-   
-   int main()
-   {
-       parallel::eval(ref(cout) << "Hello World!" << endl);
-       cout << "...lo World, ...orld, ...rld" << endl; /* Echo */
-       return 0;
-   }
+  unsigned fibo(unsigned n)
+  {
+    if (n == 0)
+      return 0;
+    else if (n == 1)
+      return 1;
+    else
+      return parallel::eval(parallel::lazyf(fibo, n-1)) + fibo(n-2);
+  }
   \end{lstlisting}
   
-  Zrównoleglenie bêdzie polega³o w tym przypadku na tym, ¿e kod g³ówny programu zleci równoleg³e obliczenie wyra¿enia wypisuj±cego ``Hello World!'' bibliotece Parallel i nie czekaj±c na wynik przejdzie do nastêpnej instrukcji.
-  W szczególno¶ci w tym przypadku mo¿e siê zdarzyæ, ¿e odpowied¼ echa zostanie wypisana szybciej ni¿ pierwszy komunikat.
-  Wprawdzie ten fregment kodu nie pokazuje przydatno¶ci biblioteki, ale prezentuje prosty przyk³ad sk³adni i pomo¿e zrozumieæ dalszy opis biblioteki.
-  Bardziej obszerne przyk³ady znajduj± siê w dalszej czê¶ci pracy.
+  Ten przyk³ad pokazuje w jaki sposób mo¿na wykorzystaæ bibliotekê Parallel do zrównoleglenia obliczeñ w podej¶ciu ``dziel i zwyciê¿aj'', czyli dzielimy problem na kilka czê¶ci, obliczanych równolegle,
+  a nastêpnie ³±czymy wyniki.
+  Zrównoleglenie bêdzie polega³o w tym przypadku na tym, ¿e kod g³ówny programu zleci równoleg³e obliczenie wyra¿enia \verb|fibo(n-1)| bibliotece Parallel i nie czekaj±c na wynik przejdzie do nastêpnej instrukcji,
+  to jest obliczenia \verb|fibo(n-2)|. Gdy obliczenie \verb|fibo(n-1)| i \verb|fibo(n-2)| siê zakoñcz± zostanie obliczona suma obu warto¶ci i zwrócona jako \verb|fibo(n)|.
+  Funkcja \feval z przestrzeni nazw \verb|parallel| s³u¿y do równoleg³ej ewaluacji wyra¿eñ, a funkcja \verb|lazyf| do oznacza wywo³anie funkcji podanej jako pierwszy argument z argumentami podanymi jako kolejne argumenty.
+  Sk³adania s³u¿±ca do korzystania z biblioteki Parallel zostanie opisana dok³adniej w dalszej czê¶ci pracy.
   
   Pierwszy rozdzia³ pracy opisuje koncepcjê biblioteki, g³ówne zasady ni± rz±dz±ce oraz porównuje projektowane rozwi±zanie do istniej±ch rozwia¿añ.
   Drugi rozdzia³ traktuje o sposobie implementacji biblioteki.

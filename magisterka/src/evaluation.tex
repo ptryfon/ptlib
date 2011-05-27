@@ -1,0 +1,98 @@
+\chapter{Ewaluacja biblioteki}\label{r:ewaluacja}
+
+Ewaluacja biblioteki mia³a na celu weryfikacjê czy wykonana biblioteka dzia³a poprawnie i jaka jest jej wydajno¶æ.%czy spe³nia cele, które zosta³y dla niej wytyczone.
+Poszczególne etapy weryfikacji zosta³y opisane w odpowiednich sekcjach tego rozdzia³u.
+
+\section{Testy poprawno¶ci}
+
+  Testy dotycz±ce poprawno¶ci biblioteki Parallel zosta³y przeprowadzone przy wykorzystaniu narzêdzia do przeprowadzania testów Boost Unit Test Framework.
+  Testy te koncentrowa³y siê na sprawdzeniu czy wyniki wyra¿eñ obliczanych przez bibliotekê Parallel s± identyczne do oczekiwanych oraz czy podczas ich obliczania nie wystêpuj± niespodziewane b³êdy.
+  Wyodrêbnione zosta³y nastêpuj±ce przypadki u¿ycia biblioteki Parallel, definowane przez ró¿ne typy wyra¿eñ przekazanych do obliczenia, dla których zosta³y zaimplementowane odpowiednie testy jednostkowe (z ang. unit test):
+  \begin{itemize}
+   \item wyra¿enie z ró¿nymi rodzajami typów:
+    \begin{itemize}
+     \item wyra¿enie z wy³±cznie typami prostymi,
+     \item wyra¿enie zawierajace obiekty z³o¿one.
+    \end{itemize}
+   \item wyra¿enia z ró¿nymi formami przekazywania zmiennych:
+    \begin{itemize}
+     \item zmienna przekazywane przez warto¶æ,
+     \item zmienna przekazywana przez referencjê,
+     \item zmienna przekazywana przez wska¼nik.
+    \end{itemize}
+   \item wyra¿enia z ró¿nymi rodzajami typów zwracanych:
+    \begin{itemize}
+     \item wyra¿enie o typie wynikowym \verb|void|,
+     \item wyra¿enie zwracaj±ce typ prosty,
+     \item wyra¿enie zwracaj±ce typ z³o¿ony,
+     \item wyra¿enie zwracaj±ce referencjê,
+     \item wyra¿enie zwracaj±ce wska¼nik.
+    \end{itemize}
+   \item wyra¿enie zawieraj±ce wywo³ania funkcji:
+    \begin{itemize}
+     \item wywo³anie funkcji bezargumentowej,
+     \item wywo³anie funkcji z argumentami bêd±cymi typami prostymi,
+     \item wywo³anie funkcji z argumentami bêd±cymi typami z³o¿onymi,
+     \item wywo³anie metody obiektu,
+     \item wywo³anie metody statycznej obiektu.
+    \end{itemize}
+  \end{itemize}
+  Wymienione przypadki testowe mo¿na kombinowaæ ze sob± i tworzyæ w nieskoñczono¶æ coraz bardziej z³o¿one wyra¿enia.
+  Zaimplementowany zestaw testów pokrywa wszystkie z wymienionych przypadków.
+  
+  Dla wszystkich przypadków biblioteka uzyska³a wynik pozytywny.
+  Pokazuje to, ¿e biblioteka dzia³a poprawnie dla pewnego reprezentatywnego zbioru przyk³adów wyra¿eñ w jêzyku C++.
+  Pozwala to przypuszczaæ, ¿e biblioteka potrafi obs³u¿yæ poprawnie dowolne wyra¿enie jêzyka C++.
+  
+\section{Testy wydajno¶ciowe}
+
+  Testy wydajno¶ciowe biblioteki zosta³y przeprowadzone poprzez porównanie wyników wykonania programów zaimplementowanych przy wykorzystaniu biblioteki Parallel
+  z programami napisanymi sekwencyjnie lub przy u¿yciu standardowego mechanizmu w±tków Boost.Threads.
+  Celem testów by³o pokazanie, i¿
+  \begin{itemize}
+   \item programy u¿ywajace biblioteki Parallel dzia³aj± nie wolniej ni¿ programy sekwencyjne,
+   \item odpowiednio napisany program u¿ywajacy biblioteki Parallel potrafi uzyskaæ przyspieszenie proporcjonalne do liczby wykorzystywanych procesorów,
+   \item czas dzia³ania programów napisanych u¿ywajaæ bibliotek Parallel i Boost.Threads jest zbli¿ony, z przewag± biblioteki Parallel wynikaj±cej z zastosowania puli w±tków.
+  \end{itemize}
+  
+  Dla pisania testów przyjêto zastosowanie prostych metod progamowania równoleg³ego, gdy¿ aby ró¿ne implementacje mo¿na by³o ze sob± porównywaæ powinny one dzia³aæ podobnie.
+  Dlatego najpierw pisany by³ program sekwencyjny.
+  Nastêpnie, w celu stworzenia implementacji korzystaj±cych z Parallel i Boost.Threads, identyfikowane by³y fragmenty kodu, które mo¿na by³o zrównolegliæ i dokonywano tego korzystaj±c z odpowiednich funkcji bibliotek.
+  
+  Dla tak przygotowanych programów mierzono czasy wykonania przy u¿yciu biblioteki Boost Posix Time.
+  Opisy i wyniki testów zosta³y zaprezentowane poni¿ej.
+  
+\subsection{Test szybkiego sortowania}
+
+  Test szybkiego sortowania zosta³ zaimplementowany na bazie algorytmu quicksort.
+  Do testów wykorzystano tablicê liczb ca³kowitych generowanych przy pomocy liczb pseudolosowych z ustalon± warto¶ci± pocz±tkow±\footnote{Ustalenie warto¶ci pocz±tkowej ci±gu liczb pseudolosowych ma s³u¿yæ powtarzalno¶ci testu.} tablica liczb ca³kowitych o d³ugo¶ci ...
+  Tablica mie¶ci³a ... liczb ca³kowitych, osi±gaj±c rozmiar MB.
+  
+  W ka¿dej z równoleg³ych implementacji zastosowano zasadê ``Dziel i zwyciê¿aj'', to znaczy problem sortowania by³ dzielony na mniejsze, które nastêpnie by³y rozwi±zywane równolegle.
+  Fragmenty tablicy poni¿ej 1000 elementów by³y sortowane ju¿ sekwencyjnie.
+  Implementacja testów jest do wgl±du w za³±czonych do pracy plikach w folderze ptlib-test.
+  
+  Oto wyniki testów:
+  
+\subsection{Test przetwarzania tablicy}
+
+% 
+% \section{Ocena realizacji celów}
+% 
+%   W tej sekcji zosta³ oceniony stopieñ realizacji celów, które zosta³y postawione przed bibliotek± Parallel w sekcji \nameref{s:cele}.
+%   Nale¿y mieæ ¶wiadomo¶æ, ¿e ocena realizacji niektórych z celów opiera siê na subiektywnej argumentacji twórcy biblioteki.
+%   Dla wiarygodnej oceny spe³nienia celów dotycz±cych zwiêkszenia ³atwo¶ci programowania równoleg³ego przy pomocy biblioteki nale¿y przeprowadziæ badania statystyczne, 
+%   które pozwoli³yby wnioskowaæ o tym, jak przeciêtny programista jêzyka C++ ocenia ³atwo¶æ programowania przy u¿yciu Parallel.
+%   
+% \begin{tabular}{ | l | p{0.75\textwidth} |}
+%   \hline\
+%   \textbf{Cel} & \textbf{Ocena realizacji} \\ \hline
+%   Efektywno¶æ & Konstrukcja jêzyka C++, która czêsto pojawia siê w kodzie lub projektach do¶wiadczonych programistów C++. Stosowanie jej uwa¿ane jest za dobr± praktykê.\\ \hline
+%   Produktywno¶æ programisty & Abstrakcyjne Drzewo Syntaktyczne (z ang. Abstract Syntax Tree) jest drzewem reprezentuj±cym strukturê kodu ¼ród³owego w pewnym jêzyku programowania.\\ \hline
+%   Czytelno¶æ kodu & \\ \hline
+%   Transparencja & \\ \hline
+%   Abstrakcja & \\ \hline
+%   
+%   
+%   \hline
+% \end{tabular} 
