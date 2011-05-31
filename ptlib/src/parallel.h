@@ -20,7 +20,6 @@ template <typename Exp>
 deferred_value<typename deferred_expression<Exp>::result_type>
 eval(const Exp && exp)
 {
-	std::cout << "Evaluate" << std::endl;
 	auto const p_def_exp = new deferred_expression<Exp>(exp);
 	auto def_val = deferred_value<typename deferred_expression<Exp>::result_type>();
 	p_def_exp->connect_value(def_val);

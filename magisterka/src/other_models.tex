@@ -243,6 +243,7 @@ int main(int argc, char *argv[])
  return 0;
 }
 \end{lstlisting}
+
   W tym programie w±tek g³ówny o identyfikatorze 0 wysy³a wiadomo¶æ ``Hello'' do ka¿dego z w±tków, a nastêpnie oczekuje na odpowied¼ od wszystkich w±tków.
   W±tki pozosta³e czekaj± na wiadomo¶æ, a nastêpnie wysy³aj± odpowied¼.
   
@@ -284,6 +285,31 @@ int main(int argc, char *argv[])
   
   Poni¿ej znajduje siê przyk³ad prezentuj±cy u¿ycie biblioteki Boost Threads:
 \begin{lstlisting}
+
+#include <boost/thread.hpp>
+#include <boost/bind.hpp>
+
+#include <vector>
+#include <iostream>
+
+void hello_function(int n)
+{
+  std::cout << "Hello from thread nr " << n << std::endl;
+}
+
+const size_t threads_num = 20;
+
+int main()
+{
+  std::vector<boost::thread> vt(threads_num);
+  
+  for (int i = 0; i < threads_num; i++)
+  {
+    vt[i] = thread(boost::bind(hello_function, i));
+  }
+  for (int i = 0; i < threads_num; i++)
+    vt.[i].join();
+}
  
 \end{lstlisting}
 

@@ -1,0 +1,122 @@
+\appendix
+
+\chapter{Zawarto¶æ za³±czonej p³yty}
+
+\chapter{Konfiguracja komputera wykorzystanego do testów wydajno¶ciowych}
+
+  Do testów u¿yto komputera z systemem operacyjnym Ubuntu w wersji 10.10.
+  Dok³adn± konfiguracjê komputera, zaprezentowan± poni¿ej, uzyskano poleceniem \verb|lshw|.
+  Za³±czon± jedynie dane istotne z punktu widzenia interpretacji testów, to znaczy
+  informacje o liczbie i wydajno¶ci rdzeni procesorów oraz dane na temat pamiêci RAM.
+  
+  \begin{verbatim}
+   pthink
+    description: Notebook
+    product: 2089WFY
+    vendor: LENOVO
+    version: ThinkPad T500
+    serial: L3AXL6X
+    width: 32 bits
+    capabilities: smbios-2.4 dmi-2.4 smp-1.4 smp
+  *-core
+       description: Motherboard
+       product: 2089WFY
+       vendor: LENOVO
+       physical id: 0
+       version: Not Available
+       serial: VF28895W17A
+     *-firmware
+          description: BIOS
+          vendor: LENOVO
+          physical id: 0
+          version: 6FET66WW (2.16 ) (04/22/2009)
+          size: 128KiB
+          capacity: 8128KiB
+          capabilities: pci pcmcia pnp upgrade shadowing escd cdboot bootselect socketedrom edd acpi usb biosbootspecification
+    *-cpu:0
+          description: CPU
+          product: Intel(R) Core(TM)2 Duo CPU     P8600  @ 2.40GHz
+          vendor: Intel Corp.
+          physical id: 6
+          bus info: cpu@0
+          version: 6.7.10
+          serial: 0001-067A-0000-0000-0000-0000
+          slot: None
+          size: 2400MHz
+          capacity: 2400MHz
+          width: 64 bits
+          clock: 266MHz
+          capabilities: boot fpu fpu_exception wp vme de pse tsc msr pae mce cx8 apic mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe nx x86-64 constant_tsc arch_perfmon pebs bts aperfmperf pni dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm sse4_1 xsave lahf_lm ida tpr_shadow vnmi flexpriority cpufreq
+          configuration: id=0
+        *-cache:0
+             description: L1 cache
+             physical id: a
+             slot: Internal L1 Cache
+             size: 64KiB
+             capacity: 64KiB
+             capabilities: synchronous internal write-back instruction
+        *-cache:1
+             description: L2 cache
+             physical id: c
+             slot: Internal L2 Cache
+             size: 3MiB
+             capacity: 3MiB
+             capabilities: burst internal write-back unified
+        *-logicalcpu:0
+             description: Logical CPU
+             physical id: 0.1
+             width: 64 bits
+             capabilities: logical
+        *-logicalcpu:1
+             description: Logical CPU
+             physical id: 0.2
+             width: 64 bits
+             capabilities: logical
+     *-cache
+          description: L1 cache
+          physical id: b
+          slot: Internal L1 Cache
+          size: 64KiB
+          capacity: 64KiB
+          capabilities: synchronous internal write-back data
+     *-memory
+          description: System Memory
+          physical id: 2b
+          slot: System board or motherboard
+          size: 2GiB
+        *-bank:0
+             description: SODIMM Synchronous 1066 MHz (0.9 ns)
+             product: M471B5673EH1-CF8
+             vendor: 80CE
+             physical id: 0
+             serial: 877BBB48
+             slot: DIMM 1
+             size: 2GiB
+             width: 64 bits
+             clock: 1066MHz (0.9ns)
+        *-bank:1
+             description: SODIMM DDR2 Synchronous 1066 MHz (0.9 ns) [empty]
+             physical id: 1
+             slot: DIMM 2
+             clock: 1066MHz (0.9ns)
+     *-cpu:1
+          physical id: 1
+          bus info: cpu@1
+          version: 6.7.10
+          serial: 0001-067A-0000-0000-0000-0000
+          size: 2401MHz
+          capacity: 2401MHz
+          capabilities: vmx ht cpufreq
+          configuration: id=0
+        *-logicalcpu:0
+             description: Logical CPU
+             physical id: 0.1
+             capabilities: logical
+        *-logicalcpu:1
+             description: Logical CPU
+             physical id: 0.2
+             capabilities: logical 
+  \end{verbatim}
+  
+  Programy testowe by³y kompilowane przy pomocy kompilatora GCC w wersji 4.4.5.
+  Do testów zosta³y wykorzystane biblioteki z kolekcji Boost w wersji 1.42.0.

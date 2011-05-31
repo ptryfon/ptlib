@@ -27,6 +27,9 @@
   I tak odpowiednio funkcja \verb|val| pozwala przekazaæ swój argument do wyra¿enia przez warto¶æ, \verb|cval| przez warto¶æ sta³±, \verb|ref| przez referencjê, \verb|cref| przez sta³± referencjê.
   Ponadto w API znajduje sie wzorzec funkcji pozwalaj±cy na uleniwione wywo³ywanie funkcji, \verb|lazyf|.
   Dok³adna rola i sposób tych funkcji jest opisana w sekcji \nameref{s:przekazywanie_wyrazen}.
+  Nale¿y dodaæ, i¿ program korzystaj±cy z biblioteki Parallel musi przed rozpoczêciem zlecania wyra¿eñ do obliczenia wywo³aæ funkcjê \verb|init|
+  inicjalizuj±c± bibliotekê i ustalaj±c± liczbê w±tków w puli mechanizmu ewaluacji.
+  Korzystanie z biblioteki Parallel powinno zakoñczyæ siê wywo³aniem funkcji \verb|close|, która zwalnia zasoby zaalokowane przez bibliotekê.
   
 \subsection{Operacje wykonywane w kodzie biblioteki Parallel}\label{ss:operacje}
 
@@ -566,6 +569,7 @@ inline double eval(double d) {return d;}
 
   Jêzyk C++ pozwala na przeci±¿enie wszystkich operatorów, oprócz \verb|::|, \verb|.| oraz \verb|.*|.
   Przecie¿anie operatorów dla obiektów \dval ma sens dla zdecydowanej wiêkszo¶ci, ale nie dla wszystkich operatorów.
+  Za bezcelowo uznano przeci±¿anie operatorów \verb|->*| i \verb|->|.
   Przedefiniowanie operatorów \verb|new|, \verb|new []|, \verb|delete| oraz \verb|delete []| nie by³o potrzebne.
   Ponadto domy¶lne zachowanie operatora \verb|,| jest odpowiednie dla typu \dval.
   Pozosta³e operatory zosta³y przedefinowane w taki sposób, aby uzyskaæ taki efekt, ¿e obiektów \dval mo¿na u¿ywaæ wszêdzie tam, gdzie mo¿na u¿yæ typu, który dany obiekt \dval reprezentuje.
@@ -573,7 +577,7 @@ inline double eval(double d) {return d;}
   Oto pe³na lista przeci±¿onych operatorów:
   \begin{verbatim}
    +  -  *  /  %  ^  &  |  ~  !  =  <  >  <<   >>  +=  -=  *=  /=  %=  ^=  
-   &=  |=  >>=  <<=  ==  !=  <=  >=  &&   ||  ++  --  ->*  ->  []  ()
+   &=  |=  >>=  <<=  ==  !=  <=  >=  &&   ||  ++  --  []  ()
   \end{verbatim}
 % 
 %   Dla ilustracji sposobu implementacji funkcji prze³adowuj±cych operatory dla obiektów \dval pos³u¿ê siê przyk³adami poni¿ej:

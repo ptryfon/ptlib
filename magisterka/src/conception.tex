@@ -301,3 +301,143 @@
   Kod programu otrzymuje warto¶æ i mo¿e dalej prowadziæ swoje obliczenia.
   Tak wygl±da jeden cykl skorzystania z mechanizmu zlecania wyra¿eñ do równoleg³ego wyliczenia w bibliotece Parallel.
   
+\newpage
+\input{other_models}
+
+\newpage
+\section{Zaawansowane przyk³ady u¿ycia biblioteki Parallel}
+
+  Opis koncepcji biblioteki Parallel zakoñczê pokazaniem zaawansowanych przyk³adów wykorzystania biblioteki Parallel do prowadzenia równoleg³ych obliczeñ.
+  W pierwszym z przyk³adów poka¿e w jaki sposób biblioteka Parellel mo¿e s³u¿yæ do zrównoleglenia algorytmu szybkiego sortowania (z ang. quicksort).
+  Drugi przyk³ad wykorzystuj±cy w jeszcze wiêkszej mierze mo¿liwo¶ci biblioteki Parallel poka¿e zdecydowan± przewagê biblioteki Parallel nad standardow± bibliotek± do obs³ugi wielu w±tków Boost.Threads.
+  
+\subsection{Równoleg³e szybkie sortowanie}
+
+  Moja implementacja zrównoleglonego szybkiego sortowania opiera siê na prostej idei ``dziel i zwyciê¿aj''. 
+  W ka¿dym rekurencyjnym wywo³aniu funkcji \verb|parallel_quicksort| na pocz±tku wywo³ywana jest funkcja \verb|partition|, 
+  dziel±ca tablicê na czê¶ci o elementach mniejszych od pewnego wyró¿nionego elementu i o elementach wiêkszych od tego¿ elementu.
+  Nastêpnie, je¶li podtablice do posortowania s± wystarczaj±co du¿e (w przyk³adzie limit zosta³ ustalony na 100 elementów) to wywo³ywana jest rekurencyjnie funkcja \verb|parallel_quicksort|.
+  Je¶li podtablica jest mniejsza to jest sortowana standardowym algorytmem sekwencyjnym szybkiego sortowania.
+  
+  Implementacje dostarczy³em w dwóch wersjach.
+  Jedna jest zaimplementowana przy u¿yciu biblioteki Boost.Threads, a druga przy u¿yciu biblioteki Parallel.
+  Oto implementacja wykorzystuj±ca standardow± bibliotekê do obs³ugi wielow±tkowo¶ci:
+  \begin{lstlisting}
+const unsigned limit = 100;
+  
+template <typename Item>
+void thread_quicksort(Item array[], size_t l, size_t r)
+{
+  if (l < r)
+  {
+    size_t s = partition(array, l, r);
+    boost::thread thread;
+    if (s - l > limit) 
+      thread = boost::thread(
+	boost::bind(quicksort<int>, array, l, s - 1));
+    else
+      quicksort(array, l, s - 1);
+    quicksort(array, s + 1, r);
+    if (s - l > limit)
+      thread.join();
+  }
+}
+  \end{lstlisting}
+  
+  Jak widzimy dla ka¿dego równoleg³ego wywo³ania funkcji \verb|paralell_quicksort| musi zostaæ stworzony w±tek, poniewa¿ Boost.Threads nie posiada puli w±tków.
+  \footnote{Oczywi¶cie pulê w±tków mo¿na zaimplementowaæ wykorzystuj±c Boost.Threads, ale moim celem by³o pokazanie przyk³adów zrównoleglenia szybkiego sortowania, 
+  których napisanie by³o podobne pod wzglêdem struktury kodu i pracoch³onno¶ci.}
+  W przypadu du¿ych tablic mo¿e to skutkowaæ spowolnieniem dzia³ania programu z powodu zbyt du¿ego obci±¿enia systemu w±tkami i zbyt czêstych prze³±czeñ kontekstu.
+  
+  W poni¿szy sposób wygl±da analogiczna implementacja szybkiego sortowania korzystajaca z biblioteki Parallel:
+  \begin{lstlisting}
+const unsigned limit = 100;
+  
+template <typename Item>
+void parallel_quicksort(Item array[], size_t l, size_t r)
+{
+  if (l < r)
+  {
+    size_t s = partition(array, l, r);
+    deferred_value<void> tmp;
+    if (s - l > limit)
+      tmp = parallel::eval(
+	parallel::lazyf(quicksort<int>, array, l, s - 1));
+    quicksort(array, s + 1, r);
+    if (s - l > limit)
+      tmp.force();
+  }
+}
+  \end{lstlisting}
+  
+  Ta implementacja ma tê przewagê, ¿e w±tki s± tworzone tylko raz, podczas inicjalizacji biblioteki Parallel i ich ilo¶æ jest ustalona.
+  Zatem nie jest mo¿liwe przeci±¿enie systemu niekontrolowanym rozmno¿eniem siê w±tków.
+  Poza istotn± korzy¶ci± zwi±zan± z brakiem potrzeby zarz±dzania w±tkami, w samej strukturze programu nie widaæ znacz±cych korzy¶ci z wyboru biblioteki Parallel.
+  Kod wygl±da bardzo podobnie.
+  Aby pokazaæ zalety Parallel w porównaniu ze standardowymi bibliotekami bêdzie potrzebny kolejny przyk³ad.
+
+\subsection{Równoleg³e sumowanie elementów tablicy}
+
+  Przyk³ad zrównoleglenia sumowania elementów tablicy poka¿e jak wygodna jest sk³adnia bibioteki Parallel 
+  w porównianiu ze sk³adni± biblioteki Boost.Threads, gdy równoleg³e obliczenia musz± zwróciæ pewn± warto¶æ.
+  
+  Tak wygl±da implementacja wielow±tkowa napisana w oparciu o Boost.Threads:
+  \begin{lstlisting}
+void sum(int* wynik, int* begin, int* end)
+{
+  *wynik = 0;
+  for (int* i = begin; i != end; i++) *wynik += *i;
+}  
+
+int array_sum_thread(int* array, size_t size)
+{
+  int s1, s2, s3, s4;
+  boost::thread t1(
+    boost::bind(sum, &s1, array, array + size/4));
+  boost::thread t2(
+    boost::bind(sum, &s2, array + size/4 + 1, array + size/2));
+  boost::thread t3(
+    boost::bind(sum, &s3, array + size/2 + 1, 3*size/4));
+  boost::thread t4(
+    boost::bind(sum, &s4, array + 3*size/4 + 1, array + size));
+  t1.join();
+  t2.join();
+  t3.join();
+  t4.join();
+  return s1 + s2 + s3 + s4;
+}
+  \end{lstlisting}
+  W tej implementacji niezbêdne by³o zaimplementowanie funkcji sumuj±cej pewien odcinek tablicy, który zwraca wynik przez jeden z argumentów,
+  poniwa¿ w±tki nie zwracaj± ¿adnych warto¶ci.
+  Oczywi¶cie, w przypadku tak prostej implementacji nie ma mo¿liwo¶ci ¿adnej obs³ugi b³êdów, które mog± pojawiæ siê podczas obliczeñ.
+  Ponadto programista musia³ zadbaæ o synchronizacjê w±tków, w tym przypadku poprzez wywo³anie funkcji \verb|join| na ka¿dym z w±tków.
+  
+  Nieco inaczej wygl±da funkcja napisana przy pomocy biblioteki Parallel:
+  \begin{lstlisting}
+int sum(int* begin, int* end)
+{
+  int s = 0;
+  for (int* i = begin; i != end; i++) s += *i;
+  return s;
+}
+  
+int array_sum_parallel(int* array, size_t size)
+{
+  deferred_value<in> sum = parallel::evaluate(
+    *parallel::lazyf(sum, array, array + size/4));
+  for (int i = 1; i < 4; i++)
+  {
+    sum += parallel::evaluate(parallel::lazyf(
+      sum, array + (i * size)/4 + 1, array + ((i+1) * size)/4));
+  }
+  return sum;
+}
+  \end{lstlisting}
+  Funkcja sumuj±ca tablicê w tym przyk³adzie ma czê¶ciej spotykan± postaæ, w której wynik zwracany jest w standardowy sposób.
+  W zwi±zku z tym czêsto w praktycznych zastosowaniach bêdzie mo¿na zastosowaæ istniej±c± funkcjê, co zwiêkszy czêsto¶æ ponownego u¿ycia kodu.
+  W przyk³adzie nie widaæ ¿adnego ¶ladu jawnej synchronizacji pomiêdzy w±tkami.
+  Dziêki odpowiedniej implementacji warto¶ci odroczonych synchronizacja zarz±dzana jest automatycznie przez bibliotekê.
+  Pomimo tego, ¿e w linii 13. przyk³adu sum jest u¿ywane to prze³adowanie operatora \verb|+=| sprawia, ¿e obliczenie warto¶ci odroczonej nie jest wymuszane
+  i wszystkie obliczenia wykonuj± siê równocze¶nie.
+  Dopiero w linii 15, gdzie warto¶æ odroczona \verb|sum| jest konwertowana do \verb|int| nastêpuje pobranie wyniku ze wszystkich zleconych obliczeñ i zwrócenie warto¶ci.
+ 

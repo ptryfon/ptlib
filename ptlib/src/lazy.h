@@ -10,6 +10,10 @@
 
 #include <boost/proto/proto.hpp>
 
+#include <boost/type_traits.hpp>
+#include <boost/type_traits/is_function.hpp>
+#include <boost/type_traits/is_member_function_pointer.hpp>
+
 namespace ptlib { namespace parallel
 {
 
@@ -60,28 +64,36 @@ rval(T && arg)
 	return proto::make_expr<proto::tag::terminal>(arg);
 }
 
-//TODO
-template <typename T>
+//template <typename R>
+//inline typename proto::result_of::make_expr<
+//	proto::tag::function,
+//	R(*)()>::type const
+//lazyf(R (*fun)) {return proto::make_expr<proto::tag::function>(fun);}
+
+template <typename F>
 inline typename proto::result_of::make_expr<
 	proto::tag::function,
-	const T>::type const
-lazyf(const T fun) {return proto::make_expr<proto::tag::function>(fun);}
+	const F>::type const
+lazyf(const F fun) {return proto::make_expr<proto::tag::function>(fun);}
 
-template <typename T, typename U>
+template <typename F, typename Arg1>
 inline typename proto::result_of::make_expr<
 	proto::tag::function,
-	const T,
-	U>::type const
-lazymf(const T fun, U arg1) { return proto::make_expr<proto::tag::function>(fun, arg1); }
+	const F,
+	Arg1>::type const
+lazyf(const F fun, Arg1 arg1) { return proto::make_expr<proto::tag::function>(fun, arg1); }
 
 
-template <typename T, typename Arg1, typename Arg2>
+template <typename F, typename Arg1, typename Arg2>
 inline typename proto::result_of::make_expr<
 	proto::tag::function,
-	const T,
+	const F,
 	Arg1,
 	Arg2>::type const
-lazyf(T fun, Arg1 arg1, Arg2 arg2) { return proto::make_expr<proto::tag::function>(fun, arg1, arg2); }
+lazyf(F fun, Arg1 arg1, Arg2 arg2)
+{
+	return proto::make_expr<proto::tag::function>(fun, arg1, arg2);
+}
 
 template <typename T, typename Arg1, typename Arg2, typename Arg3>
 inline typename proto::result_of::make_expr<

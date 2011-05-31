@@ -13,6 +13,8 @@
 #include <boost/test/unit_test.hpp>
 #include <cmath>
 #include <iostream>
+#include <boost/bind.hpp>
+#include <boost/function.hpp>
 namespace parallel = ptlib::parallel;
 
 using namespace std;
@@ -26,12 +28,20 @@ struct CorrectnessFixture {
 
 BOOST_FIXTURE_TEST_SUITE(correctness_tests, CorrectnessFixture)
 
+int foo()
+{
+	cout << "fooo" << endl;
+	return 3;
+}
+
 //BOOST_AUTO_TEST_CASE ( basic_exp_test )
 //{
 //	int a = 4;
 //	int b = 5;
-//	auto d = parallel::eval(val(a) + cref(b));
+//	auto d = parallel::eval(val(a) + parallel::cref(b));
+//	auto e = 5 + d;
 //	BOOST_CHECK(4 + 5 == d);
+//	BOOST_CHECK(4 + 5 + 5 == e);
 //}
 
 struct complex
@@ -39,7 +49,12 @@ struct complex
 	double r;
 	double i;
 	struct complex & operator =(const struct complex &);
-	void swap(struct complex & r);
+	void transpose() { std::swap(r, i); }
+	static void swap(struct complex& l, struct complex & r)
+	{
+		std::swap(l.r, r.r);
+		std::swap(l.i, r.i);
+	}
 };
 
 struct complex operator + (const struct complex & l, const struct complex & r)
@@ -72,26 +87,62 @@ struct complex & complex::operator = (const struct complex & r)
 //	BOOST_CHECK(c == d);
 //}
 
-BOOST_AUTO_TEST_CASE ( complex_assignment_test )
+//BOOST_AUTO_TEST_CASE ( complex_assignment_test )
+//{
+//	struct complex a = {2,3};
+//	struct complex b = {3,4};
+//	struct complex c = b;
+//	auto d = parallel::eval(parallel::ref(a) = b);
+//	BOOST_CHECK(c == d);
+//}
+
+int power(int b, int e)
 {
-	struct complex a = {2,3};
-	struct complex b = {3,4};
-	struct complex c = b;
-	auto d = parallel::eval(parallel::ref(a) = b);
-	BOOST_CHECK(c == d);
+	unsigned ret = 1;
+	for (;e > 0; e--)
+	{
+		ret *= b;
+	}
+	return ret;
 }
 
-//class Foo
+//BOOST_AUTO_TEST_CASE ( basic_function_test)
 //{
-//public:
-//	void foo() { cout << "Fo" << endl; return;}
-//};
-//
-//BOOST_AUTO_TEST_CASE( member_function_test )
+//	auto d = parallel::eval(lazyf(power, 10, 3));
+//	BOOST_CHECK(1000 == d);
+//}
+
+
+//BOOST_AUTO_TEST_CASE( complex_swap_test )
 //{
-//	Foo f;
-//	auto d = parallel::eval(lazym(&Foo::foo, f));
+//	struct complex a = {2,3};
+//	struct complex b = {3,4};
+//	struct complex c = a;
+//	cout << &a << endl;
+//	auto d = parallel::eval(parallel::lazyf(&complex::swap, boost::ref(a), boost::ref(b)));
 //	d.force();
+//	BOOST_CHECK(c == b);
+//}
+
+//BOOST_AUTO_TEST_CASE( complex_member_function_test )
+//{
+//	struct complex a = {2,3};
+//	struct complex b = {3,2};
+//	auto d = parallel::eval(lazyf(&complex::transpose, &a));
+//	d.force();
+//	BOOST_CHECK(a == b);
+//}
+
+int throw_exception_number(int n)
+{
+	throw n;
+	return n;
+}
+
+//BOOST_AUTO_TEST_CASE ( simple_exception_test )
+//{
+//	auto d = parallel::eval(lazyf(throw_exception_number, 5));
+//	BOOST_CHECK_THROW(d.get_value(), std::exception);
 //}
 
 BOOST_AUTO_TEST_SUITE_END()

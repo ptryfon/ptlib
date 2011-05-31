@@ -1,7 +1,7 @@
 \chapter{Ewaluacja biblioteki}\label{r:ewaluacja}
 
-Ewaluacja biblioteki mia³a na celu weryfikacjê czy wykonana biblioteka dzia³a poprawnie i jaka jest jej wydajno¶æ.%czy spe³nia cele, które zosta³y dla niej wytyczone.
-Poszczególne etapy weryfikacji zosta³y opisane w odpowiednich sekcjach tego rozdzia³u.
+  Ewaluacja biblioteki mia³a na celu weryfikacjê czy wykonana biblioteka dzia³a poprawnie i jaka jest jej wydajno¶æ.
+  Poszczególne etapy weryfikacji zosta³y opisane w odpowiednich sekcjach tego rozdzia³u.
 
 \section{Testy poprawno¶ci}
 
@@ -11,7 +11,7 @@ Poszczególne etapy weryfikacji zosta³y opisane w odpowiednich sekcjach tego rozd
   \begin{itemize}
    \item wyra¿enie z ró¿nymi rodzajami typów:
     \begin{itemize}
-     \item wyra¿enie z wy³±cznie typami prostymi,
+     \item wyra¿enie z typami prostymi,
      \item wyra¿enie zawierajace obiekty z³o¿one.
     \end{itemize}
    \item wyra¿enia z ró¿nymi formami przekazywania zmiennych:
@@ -26,7 +26,8 @@ Poszczególne etapy weryfikacji zosta³y opisane w odpowiednich sekcjach tego rozd
      \item wyra¿enie zwracaj±ce typ prosty,
      \item wyra¿enie zwracaj±ce typ z³o¿ony,
      \item wyra¿enie zwracaj±ce referencjê,
-     \item wyra¿enie zwracaj±ce wska¼nik.
+     \item wyra¿enie zwracaj±ce wska¼nik,
+     \item wyra¿enie, którego obliczenie wywo³a³o wyj±tek.
     \end{itemize}
    \item wyra¿enie zawieraj±ce wywo³ania funkcji:
     \begin{itemize}
@@ -41,41 +42,63 @@ Poszczególne etapy weryfikacji zosta³y opisane w odpowiednich sekcjach tego rozd
   Zaimplementowany zestaw testów pokrywa wszystkie z wymienionych przypadków.
   
   Dla wszystkich przypadków biblioteka uzyska³a wynik pozytywny.
-  Pokazuje to, ¿e biblioteka dzia³a poprawnie dla pewnego reprezentatywnego zbioru przyk³adów wyra¿eñ w jêzyku C++.
-  Pozwala to przypuszczaæ, ¿e biblioteka potrafi obs³u¿yæ poprawnie dowolne wyra¿enie jêzyka C++.
+  Pokazuje to, ¿e biblioteka dzia³a poprawnie dla reprezentatywnego zbioru przyk³adów wyra¿eñ w jêzyku C++.
+  Pozwala to s±dziæ, ¿e biblioteka potrafi obs³u¿yæ poprawnie dowolne wyra¿enie jêzyka C++.
   
-\section{Testy wydajno¶ciowe}
+\section{Test wydajno¶ciowy}
 
-  Testy wydajno¶ciowe biblioteki zosta³y przeprowadzone poprzez porównanie wyników wykonania programów zaimplementowanych przy wykorzystaniu biblioteki Parallel
-  z programami napisanymi sekwencyjnie lub przy u¿yciu standardowego mechanizmu w±tków Boost.Threads.
-  Celem testów by³o pokazanie, i¿
+  Test wydajno¶ciowy biblioteki zosta³ przeprowadzony poprzez porównanie wyników wykonania algorytmu szybkiego sortowania (z ang. quicksort) zaimplementowanego sekwencyjnie, przy wykorzystaniu biblioteki Parallel
+  lub przy u¿yciu standardowego mechanizmu w±tków Boost.Threads.
+  Celem testów by³o sprawdzenie prawdziwo¶ci hipotez:
   \begin{itemize}
-   \item programy u¿ywajace biblioteki Parallel dzia³aj± nie wolniej ni¿ programy sekwencyjne,
-   \item odpowiednio napisany program u¿ywajacy biblioteki Parallel potrafi uzyskaæ przyspieszenie proporcjonalne do liczby wykorzystywanych procesorów,
-   \item czas dzia³ania programów napisanych u¿ywajaæ bibliotek Parallel i Boost.Threads jest zbli¿ony, z przewag± biblioteki Parallel wynikaj±cej z zastosowania puli w±tków.
+   \item Programy u¿ywajace biblioteki Parallel dzia³aj± nie wolniej ni¿ programy sekwencyjne.
+   \item Odpowiednio napisany program u¿ywajacy biblioteki Parallel potrafi uzyskaæ przyspieszenie proporcjonalne do liczby wykorzystywanych procesorów.
+   \item Czas dzia³ania programów napisanych u¿ywajaæ bibliotek Parallel i Boost.Threads jest zbli¿ony, z przewag± biblioteki Parallel wynikaj±cej z zastosowania puli w±tków.
   \end{itemize}
   
-  Dla pisania testów przyjêto zastosowanie prostych metod progamowania równoleg³ego, gdy¿ aby ró¿ne implementacje mo¿na by³o ze sob± porównywaæ powinny one dzia³aæ podobnie.
+  Dla pisania testu przyjêto zastosowanie uproszczonych metod programowania równoleg³ego, gdy¿ aby ró¿ne implementacje mo¿na by³o ze sob± porównywaæ powinny one dzia³aæ podobnie.
   Dlatego najpierw pisany by³ program sekwencyjny.
-  Nastêpnie, w celu stworzenia implementacji korzystaj±cych z Parallel i Boost.Threads, identyfikowane by³y fragmenty kodu, które mo¿na by³o zrównolegliæ i dokonywano tego korzystaj±c z odpowiednich funkcji bibliotek.
-  
+  Nastêpnie, w celu stworzenia implementacji korzystaj±cych z Parallel i Boost.Threads, zrównoleglane by³y fragmenty kodu, które zosta³y zidentyfikowane jako odpowiednie do zastosowania obliczeñ równoleg³ych.
   Dla tak przygotowanych programów mierzono czasy wykonania przy u¿yciu biblioteki Boost Posix Time.
-  Opisy i wyniki testów zosta³y zaprezentowane poni¿ej.
   
-\subsection{Test szybkiego sortowania}
+\subsection{Parametry testu}
 
-  Test szybkiego sortowania zosta³ zaimplementowany na bazie algorytmu quicksort.
-  Do testów wykorzystano tablicê liczb ca³kowitych generowanych przy pomocy liczb pseudolosowych z ustalon± warto¶ci± pocz±tkow±\footnote{Ustalenie warto¶ci pocz±tkowej ci±gu liczb pseudolosowych ma s³u¿yæ powtarzalno¶ci testu.} tablica liczb ca³kowitych o d³ugo¶ci ...
-  Tablica mie¶ci³a ... liczb ca³kowitych, osi±gaj±c rozmiar MB.
+  Do testów wykorzystano tablicê liczb ca³kowitych generowanych przy pomocy liczb pseudolosowych z ustalon± warto¶ci± pocz±tkow±\footnote{Ustalenie warto¶ci pocz±tkowej ci±gu liczb pseudolosowych ma s³u¿yæ powtarzalno¶ci testu.}.
+  Tablica mie¶ci³a 200 000 000 liczb ca³kowitych, osi±gaj±c rozmiar oko³o 800 000 000 MB.
   
   W ka¿dej z równoleg³ych implementacji zastosowano zasadê ``Dziel i zwyciê¿aj'', to znaczy problem sortowania by³ dzielony na mniejsze, które nastêpnie by³y rozwi±zywane równolegle.
-  Fragmenty tablicy poni¿ej 1000 elementów by³y sortowane ju¿ sekwencyjnie.
-  Implementacja testów jest do wgl±du w za³±czonych do pracy plikach w folderze ptlib-test.
+  Fragmenty tablicy poni¿ej 1 000 000 elementów by³y sortowane sekwencyjnie.
+  Implementacja testów jest do wgl±du w za³±czonych do pracy plikach ¼ród³owych w folderze ptlib-test.
+  Dane na temat systemu komputerowego u¿ytego do testów znajduj± siê w dodatku B niniejszej pracy.
+  Najwa¿niejsz± informacj± jest fakt, i¿ komputer posiada³ procesor wyposa¿ony w dwa rdzenie.
   
-  Oto wyniki testów:
+\subsection{Wyniki testu}
   
-\subsection{Test przetwarzania tablicy}
+  Ka¿dy z testów zosta³ przeprowadzony 30 razy, a wyniki zosta³y u¶rednione, w celu uniezale¿nienia wyniku od chwilowych wahañ wydajno¶ci komputera.
+  Oto otrzymane rezultaty:
+  \begin{itemize}
+   \item sortowanie szybkie sekwencyjne: 	36,29 s.
+   \item sortowanie szybkie z Boost.Thread: 	20,96 s.
+   \item sortowanie szybkie z Parallel: 	20,82 s.
+  \end{itemize}
 
+  Przyspieszenie osi±gniête w wyniku zrównoleglenia algorytmu szybkiego sortowania wynios³o 1,74 w przypadku implementacji u¿ywaj±cej biblioteki Parallel
+  i 1,73 dla implementacji z Boost.Thread.
+  
+\subsection{Podsumowanie wyników testu}
+
+  Wyniki przeprowadzonych testów potwierdzi³y postawione hipotezy. 
+  Algorytm szybkiego sortowania dzia³a³ po zrównolegleniu znacznie szybciej ni¿ wersja sekwencyjna.
+  Uzyskane przyspieszenie by³o proporcjonalne do liczby jednostek obliczeniowych, wykorzystanych do wykonania programu.
+  Czasy wykonania programów zaimplementowanych w oparciu o Parallel i Boost.Thread ró¿ni³y siê nieznacznie, z niewielk± przewag± na rzecz biblioteki Parallel.
+  Przewaga ta znajdowa³a siê w granicy b³êdu statystycznego, jednak mog³aby zostaæ uwypuklona w przypadku, gdy wyst±pi³oby wiêcej operacji tworzenia w±tków
+  w implementacji korzystaj±cej z biblioteki Boost.Thread.
+  
+  Inn± obserwacj± poczynion± podczas przeprowadzania testów by³o b³êdne wykonanie programu korzystaj±ceo z biblioteki Boost.Thread, w przypadku zmniejszenia
+  rozmiaru tablicy, która by³a sortowana sekwencyjnie do 50 000. 
+  Powodem by³a próba stworzenia wiêkszej liczby w±tków ni¿ pozwala³a na to konfiguracja wykorzystanego do testów komputera.
+  Dla tych samych parametrów program u¿ywaj±cy Parallel wykona³ siê bezb³êdnie.
+  
 % 
 % \section{Ocena realizacji celów}
 % 
