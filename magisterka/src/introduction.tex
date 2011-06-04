@@ -2,38 +2,37 @@
 \chapter*{Wprowadzenie}
 \addcontentsline{toc}{chapter}{Wprowadzenie}
 
-  Równoleg³e prowadzenie obliczeñ nie jest nowym tematem w informatyce, gdy¿ liczy sobie ju¿ ponad 50 lat\cite{parhist}.
-  Trudno wyznaczyæ jeden punkt lub jedn± pracê, która zapocz±tkowa³a ten kierunek rozwoju informatyki, ale niew±tpliwie do jej pionierów nale¿eli tak znani naukowcy jak
-  Amdahl (prawo Amdahl-a), Flynn (klasyfikacja Flynna), Dijkstra (problem sekcji krytycznych oraz semafory), Petri (sieci Petriego).
+  Równoleg³e prowadzenie obliczeñ nie jest w informatyce tematem nowym, gdy¿ liczy sobie ju¿ ponad 50 lat\cite{parhist}.
+  Trudno jednak¿e wskazaæ konkretny punkt lub pracê, które zapocz±tkowa³y ten kierunek rozwoju informatyki, ale niew±tpliwie do jego pionierów nale¿eli tak znani naukowcy jak
+  Amdahl (prawo Amdahla), Flynn (klasyfikacja Flynna), Dijkstra (problem sekcji krytycznych oraz semafory) czy Petri (sieci Petriego).
   
   Zrównoleglanie obliczeñ jest jednym ze sposobów przyspieszania wydajno¶ci systemów komputerowych.
-  Szczególnego znaczenia nabra³o ostatnimi czasy, poniewa¿ rozwój technologii mikroprocesorowej dotar³ do takiego momentu, ¿e przyspieszanie pojedyñczego uk³adu sta³o siê trudne i dlatego nieop³acalne.
-  St±d obecnie kierunek rozwoju wyznaczany jest przez równoleg³o¶æ, to znaczy umieszczanie w procesorach komputerów wielu uk³adów wykonuj±cych obliczenia równolegle w jednym czasie.
-  Takie rozwi±zanie teoretycznie pozwala na uzyskanie przyspieszenia wprost proporcjonalnego do liczby uk³adów umieszczonych w procesorze.
-  ¯eby sie jednak tak sta³o programy wykonywane na takim procesorze powinny byæ w stanie wykorzystaæ te mo¿liwo¶ci.
+  Metoda ta nabra³a ostatnio szczególnego znaczenia, poniewa¿ rozwój technologii mikroprocesorowej dotar³ do takiego momentu, ¿e przyspieszanie pojedyñczej jednostki obliczeniowej sta³o siê trudne i w zwi±zku z tym nieop³acalne.
+  Ze wzglêdu na to obecnie kierunek rozwoju wyznaczany jest przez równoleg³o¶æ, to znaczy umieszczanie w procesorach komputerów wielu uk³adów wykonuj±cych obliczenia równolegle w jednym czasie.
+  Takie rozwi±zanie pozwala teoretycznie na uzyskanie przyspieszenia wprost proporcjonalnego do liczby uk³adów umieszczonych w procesorze.
+  Aby uzyskaæ wspomniany wzrost wydajno¶ci, programy wykonywane na takim procesorze powinny byæ w stanie wykorzystaæ mo¿liwo¶ci procesorów wielordzeniowych.
   
-  Zatem w programach powinno byæ stosowane równoleg³e prowadzenie obliczeñ, jednak¿e pomimo d³ugo rozwijanej teorii oraz narzêdzi wspieraj±cych, programowanie równoleg³e wcia¿ pozostaje bardzo trudne do zastosowania w praktyce.
+  Jednak¿e, pomimo d³ugo rozwijanej teorii oraz narzêdzi wspieraj±cych, programowanie równoleg³e wci±¿ pozostaje bardzo trudne do zastosowania w praktyce.
   Dzieje siê tak, poniewa¿ wykorzystanie kilku w±tków wykonania programu, drastycznie zwiêksza z³o¿ono¶æ pracy programistycznej.
-  Programista, aby napisaæ program wspó³bie¿ny (\cite{barney}) musi w pierwszej kolejno¶ci zidentyfikowaæ fragmeny obliczeñ, które mog± zostaæ zrównoleglone.
-  Nastêpnie powinien zaprojektowaæ sposób w jaki poszczególne ci±gi wykonania siê ze sob± komunikuj± i w jaki sposób s± synchronizowane.
+  Programista, aby napisaæ program wspó³bie¿ny (\cite{barney}) musi w pierwszej kolejno¶ci zidentyfikowaæ fragmenty obliczeñ, które mog± zostaæ zrównoleglone.
+  Nastêpnie powinien zaprojektowaæ sposób, w jaki poszczególne w±tki wykonania siê ze sob± komunikuj± i w jaki s± synchronizowane.
   W celu zapewnienia efektywno¶ci programu programista powinien uwzglêdniæ w projekcie równie¿ balansowanie rozk³adu pracy pomiedzy poszczególne w±tki wykonania.
   
-  Programistê w zmaganiach z pisaniem programów wspieraj± ró¿norodne narzêdzia, jêzyki programowania specjalnie zaprojektowane do obliczeñ równoleg³ych jak Ada lub biblioteki oferuj±ce wykonywanie obliczeñ równoleg³ych
-  w jêzykach natywnie sekwencyjnych.
-  Zazwyczaj te pierwsze wywi±zuj± siê ze swojego zadania dobrze, gdy¿ zosta³y s± dedykowane do programowania równoleg³ego, lecz nie s± popularne w zastosowaniach praktycznych.
-  Wiêkszym problemem jest korzystanie z tych drugich, poniewa¿ jêzyk sekwencyjny zazwyczaj nie pozwala na zaprojektowanie biblioteki mog±cej konkurowaæ prostot± i intiucyjno¶ci± z jêzykiem do programowania równoleg³ego.
-  W praktyce potrzeba skorzystania z bibliotek dla jêzyków sekwencyjnych wystêpuje zdecydowanie czê¶ciej, poniewa¿ jêzyki sekwencyjnie s± znacznie szerzej stosowane.
-  Niniejsza praca podejmuje próbê stworzenia takiej biblioteki dla jêzyka C++.
-  Nadrzêdnymi priorytetami podczas projektowania biblioteki Parallel by³o zapewnienie ³atwo¶ci pisania programów równoleg³ych (ukrycie niepotrzebnych detali przed programist±) z jednoczesnym pozostawieniem pe³nej kontroli 
-  nad wykonaniem programu w rêkach programisty. 
-  Dziêki temu mia³y zostaæ osi±gniête dwa g³ówne cele projektowania biblioteki zwiêkszeni produktywno¶ci programisty oraz zwiêkszenie szybko¶ci dzia³ania programów (przyspieszonych przez wykorzystanie równoleg³o¶ci).
+  Programistê w zmaganiach z pisaniem programów wspó³bie¿nych wspieraj± ró¿norodne narzêdzia, jêzyki programowania specjalnie zaprojektowane do obliczeñ równoleg³ych, takie jak Ada, 
+  lub biblioteki oferuj±ce wykonywanie obliczeñ równoleg³ych w jêzykach natywnie sekwencyjnych.
+  Pierwsze wywi±zuj± siê zazwyczaj dobrze ze swojego zadania, gdy¿ s± dedykowane do programowania równoleg³ego, lecz nie s± popularne w zastosowaniach praktycznych.
+  Wiêkszym problemem jest korzystanie z drugiego typu narzêdzi, poniewa¿ jêzyk sekwencyjny czêsto nie pozwala na zaprojektowanie biblioteki mog±cej konkurowaæ prostot± i intuicyjno¶ci± z jêzykiem do programowania równoleg³ego.
+  W praktyce potrzeba skorzystania z bibliotek dla jêzyków sekwencyjnych wystêpuje zdecydowanie czê¶ciej, poniewa¿ jêzyki sekwencyjne s± znacznie szerzej stosowane.
+  Niniejsza praca podejmuje próbê stworzenia biblioteki Parallel dla jêzyka C++ umo¿liwiaj±cej równoleg³e prowadzenie obliczeñ.
+  Nadrzêdnymi priorytetami podczas projektowania biblioteki by³o zapewnienie ³atwo¶ci pisania programów równoleg³ych z jednoczesnym pozostawieniem pe³nej kontroli nad wykonaniem programu w rêkach programisty. 
+  Dziêki temu mia³y zostaæ osi±gniête dwa g³ówne cele projektowania biblioteki: zwiêkszenie produktywno¶ci programisty oraz zwiêkszenie szybko¶ci dzia³ania programów (przyspieszonych przez wykorzystanie równoleg³o¶ci).
   
-  Biblioteka Parallel pozwala na zrównoleglanie obliczeñ w zwiêz³y sposób, który nie ingeruje znacz±co w strukture kodu.
-  Aby z niej skorzystaæ wystarczy nieznacznie zmodyfikowane wyra¿enie zgodne ze specyfikacj± biblioteki Parallel przekazaæ do funkcji bibliotecznej \verb|eval|.
-  To powoduje przekazanie tego wyra¿enia do wyliczenia przez aparat wykonawczy biblioteki Parallel i zwrócenie wyliczonej warto¶ci.
-  Najlepiej obja¶ni tê sytuacjê przyk³ad wykorzystania biblioteki.
-  Pos³u¿ê siê przyk³adem funkcji obliczaj±cej n-t± liczbê Fibonacciego.
-  Standardowo w jêzyku C++ taki kod wygl±da nastêpuj±co:
+  Biblioteka Parallel pozwala na zrównoleglanie obliczeñ w sposób, który nie ingeruje znacz±co w strukturê kodu.
+  W celu skorzystania z biblioteki wystarczy przekazaæ nieznacznie zmodyfikowane wyra¿enie zgodne ze specyfikacj± biblioteki Parallel do funkcji bibliotecznej \verb|eval|, 
+  co spowoduje przekazanie tego wyra¿enia do wyliczenia przez aparat wykonawczy biblioteki Parallel, a nastêpnie zwrócenie wyliczonej warto¶ci.
+  Najlepiej obja¶ni to przyk³ad wykorzystania biblioteki.
+  Pos³u¿ê siê w tym celu definicj± funkcji obliczaj±cej n-t± liczbê ci±gu Fibonacciego.
+  Standardowo w jêzyku C++ kod tej funkcji wygl±da nastêpuj±co:
   \begin{lstlisting}
   unsigned fibo(unsigned n)
   {
@@ -45,7 +44,7 @@
       return fibo(n-1) + fibo(n-2);
   }
   \end{lstlisting}
-  W przypadku wykorzystania biblioteki Parallel przyjmie on nastêpuj±c± postaæ:
+  Natomiast w przypadku wykorzystania biblioteki Parallel przyjmie on nastêpuj±c± postaæ:
   \begin{lstlisting}
   #include <parallel.h>
    
@@ -60,25 +59,27 @@
   }
   \end{lstlisting}
   
-  Ten przyk³ad pokazuje w jaki sposób mo¿na wykorzystaæ bibliotekê Parallel do zrównoleglenia obliczeñ w podej¶ciu ``dziel i zwyciê¿aj'', czyli dzielimy problem na kilka czê¶ci, obliczanych równolegle,
-  a nastêpnie ³±czymy wyniki.
-  Zrównoleglenie bêdzie polega³o w tym przypadku na tym, ¿e kod g³ówny programu zleci równoleg³e obliczenie wyra¿enia \verb|fibo(n-1)| bibliotece Parallel i nie czekaj±c na wynik przejdzie do nastêpnej instrukcji,
-  to jest obliczenia \verb|fibo(n-2)|. Gdy obliczenie \verb|fibo(n-1)| i \verb|fibo(n-2)| siê zakoñcz± zostanie obliczona suma obu warto¶ci i zwrócona jako \verb|fibo(n)|.
-  Funkcja \feval z przestrzeni nazw \verb|parallel| s³u¿y do równoleg³ej ewaluacji wyra¿eñ, a funkcja \verb|lazyf| do oznacza wywo³anie funkcji podanej jako pierwszy argument z argumentami podanymi jako kolejne argumenty.
-  Sk³adania s³u¿±ca do korzystania z biblioteki Parallel zostanie opisana dok³adniej w dalszej czê¶ci pracy.
+  Ten przyk³ad obrauje, w jaki sposób mo¿na wykorzystaæ bibliotekê Parallel do zrównoleglenia obliczeñ w podej¶ciu ``dziel i zwyciê¿aj'', polegaj±cym na dzieleniu problemu na kilka czê¶ci, z których ka¿da jest obliczana równolegle,
+  Koñcowy rezultat jest obliczany na podstawie wyników uzyskanych dla poszczególnych podproblemów.
+  W tym przypadku zrównoleglenie bêdzie polega³o na tym, ¿e kod g³ówny programu zleci równoleg³e obliczenie wyra¿enia \verb|fibo(n-1)| bibliotece Parallel i nie czekaj±c na wynik przejdzie do nastêpnej instrukcji,
+  czyli obliczenia \verb|fibo(n-2)|. Po obliczaniu \verb|fibo(n-1)| i \verb|fibo(n-2)|, zostanie obliczona suma obu warto¶ci i zwrócona jako wynik \verb|fibo(n)|.
+  Funkcja \feval z przestrzeni nazw \verb|parallel| s³u¿y do równoleg³ej ewaluacji wyra¿eñ, a funkcja \verb|lazyf| oznacza wykorzystywana jest do wywo³ania funkcji podanej jako pierwszy argument z parametrami podanymi jako kolejne argumenty \verb|lazyf|.
+  Sk³adnia s³u¿±ca do korzystania z biblioteki Parallel zostanie dok³adniej opisana w dalszej czê¶ci pracy.
   
-  Pierwszy rozdzia³ pracy opisuje koncepcjê biblioteki, g³ówne zasady ni± rz±dz±ce oraz porównuje projektowane rozwi±zanie do istniej±ch rozwia¿añ.
+  Pierwszy rozdzia³ pracy opisuje koncepcjê biblioteki, g³ówne zasady jej dzia³ania oraz porównuje projektowane rozwi±zanie do istniej±ch ju¿ rozwi±zañ.
   Drugi rozdzia³ traktuje o sposobie implementacji biblioteki.
   W trzecim rozdziale zosta³y przedstawione metody oraz wyniki ewaluacji biblioteki.
-  Rozdzia³ ostatni podsumowuj±cy nakre¶la mo¿liwo¶ci dalszego rozwoju biblioteki.
+  Rozdzia³ ostatni nakre¶la mo¿liwo¶ci dalszego rozwoju biblioteki.
 
 \newpage
 \section*{Definicje pojêæ i skrótów}
 \begin{tabular}{ | l | p{0.75\textwidth} |}
   \hline\
   \textbf{Pojêcie} & \textbf{Definicja} \\ \hline
-  Idiom C++ & Konstrukcja jêzyka C++, która czêsto pojawia siê w kodzie lub projektach do¶wiadczonych programistów C++. Stosowanie jej uwa¿ane jest za dobr± praktykê.\\ \hline
-  AST & Abstrakcyjne Drzewo Syntaktyczne (z ang. Abstract Syntax Tree) jest drzewem reprezentuj±cym strukturê kodu ¼ród³owego w pewnym jêzyku programowania.\\
-  
-  \hline
+  API & Interfejs programowania aplikacji (z ang. Application Programming Interface) w kontek¶cie bibliotek programistycznych jest opisem zestawu typów i funkcji, które dana biblioteka udostêpnia. \\ \hline
+  AST & Abstrakcyjne Drzewo Syntaktyczne (z ang. Abstract Syntax Tree) jest drzewem reprezentuj±cym strukturê kodu ¼ród³owego w pewnym jêzyku programowania.\\ \hline
+  Gorliwa semantyka & Semantyka, w której wyra¿enia s± obliczane w miejscu pojawienia siê w programie. Przeciwieñstwem jest semantyka leniwa, w której wyra¿enia obliczane s± tam, gdzie jest potrzebny ich wynik. \\ \hline
+  Idempotentno¶æ & W³asno¶æ pewnej operacji, która pozwala na wielokrotne jej stosowanie bez zmiany wyniku. \\ \hline
+  Idiom C++ & Konstrukcja jêzyka C++, która czêsto pojawia siê w kodzie lub projektach do¶wiadczonych programistów C++. Stosowanie jej uwa¿ane jest za dobr± praktykê.\\  \hline
+
 \end{tabular} 

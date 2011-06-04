@@ -8,7 +8,7 @@
 #define BOOST_TEST_NO_MAIN
 #define BOOST_TEST_DYN_LINK
 
-#include <ptlib/src/parallel.h>
+#include <parallel.h>
 
 #include <boost/test/included/unit_test.hpp>
 
@@ -149,15 +149,15 @@ void parallel_quicksort(int array[], int l, int r)
 //	BOOST_CHECK_PREDICATE(is_sorted<int*>, (array) (array + array_size));
 //}
 
-BOOST_AUTO_TEST_CASE ( thread_quicksort_test )
-{
-	boost::posix_time::ptime start_time, end_time;
-	start_time = boost::posix_time::microsec_clock::local_time();
-	thread_quicksort(array, 0, array_size);
-	end_time = boost::posix_time::microsec_clock::local_time();
-	std::cout << "Wykonanie thread zajęło " << boost::posix_time::time_period(start_time, end_time).length() << "." << std::endl;
-	BOOST_CHECK_PREDICATE(is_sorted<int*>, (array) (array + array_size));
-}
+//BOOST_AUTO_TEST_CASE ( thread_quicksort_test )
+//{
+//	boost::posix_time::ptime start_time, end_time;
+//	start_time = boost::posix_time::microsec_clock::local_time();
+//	thread_quicksort(array, 0, array_size);
+//	end_time = boost::posix_time::microsec_clock::local_time();
+//	std::cout << "Wykonanie thread zajęło " << boost::posix_time::time_period(start_time, end_time).length() << "." << std::endl;
+//	BOOST_CHECK_PREDICATE(is_sorted<int*>, (array) (array + array_size));
+//}
 
 BOOST_AUTO_TEST_SUITE_END()
 
